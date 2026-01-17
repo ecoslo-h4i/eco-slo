@@ -13,7 +13,17 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const bearerToken = request.headers.get("Authorization") ?? "";
+    if (!bearerToken) {
+      return NextResponse.json(
+        { message: null, info: "Bearer token is missing in headers for POST request." },
+        { status: 401 },
+      );
+    }
     const authSupabase = createAuthenticatedClient(bearerToken);
+    const claims = await authSupabase.auth.getClaims(bearerToken);
+    if (claims.data != null) {
+      return NextResponse.json({ message: null, info: "Current session is not authenticated." }, { status: 401 });
+    }
     const json = await request.json();
 
     const body = json as TablesInsert<"trees">;
