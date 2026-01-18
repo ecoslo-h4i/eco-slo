@@ -37,6 +37,11 @@ export async function POST() {
   return NextResponse.json({ message: "Example volunteers POST message" });
 }
 
+/**
+ * Converts a PostgrestError into the corresponding HTTP Status code
+ * @param error
+ * @returns number
+ */
 function postgrestErrorToHttpStatus(error: PostgrestError): number {
   switch (error.code) {
     case "42501":
