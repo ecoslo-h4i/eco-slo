@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Get all rows and columns of tree table as array of JS objects
- * @returns { message: string }
+ * @returns { body: Tree[], status: number } if successful
+ * @returns { message: string, status: number } if error
  */
 export async function GET() {
   const { data, error } = await supabase.from("trees").select();
