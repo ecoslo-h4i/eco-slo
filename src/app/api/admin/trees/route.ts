@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
  * @returns { message: string, status: number } if error
  */
 export async function GET() {
-  const { data, error } = await supabase.from("trees").select();
+  const { data, error } = await supabase.from("trees").select("*").order("created_at", { ascending: true });
   if (error) {
     return NextResponse.json({ message: error.message }, { status: 404 });
   }
