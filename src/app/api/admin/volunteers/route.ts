@@ -1,7 +1,7 @@
 import { supabase } from "@/supabase-client";
 import { NextResponse } from "next/server";
 import { Database } from "@/database/database.types";
-import { PostgrestError } from "@supabase/supabase-js";
+import { postgrestErrorToHttpStatus } from "@/database/utils";
 
 type Volunteer = Database["public"]["Tables"]["volunteers"]["Row"];
 
@@ -35,24 +35,4 @@ export async function GET() {
  */
 export async function POST() {
   return NextResponse.json({ message: "Example volunteers POST message" });
-}
-
-/**
- * Converts a PostgrestError into the corresponding HTTP Status code
- * @param error
- * @returns number
- */
-function postgrestErrorToHttpStatus(error: PostgrestError): number {
-  switch (error.code) {
-    case "42501":
-      return 403;
-    case "PGRST116":
-      return 404;
-    case "23505":
-      return 409;
-    case "22P02":
-      return 400;
-    default:
-      return 500;
-  }
 }
