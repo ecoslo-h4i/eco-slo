@@ -11,6 +11,11 @@ export async function GET() {
   return NextResponse.json({ message: "Example trees GET message" });
 }
 
+/**
+ * Admin POST API route to insert information into trees table.
+ * @param request
+ * @returns {message: string, status: number}
+ */
 export async function POST(request: NextRequest) {
   try {
     const bearerToken = request.headers.get("Authorization") ?? "";
