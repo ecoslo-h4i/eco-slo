@@ -1,8 +1,7 @@
 import { TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
-import { createAuthenticatedClient, supabase } from "@/supabase-client";
+import { createAuthenticatedClient } from "@/supabase-client";
 import { NextRequest, NextResponse } from "next/server";
-
 /**
  * Example GET API route. REPLACE THIS DOCSTRING.
  * @returns {message: string}
@@ -13,6 +12,14 @@ export async function GET() {
 
 /**
  * Admin POST API route to insert information into trees table.
+ *
+ * ### Authorization
+ * Requires bearer token for authorization:
+ * "Authorization: <Bearer Token (JWT)>"
+ *
+ * ### Body
+ * Requires parameters from {@link TablesInsert}.
+ *
  * @param request
  * @returns {message: string, status: number}
  */
