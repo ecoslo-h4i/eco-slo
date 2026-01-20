@@ -1,5 +1,6 @@
 import { supabase } from "@/supabase-client";
 import { NextRequest, NextResponse } from "next/server";
+import { postgrestErrorToHttpStatus } from "@/database/utils";
 
 type IParams = {
   params: {
@@ -16,18 +17,24 @@ export async function GET() {
 }
 
 /**
- * Updates a single tree row by id
- * @returns {Respone} - All data within the updated tree
+ * Updates and return a single tree row by id
+ * @returns { body: Tree[], status: number } if successful
+ * @returns { message: string, status: number} if error
  */
 export async function PUT(req: NextRequest, { params }: IParams) {
   const { id } = await params;
   const body = await req.json();
-  const message = await supabase.from("trees").update(body).eq("id", id).select().single();
+  try {
+    const message = await supabase.from("trees").update(body).eq("id", id).select().single();
 
-  if (message.error) {
-    return NextResponse.json({ error: message.error }, { status: 404 });
+    if (message.error) {
+      return NextResponse.json({ error: message.error }, { status: postgrestErrorToHttpStatus(message.error) });
+    }
+
+    return NextResponse.json({ message: message.data }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ message: "Unexpected Server Error" });
   }
-  return NextResponse.json({ message: message.data }, { status: 200 });
 }
 
 /**
