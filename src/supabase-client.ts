@@ -7,10 +7,8 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const createAuthenticatedClient = (jwt: string): SupabaseClient => {
   return createClient(supabaseUrl, supabaseKey, {
-    global: {
-      headers: {
-        Authorization: `${jwt}`,
-      },
+    accessToken: async () => {
+      return `${jwt}`;
     },
   });
 };
