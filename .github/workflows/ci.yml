@@ -41,8 +41,9 @@ jobs:
         env:
           # These env variables must be set in the repository's secrets
           # - Settings -> Secrets and variables -> New repository secret
-          MONGO_URI: ${{ secrets.MONGO_URI }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_KEY }}
           # Add additional environment variables here
-      
+
       - name: Run tests
         run: npm test
