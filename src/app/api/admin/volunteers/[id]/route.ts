@@ -1,5 +1,6 @@
 import { supabase } from "@/supabase-client";
 import { NextRequest, NextResponse } from "next/server";
+import { postgrestErrorToHttpStatus } from "@/database/utils";
 
 type Iparams = {
   id: string;
@@ -23,10 +24,11 @@ export async function PUT(request: NextRequest, params: Iparams) {
   const message = await supabase.from("volunteers").update(body).eq("id", id).select().single();
 
   if (message.error) {
-    return NextResponse.json({ error: "Error" }, { status: 404 });
+    const status = postgrestErrorToHttpStatus(message.error);
+    return NextResponse.json({ error: message.error.message }, { status });
   }
 
-  return NextResponse.json({ message: message }, { status: 200 });
+  return NextResponse.json({ message: message.data }, { status: 200 });
 }
 
 /**
