@@ -1,13 +1,23 @@
+import { supabase } from "@/supabase-client";
 import { TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 import { createAuthenticatedClient } from "@/supabase-client";
 import { NextRequest, NextResponse } from "next/server";
 /**
- * Example GET API route. REPLACE THIS DOCSTRING.
- * @returns {message: string}
+ * Get all rows and columns of tree table as array of JS objects
+ * @returns { message: Tree[], status: number } if successful
+ * @returns { message: string, status: number } if error
  */
 export async function GET() {
-  return NextResponse.json({ message: "Example trees GET message" });
+  try {
+    const { data, error } = await supabase.from("trees").select("*").order("created_at", { ascending: true });
+    if (error) {
+      return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
+    }
+    return NextResponse.json({ message: data }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });
+  }
 }
 
 /**
