@@ -1,3 +1,4 @@
+import { supabase } from "@/supabase-client";
 import { TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 import { createAuthenticatedClient } from "@/supabase-client";
