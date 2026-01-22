@@ -18,7 +18,7 @@ export async function GET() {
  * Example PUT API route. REPLACE THIS DOCSTRING.
  * @returns {message: string}
  */
-export async function PUT(request: NextRequest, params: Iparams) {
+export async function PUT(request: NextRequest, { params }: { params: Iparams }) {
   const id = params.id;
   const body = await request.json();
   const message = await supabase.from("volunteers").update(body).eq("id", id).select().single();
