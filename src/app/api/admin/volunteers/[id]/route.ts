@@ -31,16 +31,20 @@ export async function GET() {
  * @param params.id - the ID of the volunteer
  */
 export async function PUT(request: NextRequest, { params }: { params: IParams }) {
-  const id = params.params.id;
-  const body = await request.json();
-  const message = await supabase.from("volunteers").update(body).eq("id", id).select().single();
+  try {
+    const id = params.params.id;
+    const body = await request.json();
+    const message = await supabase.from("volunteers").update(body).eq("id", id).select().single();
 
-  if (message.error) {
-    const status = postgrestErrorToHttpStatus(message.error);
-    return NextResponse.json({ error: message.error }, { status });
+    if (message.error) {
+      const status = postgrestErrorToHttpStatus(message.error);
+      return NextResponse.json({ error: message.error }, { status });
+    }
+
+    return NextResponse.json({ message: message.data }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
-
-  return NextResponse.json({ message: message.data }, { status: 200 });
 }
 
 /**
