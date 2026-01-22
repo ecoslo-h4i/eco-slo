@@ -31,3 +31,54 @@ export function postgrestErrorToHttpStatus(error: PostgrestError): number {
   // Default: server error
   return 500;
 }
+
+/**
+ * Validate whether an object only contains allowed keys
+ * @param obj
+ * @param allowedKeys
+ * @returns boolean
+ */
+export function hasOnlyAllowedKeys(obj: unknown, allowedKeys: readonly string[]): boolean {
+  if (!obj || typeof obj !== "object") return false;
+  const keys = Object.keys(obj as Record<string, unknown>);
+  return keys.every((k) => allowedKeys.includes(k));
+}
+
+/**
+ * Validate whether a value is of a valid email structure
+ * @param value
+ * @returns boolean
+ */
+export function isEmail(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+
+  if (!value.includes("@")) return false;
+
+  const email = value.trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+/**
+ * Validate whether a value is of a valid phone number structure
+ * @param value
+ * @returns boolean
+ */
+export function isPhone(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+
+  return /^[\d\s()+-]{7,20}$/.test(value);
+}
+
+/**
+ * Validate whether a value is a valid date
+ * @param value
+ * @returns boolean
+ */
+export function isDate(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+
+  const date = new Date(value);
+  return !Number.isNaN(date.getTime());
+}
