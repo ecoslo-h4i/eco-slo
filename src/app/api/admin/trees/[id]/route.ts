@@ -12,6 +12,7 @@ type IParams = {
  * Returns a single tree row by id
  * @returns { body: Tree[], status: number } if successful
  * @returns { message: string, status: number} if error
+ * @returns {message: null, status: number} if tree not found
  */
 export async function GET(req: NextRequest, { params }: IParams) {
   const { id } = await params;
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest, { params }: IParams) {
       return NextResponse.json({ error: message.error }, { status: postgrestErrorToHttpStatus(message.error) });
     }
 
-    return NextResponse.json({ message: message.data }, { status: 200 });
+    return NextResponse.json({ message: message.data.length == 0 ? null : message.data }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Unexpected Server Error" });
   }
