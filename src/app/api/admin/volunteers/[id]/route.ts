@@ -17,20 +17,13 @@ type IParams = {
 export async function GET(request: NextRequest, { params }: IParams) {
   try {
     const { id } = await params;
-    const response = await supabase
-      .from("volunteers")
-      .select("*")
-      .eq("id", id)
-      .order("created_at", { ascending: true });
+    const { data, status, error } = await supabase.from("volunteers").select("*").eq("id", id).maybeSingle();
 
-    if (response.error) {
-      return NextResponse.json(
-        { message: response.error.message },
-        { status: postgrestErrorToHttpStatus(response.error) },
-      );
+    if (error) {
+      return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
     }
 
-    return NextResponse.json({ message: response.data }, { status: response.status });
+    return NextResponse.json({ message: data }, { status: status });
   } catch (error: any) {
     if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 500 });
