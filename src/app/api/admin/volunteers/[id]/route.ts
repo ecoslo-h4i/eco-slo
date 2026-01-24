@@ -3,9 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 
 type IParams = {
-  params: {
-    id: string;
-  };
+  id: string;
 };
 
 /**
@@ -32,7 +30,7 @@ export async function GET() {
  */
 export async function PUT(request: NextRequest, { params }: { params: IParams }) {
   try {
-    const id = params.params.id;
+    const id = params.id;
     const body = await request.json();
     const message = await supabase.from("volunteers").update(body).eq("id", id).select().single();
 
@@ -43,7 +41,7 @@ export async function PUT(request: NextRequest, { params }: { params: IParams })
 
     return NextResponse.json({ message: message.data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });
   }
 }
 
