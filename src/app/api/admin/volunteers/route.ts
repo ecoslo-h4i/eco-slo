@@ -5,7 +5,6 @@ import { hasOnlyAllowedKeys, isDate, isEmail, isPhone, postgrestErrorToHttpStatu
 
 type VolunteerRow = Database["public"]["Tables"]["volunteers"]["Row"];
 type VolunteerInsert = Database["public"]["Tables"]["volunteers"]["Insert"];
-const VOLUNTEER_INSERT_KEYS = ["email", "firstname", "lastname", "phone", "joined", "trees_planted", "type"] as const;
 
 /**
  * Admin GET API route for all volunteer information.
@@ -37,8 +36,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    if (!isVolunteerInsert(body)) return NextResponse.json({ message: "Invalid request body" }, { status: 400 });
-
     const { data, error } = await supabase.from("volunteers").insert(body).select().single<VolunteerRow>();
 
     if (error) {
@@ -53,7 +50,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
+/**
+ * @deprecated No longer validating NextRequests.
+ */
 function isVolunteerInsert(obj: unknown): obj is VolunteerInsert {
+  const VOLUNTEER_INSERT_KEYS = ["email", "firstname", "lastname", "phone", "joined", "trees_planted", "type"] as const;
   if (!hasOnlyAllowedKeys(obj, VOLUNTEER_INSERT_KEYS)) return false;
   const vol = obj as Record<string, unknown>;
 
