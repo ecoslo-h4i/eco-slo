@@ -18,14 +18,14 @@ export async function GET(req: NextRequest, { params }: IParams) {
   const { id } = await params;
 
   try {
-    const message = await supabase.from("trees").select().eq("id", id);
+    const message = await supabase.from("trees").select().eq("id", id).maybeSingle();
     if (message.error) {
       return NextResponse.json({ error: message.error }, { status: postgrestErrorToHttpStatus(message.error) });
     }
 
-    return NextResponse.json({ message: message.data.length == 0 ? null : message.data }, { status: 200 });
+    return NextResponse.json({ message: message.data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Unexpected Server Error" });
+    return NextResponse.json({ message: "Unexpected Server Error" }, { status: 500 });
   }
 }
 
@@ -46,7 +46,7 @@ export async function PUT(req: NextRequest, { params }: IParams) {
 
     return NextResponse.json({ message: message.data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Unexpected Server Error" });
+    return NextResponse.json({ message: "Unexpected Server Error" }, { status: 500 });
   }
 }
 
