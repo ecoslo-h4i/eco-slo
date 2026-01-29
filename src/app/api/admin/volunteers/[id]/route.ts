@@ -46,9 +46,34 @@ export async function PUT(request: NextRequest, { params }: { params: IParams })
 }
 
 /**
- * Example DELETE API route. REPLACE THIS DOCSTRING.
- * @returns {message: string}
- */
-export async function DELETE() {
-  return NextResponse.json({ message: "Example volunteers slug DELETE message" });
+ * DELETE API ROUTE: Deletes a volunteer record by their ID
+ *
+ * Removes a volunteer from the database using the provided volunteer ID.
+ *
+ * The volunteer is identified by their ID which is found in the params attribute.
+ *
+ * Parameters:
+ * @param request - the incoming request (not used for DELETE)
+ * @param params - an object that contains parameters
+ * @param params.id - the ID of the volunteer to delete*/
+
+export async function DELETE(_request: NextRequest, { params }: { params: IParams }) {
+  try {
+    const id = params.id;
+
+    if (!id) {
+      return NextResponse.json({ message: "Volunteer ID is required" }, { status: 422 });
+    }
+
+    const message = await supabase.from("volunteers").delete().eq("id", id).select().single();
+
+    if (message.error) {
+      const status = postgrestErrorToHttpStatus(message.error);
+      return NextResponse.json({ error: message.error }, { status });
+    }
+
+    return NextResponse.json({ message: message.data }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });
+  }
 }
