@@ -38,9 +38,21 @@ export async function PUT(req: NextRequest, { params }: IParams) {
 }
 
 /**
- * Example DELETE API route. REPLACE THIS DOCSTRING.
- * @returns {message: string}
+ * Deletes one tree row by id, returns deleted tree
+ * @returns { message: Tree, status: number } if successful
+ * @returns { message: string, status: number } if error
  */
-export async function DELETE() {
-  return NextResponse.json({ message: "Example trees slug DELETE message" });
+export async function DELETE(req: NextRequest, { params }: IParams) {
+  try {
+    const { id } = await params;
+    const { data, error } = await supabase.from("trees").delete().eq("id", id).limit(1).select().single();
+
+    if (error) {
+      return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
+    }
+
+    return NextResponse.json({ message: data }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ message: "Unexpected Server Error" }, { status: 500 });
+  }
 }
