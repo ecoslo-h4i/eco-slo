@@ -9,11 +9,24 @@ type IParams = {
 };
 
 /**
- * Example GET API route. REPLACE THIS DOCSTRING.
- * @returns {message: string}
+ * Returns a single tree row by id
+ * @returns { body: Tree[], status: number } if successful
+ * @returns { message: string, status: number} if error
+ * @returns {message: null, status: number} if tree not found
  */
-export async function GET() {
-  return NextResponse.json({ message: "Example trees slug GET message" });
+export async function GET(req: NextRequest, { params }: IParams) {
+  const { id } = await params;
+
+  try {
+    const message = await supabase.from("trees").select().eq("id", id).maybeSingle();
+    if (message.error) {
+      return NextResponse.json({ error: message.error }, { status: postgrestErrorToHttpStatus(message.error) });
+    }
+
+    return NextResponse.json({ message: message.data }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ message: "Unexpected Server Error" }, { status: 500 });
+  }
 }
 
 /**
@@ -33,7 +46,7 @@ export async function PUT(req: NextRequest, { params }: IParams) {
 
     return NextResponse.json({ message: message.data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Unexpected Server Error" });
+    return NextResponse.json({ message: "Unexpected Server Error" }, { status: 500 });
   }
 }
 
