@@ -37,13 +37,7 @@ export async function PUT(request: NextRequest, { params }: { params: IParams })
       return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
     }
 
-    return NextResponse.json({ message: data }, { status: status });
-  } catch (error: any) {
-    if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ message: message.data }, { status: 200 });
+    return NextResponse.json({ message: data }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });
   }
