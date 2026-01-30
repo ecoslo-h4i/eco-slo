@@ -30,13 +30,17 @@ export async function GET() {
  */
 export async function PUT(request: NextRequest, { params }: { params: IParams }) {
   try {
-    const id = params.id;
-    const body = await request.json();
-    const message = await supabase.from("volunteers").update(body).eq("id", id).select().single();
+    const { id } = await params;
+    const { data, status, error } = await supabase.from("volunteers").select("*").eq("id", id).maybeSingle();
 
-    if (message.error) {
-      const status = postgrestErrorToHttpStatus(message.error);
-      return NextResponse.json({ error: message.error }, { status });
+    if (error) {
+      return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
+    }
+
+    return NextResponse.json({ message: data }, { status: status });
+  } catch (error: any) {
+    if (error instanceof Error) {
+      return NextResponse.json({ message: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ message: message.data }, { status: 200 });
