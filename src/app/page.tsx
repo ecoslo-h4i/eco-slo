@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <main>
       <Navbar />
-      <h1>Home</h1>
+      <h1 className="bg-blue-500">Home</h1>
     </main>
   );
 }
