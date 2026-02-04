@@ -6,8 +6,26 @@ export default function Dash() {
         <header className="flex items-center justify-between pt-5">
           <h1 className="flex-1 text-[56px] font-[Constantia] font-semibold leading-none">Welcome Back, User</h1>
           <div className="flex items-center gap-4">
-            <div className="bell"></div>
-            <div className="notepad"></div>
+            <button
+              type="button"
+              className={`w-[81px] h-[81px] rounded-full flex items-center justify-center 
+                    bg-[#758656] 
+                    transition-all duration-200 ease-out 
+                    hover:bg-[#6A7B4F] cursor-pointer`}
+              aria-label="Notifications"
+            >
+              <img src="/assets/icons/bell.svg" alt="" />
+            </button>
+            <button
+              type="button"
+              className={`w-[81px] h-[81px] rounded-full flex items-center justify-center 
+                    bg-[#758656] 
+                    transition-all duration-200 ease-out 
+                    hover:bg-[#6A7B4F] cursor-pointer`}
+              aria-label="Tasks"
+            >
+              <img src="/assets/icons/notepad.svg" alt="" />
+            </button>
           </div>
         </header>
         <div className="notifications"></div>
