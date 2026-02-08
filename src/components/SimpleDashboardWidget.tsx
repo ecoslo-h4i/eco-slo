@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface DashboardWidgetButton {
@@ -59,12 +60,13 @@ export function ReminderWidget() {
 }
 
 export function VolunteerWidget() {
+  const router = useRouter();
   const props: DashboardWidgetProps = {
     name: "Volunteers",
     iconPath: "/icons/people.svg",
     pageRoute: "/volunteers",
     buttons: [
-      { name: "Open Dashboard →", handler: () => console.log("Tried to open dashboard") },
+      { name: "Open Dashboard →", handler: () => router.push("/dashboard") },
       { name: "Send Message", handler: () => console.log("Tried to send message") },
     ],
   };
