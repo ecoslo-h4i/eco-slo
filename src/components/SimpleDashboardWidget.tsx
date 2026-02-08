@@ -25,7 +25,7 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
           <Link href={props.pageRoute}>
             <h2 className="text-5xl font-avenir text-black leading-none">{props.name}</h2>
           </Link>
-          <img src={props.iconPath} alt="" className="w-12 h-12 object-contain" />
+          <img src={props.iconPath} alt="" className="w-12 h-12 object-contain select-none pointer-events-none" />
         </div>
 
         <div className="flex flex-col gap-6 mt-4">
@@ -33,9 +33,9 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
             <button
               key={index}
               onClick={button.handler}
-              className="bg-[#758656] hover:bg-[#6b7355] text-white py-6 px-8 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="bg-[#758656] hover:bg-[#8A9573] text-white py-6 px-8 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
-              {button.name}
+              <p className="font-avenir">{button.name}</p>
             </button>
           ))}
         </div>
