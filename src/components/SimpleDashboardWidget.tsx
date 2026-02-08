@@ -23,7 +23,7 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
       <div className="flex flex-col justify-center flex-grow">
         <div className={`flex items-end justify-between border-b-2 border-black pb-2 ${hasButtons ? "mb-10" : "mb-0"}`}>
           <Link href={props.pageRoute}>
-            <h2 className="text-5xl font-serif text-black leading-none">{props.name}</h2>
+            <h2 className="text-5xl font-avenir text-black leading-none">{props.name}</h2>
           </Link>
           <img src={props.iconPath} alt="" className="w-12 h-12 object-contain" />
         </div>
@@ -47,7 +47,7 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
 export function ReminderWidget() {
   const props: DashboardWidgetProps = {
     name: "Reminders",
-    iconPath: "/reminder.svg",
+    iconPath: "/icons/reminder.svg",
     pageRoute: "/reminders",
     buttons: null,
   };
@@ -61,7 +61,7 @@ export function ReminderWidget() {
 export function VolunteerWidget() {
   const props: DashboardWidgetProps = {
     name: "Volunteers",
-    iconPath: "/people.svg",
+    iconPath: "/icons/people.svg",
     pageRoute: "/volunteers",
     buttons: [
       { name: "Open Dashboard →", handler: () => console.log("Tried to open dashboard") },
