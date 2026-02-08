@@ -1,0 +1,73 @@
+"use client";
+
+import Link from "next/link";
+
+interface DashboardWidgetButton {
+  name: string;
+  handler: () => void;
+}
+
+export interface DashboardWidgetProps {
+  name: string;
+  iconPath: string;
+  pageRoute: string;
+  buttons: DashboardWidgetButton[] | null;
+}
+
+export function SimpleDashboardWidget(props: DashboardWidgetProps) {
+  const buttonsArray = Array.isArray(props.buttons) ? props.buttons : props.buttons ? [props.buttons] : [];
+
+  return (
+    <div className="bg-[#F5EADD] rounded-[40px] p-10 flex flex-col h-full min-h-[400px] w-full max-w-md">
+      <div className="flex items-end justify-between border-b-2 border-black pb-2 mb-10">
+        <Link href={props.pageRoute}>
+          <h2 className="text-5xl font-serif text-black leading-none">{props.name}</h2>
+        </Link>
+        <img src={props.iconPath} alt="" className="w-12 h-12 object-contain" />
+      </div>
+
+      <div className="flex flex-col gap-6 mt-4">
+        {buttonsArray.map((button, index) => (
+          <button
+            key={index}
+            onClick={button.handler}
+            className="bg-[#758656] hover:bg-[#6b7355] text-white py-6 px-8 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {button.name}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function ReminderWidget() {
+  const props: DashboardWidgetProps = {
+    name: "Reminders",
+    iconPath: "/reminder.svg",
+    pageRoute: "/reminders",
+    buttons: null,
+  };
+  return (
+    <div>
+      <SimpleDashboardWidget {...props}></SimpleDashboardWidget>
+    </div>
+  );
+}
+
+export function VolunteerWidget() {
+  const props: DashboardWidgetProps = {
+    name: "Volunteers",
+    iconPath: "/people.svg",
+    pageRoute: "/volunteers",
+    buttons: [
+      { name: "Open Dashboard →", handler: () => console.log("Tried to open dashboard") },
+      { name: "Send Message", handler: () => console.log("Tried to send message") },
+    ],
+  };
+  return (
+    <div>
+      <SimpleDashboardWidget {...props}></SimpleDashboardWidget>
+    </div>
+  );
+}
