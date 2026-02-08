@@ -16,26 +16,29 @@ export interface DashboardWidgetProps {
 
 export function SimpleDashboardWidget(props: DashboardWidgetProps) {
   const buttonsArray = Array.isArray(props.buttons) ? props.buttons : props.buttons ? [props.buttons] : [];
+  const hasButtons = buttonsArray.length > 0;
 
   return (
     <div className="bg-[#F5EADD] rounded-[40px] p-10 flex flex-col h-full min-h-[400px] w-full max-w-md">
-      <div className="flex items-end justify-between border-b-2 border-black pb-2 mb-10">
-        <Link href={props.pageRoute}>
-          <h2 className="text-5xl font-serif text-black leading-none">{props.name}</h2>
-        </Link>
-        <img src={props.iconPath} alt="" className="w-12 h-12 object-contain" />
-      </div>
+      <div className="flex flex-col justify-center flex-grow">
+        <div className={`flex items-end justify-between border-b-2 border-black pb-2 ${hasButtons ? "mb-10" : "mb-0"}`}>
+          <Link href={props.pageRoute}>
+            <h2 className="text-5xl font-serif text-black leading-none">{props.name}</h2>
+          </Link>
+          <img src={props.iconPath} alt="" className="w-12 h-12 object-contain" />
+        </div>
 
-      <div className="flex flex-col gap-6 mt-4">
-        {buttonsArray.map((button, index) => (
-          <button
-            key={index}
-            onClick={button.handler}
-            className="bg-[#758656] hover:bg-[#6b7355] text-white py-6 px-8 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
-          >
-            {button.name}
-          </button>
-        ))}
+        <div className="flex flex-col gap-6 mt-4">
+          {buttonsArray.map((button, index) => (
+            <button
+              key={index}
+              onClick={button.handler}
+              className="bg-[#758656] hover:bg-[#6b7355] text-white py-6 px-8 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {button.name}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
