@@ -1,7 +1,6 @@
-import { supabase } from "@/supabase-client";
+import { supabase, createAuthenticatedClient } from "@/supabase-client";
 import { TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
-import { createAuthenticatedClient } from "@/supabase-client";
 import { NextRequest, NextResponse } from "next/server";
 /**
  * Get all rows and columns of tree table as array of JS objects
@@ -15,8 +14,8 @@ export async function GET() {
       return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
     }
     return NextResponse.json({ message: data }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -53,10 +52,7 @@ export async function POST(request: NextRequest) {
       );
     }
     return NextResponse.json({ message: response.data }, { status: 200 });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
-    }
-    return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
