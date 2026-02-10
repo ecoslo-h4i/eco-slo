@@ -15,7 +15,7 @@ export default function NotificationCard({
       </div>
       <div className="flex flex-row items-center mt-[8px]">
         <Image src="/small_bell.png" width={24} height={25} alt="A small notification bell"></Image>
-        <p className="ml-[5px]">{notificationText}</p>
+        <p className="ml-[5px] truncate">{notificationText}</p>
       </div>
     </div>
   );
