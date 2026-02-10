@@ -16,9 +16,12 @@ export default function NotificationWidget() {
         </button>
       </div>
       <div className="flex flex-col justify-items-center w-357px;">
-        <NotificationCard></NotificationCard>
-        <NotificationCard></NotificationCard>
-        <NotificationCard></NotificationCard>
+        <NotificationCard timestamp="7m" notificationText="Notification Text goes here"></NotificationCard>
+        <NotificationCard
+          timestamp="7m"
+          notificationText="NotificatieNotificatiNotificatiNotificatiNotificatiNotificatiNotificati"
+        ></NotificationCard>
+        <NotificationCard timestamp="7m" notificationText="Notification Text goes here"></NotificationCard>
       </div>
     </div>
   );
