@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${avenir.variable} font-sans`}>
       <body>
         <div className="flex min-h-screen">
-          {/* <Navbar /> */}
+          <Navbar />
           {children}
         </div>
       </body>
