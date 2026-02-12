@@ -40,11 +40,10 @@ export async function PUT(req: NextRequest, { params }: IParams) {
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
-      return NextResponse.json({ error }, { status });
+      return NextResponse.json({ error: error }, { status: status });
     }
-
-    return NextResponse.json({ data }, { status: 200 });
-  } catch {
+    return NextResponse.json({ data: data }, { status: 200 });
+  } catch (error) {
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }

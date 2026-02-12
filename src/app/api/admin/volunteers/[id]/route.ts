@@ -28,14 +28,14 @@ export async function GET(_request: NextRequest, { params }: { params: IParams }
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
-      return NextResponse.json({ error }, { status });
+      return NextResponse.json({ error: error }, { status: status });
     }
 
     if (!data) {
       return NextResponse.json({ message: "Not Found" }, { status: 404 });
     }
 
-    return NextResponse.json({ data }, { status: 200 });
+    return NextResponse.json({ data: data }, { status: 200 });
   } catch {
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
@@ -65,10 +65,10 @@ export async function PUT(request: NextRequest, { params }: { params: IParams })
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
-      return NextResponse.json({ error }, { status });
+      return NextResponse.json({ error: error }, { status: status });
     }
 
-    return NextResponse.json({ data }, { status: 200 });
+    return NextResponse.json({ data: data }, { status: 200 });
   } catch {
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
@@ -96,10 +96,10 @@ export async function DELETE(_request: NextRequest, { params }: { params: IParam
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
-      return NextResponse.json({ error }, { status });
+      return NextResponse.json({ error: error }, { status: status });
     }
 
-    return NextResponse.json({ data }, { status: 200 });
+    return NextResponse.json({ data: data }, { status: 200 });
   } catch {
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
