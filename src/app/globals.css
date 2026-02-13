@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
-@theme {
+@theme inline {
   --font-avenir: var(--font-avenir), font-avenir;
+  --font-serif: var(--font-cardo);
+
+  --color-background: #fef9ef;
+  --color-foreground: #ffffff;
+  --color-background-accent: #ffffff;
+  --color-foreground-accent: #000000;
+
+  --color-primary: #90ad58;
+  --color-primary-muted: #bcce9b;
+
+  --color-secondary: #415763;
+  --color-secondary-muted: #698293;
+
+  --color-card: #eee0cf;
 }

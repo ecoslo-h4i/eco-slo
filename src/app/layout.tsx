@@ -3,6 +3,29 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "@/components/navbar/Navbar";
 
+const tiktokSans = localFont({
+  src: [
+    { path: "./fonts/tiktok-sans/TikTokSans-Light.ttf", weight: "300", style: "normal" },
+    { path: "./fonts/tiktok-sans/TikTokSans-Regular.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/tiktok-sans/TikTokSans-Medium.ttf", weight: "500", style: "normal" },
+    { path: "./fonts/tiktok-sans/TikTokSans-SemiBold.ttf", weight: "600", style: "normal" },
+    { path: "./fonts/tiktok-sans/TikTokSans-Bold.ttf", weight: "700", style: "normal" },
+    { path: "./fonts/tiktok-sans/TikTokSans-ExtraBold.ttf", weight: "800", style: "normal" },
+    { path: "./fonts/tiktok-sans/TikTokSans-Black.ttf", weight: "900", style: "normal" },
+  ],
+  display: "swap",
+});
+
+const cardo = localFont({
+  src: [
+    { path: "./fonts/cardo/Cardo-Regular.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/cardo/Cardo-Italic.ttf", weight: "400", style: "italic" },
+    { path: "./fonts/cardo/Cardo-Bold.ttf", weight: "700", style: "normal" },
+  ],
+  display: "swap",
+  variable: "--font-cardo",
+});
+
 //! Update metadata to match your project
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -29,7 +52,7 @@ const avenir = localFont({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${avenir.variable} font-sans`}>
-      <body>
+      <body className={`${tiktokSans.className} ${cardo.variable} ${avenir.variable} font-avenir`}>
         <div className="flex min-h-screen">
           <Navbar />
           {children}
