@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface ControlSearchProps {
   searchDelay: number;
@@ -53,16 +54,21 @@ function ControlButton(props: ControlButtonInterface) {
 
   return (
     <div
-      className="w-30.25 h-8.5 rounded-full outline-1 outline-black cursor-pointer select-none"
+      className="w-30.25 h-8.5 rounded-full outline-1 outline-black cursor-pointer select-none flex items-center justify-center px-4 gap-2"
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onClick={() => props.function()}
       style={{
         backgroundColor: hovering ? props.hoverHex : props.backgroundHex,
         color: props.textHex,
+        containerType: "inline-size",
       }}
     >
-      <p className="text-center py-1 font-medium">{props.text}</p>
+      {" "}
+      <p className="font-medium text-8xl whitespace-nowrap" style={{ fontSize: "clamp(0.5rem, 20cqw, 1rem)" }}>
+        {props.text}
+      </p>
+      {props.iconPath && <Image src={props.iconPath} width={20} height={20} alt="" />}
     </div>
   );
 }
@@ -92,6 +98,7 @@ export default function ControlPanel() {
               hoverHex="#D08033"
               textHex="#FFFFFF"
               text="Edit"
+              iconPath="/icons/penciledit.svg"
               function={() => console.log("Edit function called")}
             />
             <ControlButton
@@ -99,6 +106,7 @@ export default function ControlPanel() {
               hoverHex="#E83229"
               textHex="#FFFFFF"
               text="Delete"
+              iconPath="/icons/trash.svg"
               function={() => console.log("Delete function called")}
             />
             <ControlButton
@@ -113,6 +121,7 @@ export default function ControlPanel() {
               hoverHex="#8A9573"
               textHex="#FFFFFF"
               text="Add Tree"
+              iconPath="/icons/plus.svg"
               function={() => console.log("Add function called")}
             />
           </div>
