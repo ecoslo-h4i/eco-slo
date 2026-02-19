@@ -1,12 +1,18 @@
-import { supabase } from "@/supabase-client";
+import { supabase, createAuthenticatedClient } from "@/supabase-client";
 import { TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
-import { createAuthenticatedClient } from "@/supabase-client";
 import { NextRequest, NextResponse } from "next/server";
 /**
- * Get all rows and columns of tree table as array of JS objects
- * @returns { message: Tree[], status: number } if successful
- * @returns { message: string, status: number } if error
+ * GET API ROUTE: Retrieves all trees from the database
+ *
+ * Fetches all rows and columns from the trees table, sorted by creation date ascending.
+ *
+ * Parameters: none
+ *
+ * Returns:
+ * - 200 with { data: Tree[] } on success
+ * - Supabase error with mapped status code { data: null, error: string }
+ * - 500 on server error { data: null, error: "Internal Server Error" }
  */
 export async function GET() {
   try {
@@ -15,48 +21,38 @@ export async function GET() {
       return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
     }
     return NextResponse.json({ message: data }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
 /**
- * Admin POST API route to insert information into trees table.
+ * POST API ROUTE: Creates a new tree record
  *
- * ### Authorization
- * Requires bearer token for authorization:
- * "Authorization: <Bearer Token (JWT)>"
+ * Inserts a new row into the trees table using the JSON body from the request.
  *
- * ### Body
- * Requires parameters from {@link TablesInsert}.
+ * Parameters:
+ * @param request - JSON body containing fields to insert, matching {@link TablesInsert<"trees">}
  *
- * @param request
- * @returns {message: string, status: number}
+ * Returns:
+ * - 200 with { data: Tree[] } on success
+ * - Supabase error with mapped status code { data: null, error: string }
+ * - 500 on server error { data: null, error: "Internal Server Error" }
  */
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("Authorization") ?? "";
-    const bearerToken = authHeader.replace("Bearer ", "");
-    if (!bearerToken) {
-      return NextResponse.json({ message: "Bearer token is missing in headers for POST request." }, { status: 401 });
-    }
-    const authSupabase = createAuthenticatedClient(bearerToken);
-
     const json = await request.json();
     const body = json as TablesInsert<"trees">;
-    const response = await authSupabase.from("trees").insert(body).select();
 
-    if (response.error) {
-      return NextResponse.json(
-        { message: response.error.message },
-        { status: postgrestErrorToHttpStatus(response.error) },
-      );
+    const { data, error } = await supabase.from("trees").insert(body).select();
+
+    if (error) {
+      const status = postgrestErrorToHttpStatus(error);
+      return NextResponse.json({ error: error }, { status: status });
     }
-    return NextResponse.json({ message: response.data }, { status: 200 });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
-    }
-    return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });
+
+    return NextResponse.json({ data: data }, { status: 200 });
+  } catch {
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
