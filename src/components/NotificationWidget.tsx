@@ -16,12 +16,21 @@ export default function NotificationWidget() {
         </button>
       </div>
       <div className="flex flex-col justify-items-center w-357px;">
-        <NotificationCard timestamp="7m" notificationText="Notification Text goes here"></NotificationCard>
+        <NotificationCard
+          timestamp="7m"
+          notificationText="Notification Text goes here"
+          onDelete={(timestamp) => console.log(timestamp)}
+        ></NotificationCard>
         <NotificationCard
           timestamp="7m"
           notificationText="NotificatieNotificatiNotificatiNotificatiNotificatiNotificatiNotificati"
+          onDelete={(timestamp) => console.log(timestamp)}
         ></NotificationCard>
-        <NotificationCard timestamp="7m" notificationText="Notification Text goes here"></NotificationCard>
+        <NotificationCard
+          timestamp="7m"
+          notificationText="Notification Text goes here"
+          onDelete={(timestamp) => console.log(timestamp)}
+        ></NotificationCard>
       </div>
     </div>
   );
