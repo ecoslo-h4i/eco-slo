@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme inline {
+  --font-avenir: var(--font-avenir), font-avenir;
   --font-serif: var(--font-cardo);
 
   --color-background: #fef9ef;
