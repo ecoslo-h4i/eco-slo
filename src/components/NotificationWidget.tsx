@@ -19,17 +19,23 @@ export default function NotificationWidget() {
         <NotificationCard
           timestamp="7m"
           notificationText="Notification Text goes here"
+          readProp={false}
           onDelete={(timestamp) => console.log(timestamp)}
+          onRead={(timestamp) => console.log(timestamp)}
         ></NotificationCard>
         <NotificationCard
           timestamp="7m"
           notificationText="NotificatieNotificatiNotificatiNotificatiNotificatiNotificatiNotificati"
+          readProp={false}
           onDelete={(timestamp) => console.log(timestamp)}
+          onRead={(timestamp) => console.log(timestamp)}
         ></NotificationCard>
         <NotificationCard
           timestamp="7m"
           notificationText="Notification Text goes here"
+          readProp={false}
           onDelete={(timestamp) => console.log(timestamp)}
+          onRead={(timestamp) => console.log(timestamp)}
         ></NotificationCard>
       </div>
     </div>
