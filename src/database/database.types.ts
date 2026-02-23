@@ -8,6 +8,54 @@ export type Database = {
   };
   public: {
     Tables: {
+      notifications: {
+        Row: {
+          created_at: string;
+          id: number;
+          label: string | null;
+          message: string;
+          recipient: string;
+          sender: string;
+          severity: string;
+          timestamp: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: number;
+          label?: string | null;
+          message: string;
+          recipient: string;
+          sender: string;
+          severity: string;
+          timestamp?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: number;
+          label?: string | null;
+          message?: string;
+          recipient?: string;
+          sender?: string;
+          severity?: string;
+          timestamp?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "Notifications_recipient_fkey";
+            columns: ["recipient"];
+            isOneToOne: false;
+            referencedRelation: "volunteers";
+            referencedColumns: ["email"];
+          },
+          {
+            foreignKeyName: "Notifications_sender_fkey";
+            columns: ["sender"];
+            isOneToOne: false;
+            referencedRelation: "volunteers";
+            referencedColumns: ["email"];
+          },
+        ];
+      };
       test: {
         Row: {
           created_at: string;
