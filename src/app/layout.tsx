@@ -51,10 +51,10 @@ const avenir = localFont({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${avenir.variable} font-sans`}>
+    <html lang="en">
       <body className={`${tiktokSans.className} ${cardo.variable} ${avenir.variable} font-avenir`}>
         <div className="flex min-h-screen">
-          {/* <Navbar /> */}
+          <Navbar />
           {children}
         </div>
       </body>
