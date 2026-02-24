@@ -30,23 +30,34 @@ export async function GET(req: NextRequest, { params }: IParams) {
 }
 
 /**
- * Updates and return a single tree row by id
- * @returns { body: Tree[], status: number } if successful
- * @returns { message: string, status: number} if error
+ * PUT API ROUTE: Updates a single tree by ID
+ *
+ * Updates a tree record using the provided ID and request body.
+ *
+ * Parameters:
+ * @param request - JSON body containing fields to update
+ * @param params - route parameters
+ * @param params.id - the ID of the tree
+ *
+ * Returns:
+ * - 200 with { data } on success
+ * - Supabase error with mapped status code
+ * - 500 on server error
  */
 export async function PUT(req: NextRequest, { params }: IParams) {
-  const { id } = await params;
-  const body = await req.json();
   try {
-    const message = await supabase.from("trees").update(body).eq("id", id).select().single();
+    const { id } = await params;
+    const body = await req.json();
 
-    if (message.error) {
-      return NextResponse.json({ error: message.error }, { status: postgrestErrorToHttpStatus(message.error) });
+    const { data, error } = await supabase.from("trees").update(body).eq("id", id).select().single();
+
+    if (error) {
+      const status = postgrestErrorToHttpStatus(error);
+      return NextResponse.json({ error: error }, { status: status });
     }
-
-    return NextResponse.json({ message: message.data }, { status: 200 });
+    return NextResponse.json({ data: data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Unexpected Server Error" }, { status: 500 });
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
