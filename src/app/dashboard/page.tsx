@@ -3,9 +3,7 @@ import NotificationWidget from "@/components/NotificationWidget";
 export default function Dash() {
   return (
     //the whole page div//
-    <div className="flex min-h-screen bg-[#FBF7EE]">
-      {/*navbar*/}
-      <aside className="w-[140px] bg-[#758656] shrink-0"></aside>
+    <div className="flex flex-grow bg-[#FBF7EE]">
       {/*main*/}
       <main className="flex-1">
         <div className="px-6 py-10">
