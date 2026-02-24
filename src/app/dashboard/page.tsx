@@ -1,9 +1,27 @@
+"use client";
+import NotificationsPopout from "@/components/notifications/NotificationsPopout";
+
+import { Notification } from "@/components/notifications/NotificationsPopout";
+import { useState } from "react";
+
+function createNotificationList() {
+  let list: Notification[] = [];
+  for (let i = 0; i < 50; i++) {
+    list[i] = { notificationText: "notification" + i, timestamp: i + "m", read: i % 2 == 1 ? true : false };
+  }
+  return list;
+}
+
 export default function Dash() {
+  const [notifPopout, setNotifPopout] = useState(false);
   return (
     //the whole page div//
     <div className="flex flex-grow bg-[#FBF7EE]">
+      <div className="fixed top-3 right-3 h-auto w-auto">
+        <NotificationsPopout notificationList={createNotificationList()} trigger={notifPopout}></NotificationsPopout>
+      </div>
       {/*main*/}
-      <main className="flex-1">
+      <main className="flex-1" onClick={() => setNotifPopout(false)}>
         <div className="px-6 py-10">
           {/*header*/}
           <header className="flex items-center justify-between pt-5">
@@ -18,6 +36,11 @@ export default function Dash() {
                       transition-all duration-200 ease-out 
                       hover:bg-[#6A7B4F] cursor-pointer`}
                 aria-label="Notifications"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setNotifPopout(true);
+                  console.log(notifPopout);
+                }}
               >
                 <img src="/assets/icons/bell.svg" alt="" />
               </button>

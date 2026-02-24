@@ -22,7 +22,7 @@ export default function NotificationCard({
         onRead(timestamp);
         () => setRead(true);
       }}
-      className={`w-auto h-[75px] pt-[12px] pl-[16px] pb-[12px] pr-[16px] rounded-lg gap-[4px] bg-[#AFC18F] mt-[10px] mb-[0px] border-col ${read ? "" : "border-[1px]"}`}
+      className={`w-auto h-[75px] pt-[12px] pl-[16px] pb-[12px] pr-[16px] rounded-lg gap-[4px] bg-[#AFC18F] mt-[10px] mb-[0px] border-col`}
     >
       <div className="flex flex-row items-center">
         <p className="text-sm font-medium">{timestamp}</p>
