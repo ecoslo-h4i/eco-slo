@@ -1,3 +1,5 @@
+import NotificationWidget from "@/components/NotificationWidget";
+
 export default function Dash() {
   return (
     //the whole page div//
@@ -37,7 +39,7 @@ export default function Dash() {
           {/*widgets*/}
           <div className="mt-10 grid grid-cols-[2fr_1fr_1fr] gap-8">
             {/*notifications*/}
-            <div className="h-[366px] rounded-3xl border-2 border-[#CDAA7F] bg-[#EEE0CF]"></div>
+            <NotificationWidget></NotificationWidget>
             {/*volunteers*/}
             <div className="h-[366px] rounded-3xl border-2 border-[#CDAA7F] bg-[#EEE0CF]"></div>
             {/*reminders*/}
