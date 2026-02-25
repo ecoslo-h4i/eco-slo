@@ -4,6 +4,7 @@ import NotificationsPopout from "@/components/notifications/NotificationsPopout"
 import { Notification } from "@/components/notifications/NotificationsPopout";
 import { useState } from "react";
 
+// TODO: This is just for testing/development, remove once backend integration is finished
 function createNotificationList() {
   let list: Notification[] = [];
   for (let i = 0; i < 50; i++) {
@@ -39,7 +40,6 @@ export default function Dash() {
                 onClick={(event) => {
                   event.stopPropagation();
                   setNotifPopout(true);
-                  console.log(notifPopout);
                 }}
               >
                 <img src="/assets/icons/bell.svg" alt="" />

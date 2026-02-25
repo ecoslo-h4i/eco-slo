@@ -13,30 +13,33 @@ export type NotificationPopoutProps = {
   trigger: boolean;
 };
 
+const READ_FILTER_ALL: Number = 0;
+const READ_FILTER_UNREAD: Number = 1;
+const READ_FILTER_READ: Number = 2;
+
 export default function NotificationsPopout(props: NotificationPopoutProps) {
   const [notificationList, setNotificationList] = useState(props.notificationList);
-  // 0 is all, 1 is unread, 2 is read
-  const [readFilter, setReadFilter] = useState(0);
+  const [readFilter, setReadFilter] = useState(READ_FILTER_ALL);
   return props.trigger ? (
     <div className="h-[835px] w-[457px] p-[32px]  gap-[16px] bg-[#fffcf5] filter drop-shadow-xl">
       <h1 className="text-[40px] font-serif font-medium">Notifications</h1>
       <hr className="mt-[5px] border-1"></hr>
       <div className="flex flex-row items-center mt-[15px] mb-[10px] gap-[10px]">
         <button
-          onClick={() => setReadFilter(0)}
-          className={`${readFilter != 0 ? "bg-[#f5eadd]" : "bg-[#756859] text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-[10px] gap-[8px] text-sm cursor-pointer`}
+          onClick={() => setReadFilter(READ_FILTER_ALL)}
+          className={`${readFilter != READ_FILTER_ALL ? "bg-[#f5eadd]" : "bg-[#756859] text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-[10px] gap-[8px] text-sm cursor-pointer`}
         >
           All
         </button>
         <button
-          onClick={() => setReadFilter(1)}
-          className={`${readFilter != 1 ? "bg-[#f5eadd]" : "bg-[#756859] text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-[10px] gap-[8px] text-sm cursor-pointer`}
+          onClick={() => setReadFilter(READ_FILTER_UNREAD)}
+          className={`${readFilter != READ_FILTER_UNREAD ? "bg-[#f5eadd]" : "bg-[#756859] text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-[10px] gap-[8px] text-sm cursor-pointer`}
         >
           Unread
         </button>
         <button
-          onClick={() => setReadFilter(2)}
-          className={`${readFilter != 2 ? "bg-[#f5eadd]" : "bg-[#756859] text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-[10px] gap-[8px] text-sm cursor-pointer`}
+          onClick={() => setReadFilter(READ_FILTER_READ)}
+          className={`${readFilter != READ_FILTER_READ ? "bg-[#f5eadd]" : "bg-[#756859] text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-[10px] gap-[8px] text-sm cursor-pointer`}
         >
           Read
         </button>
@@ -71,9 +74,9 @@ function mapNotifications(
 ) {
   return (
     <div className="overflow-y-scroll no-scrollbar">
-      {(read == 0
+      {(read == READ_FILTER_ALL
         ? notificationList
-        : notificationList.filter((notification) => notification.read == (read == 1 ? false : true))
+        : notificationList.filter((notification) => notification.read == (read == READ_FILTER_UNREAD ? false : true))
       ).map((notification) => (
         <NotificationCard
           notificationText={notification.notificationText}
