@@ -61,7 +61,12 @@ export default function Dash() {
           {/*widgets*/}
           <div className="mt-10 grid grid-cols-[2fr_1fr_1fr] gap-8">
             {/*notifications*/}
-            <NotificationWidget></NotificationWidget>
+            <NotificationWidget
+              onViewAll={(event) => {
+                event.stopPropagation();
+                setNotifPopout(true);
+              }}
+            ></NotificationWidget>
             {/*volunteers*/}
             <div className="h-[366px] rounded-3xl border-2 border-[#CDAA7F] bg-[#EEE0CF]"></div>
             {/*reminders*/}
