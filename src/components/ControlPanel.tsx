@@ -143,6 +143,8 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   const [isOpen, setIsOpen] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
 
+  const longestItem = props.dropDown.reduce((a, b) => (a.length > b.length ? a : b), "");
+
   useEffect(() => {
     if (countdown === null) return;
 
@@ -160,30 +162,41 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   }, [activeIndex, countdown, props]);
 
   return (
-    <div className="flex flex-col gap-1 relative select-none">
+    <div className="flex flex-col gap-1 relative select-none w-fit">
       <h2 className="text-sm font-medium text-black">{props.text}</h2>
+
       <div
-        className="h-8 min-w-20 rounded-full cursor-pointer bg-[#FFFCF5] outline-1 outline-black"
+        className="h-8 rounded-full cursor-pointer bg-[#FFFCF5] outline-1 outline-black overflow-hidden"
         onMouseDown={() => setIsOpen(!isOpen)}
       >
-        <p className="font-medium flex items-center justify-between gap-2 px-3 h-full text-sm">
-          {props.dropDown[activeIndex]}
-          <Image
-            src="/icons/dropdown.svg"
-            width={14}
-            height={14}
-            alt=""
-            className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-          />
-        </p>
+        <div className="relative h-full px-3">
+          <div
+            className="invisible h-0 flex items-center gap-5 text-sm font-medium whitespace-nowrap"
+            aria-hidden="true"
+          >
+            {longestItem}
+            <div className="w-3.5" />
+          </div>
+
+          <div className="absolute inset-0 px-3 flex items-center justify-between gap-2 text-sm font-medium">
+            <span className="truncate">{props.dropDown[activeIndex]}</span>
+            <Image
+              src="/icons/dropdown.svg"
+              width={14}
+              height={14}
+              alt=""
+              className={`shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+            />
+          </div>
+        </div>
       </div>
 
       {isOpen && (
-        <div className="absolute top-full mt-1 bg-white rounded-xl z-10 shadow-md outline-1 outline-black/10 min-w-full overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl z-10 shadow-md outline-1 outline-black/10 overflow-hidden">
           {props.dropDown.map((item, index) => (
             <div
               key={index}
-              className={`px-3 py-2 cursor-pointer text-sm font-medium hover:bg-[#F1E6D9] transition-colors ${
+              className={`px-3 py-2 cursor-pointer text-sm font-medium hover:bg-[#F1E6D9] transition-colors whitespace-nowrap ${
                 index === activeIndex ? "bg-[#F1E6D9]" : ""
               }`}
               onClick={() => {
@@ -212,14 +225,16 @@ export default function ControlPanel() {
             </div>
 
             <div className="flex gap-6 items-start">
-              <ControlStatusPills
-                text="Status"
-                options={["All", "Active", "Graduated"]}
-                delay={500}
-                delayFunction={(status: string) => console.log(`Status: ${status}`)}
-                activeBackgroundHex="#78855b"
-                activeTextHex="#FFFFFF"
-              />
+              <div className="pr-16">
+                <ControlStatusPills
+                  text="Status"
+                  options={["All", "Active", "Graduated"]}
+                  delay={500}
+                  delayFunction={(status: string) => console.log(`Status: ${status}`)}
+                  activeBackgroundHex="#78855b"
+                  activeTextHex="#FFFFFF"
+                />
+              </div>
               <ControlFilterDropdown
                 text="Condition"
                 dropDown={["All", "Good", "Fair", "Poor"]}
