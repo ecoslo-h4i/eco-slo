@@ -54,7 +54,7 @@ function ControlButton(props: ControlButtonInterface) {
 
   return (
     <div
-      className="w-30.25 h-8.5 rounded-full outline-1 outline-black cursor-pointer select-none flex items-center justify-center px-4 gap-2"
+      className="w-30.25 h-8.5 rounded-full outline-1 outline-black cursor-pointer select-none flex items-center justify-center px-4 gap-2 bg-[#FFFCF5]"
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onClick={() => props.function()}
@@ -73,26 +73,94 @@ function ControlButton(props: ControlButtonInterface) {
   );
 }
 
-interface ControlFilterInterface {
+interface ControlFilterDropdownInterface {
   text: string;
-  isInitializedActive: boolean;
   dropDown: string[];
+  delay: number;
+  delayFunction: (filter: string) => void;
 }
 
-function ControlFilter(props: ControlFilterInterface) {
-  return <div></div>;
+function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
+  const [activeIndex, setAciveIndex] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (countdown === null) return;
+
+    if (countdown <= 0) {
+      props.delayFunction(props.dropDown[activeIndex]);
+      setCountdown(null);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown(countdown - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [activeIndex, countdown, props]);
+
+  return (
+    <div className="flex flex-col relative select-none">
+      <h2>{props.text}</h2>
+      <div className={`h-8 w-22 rounded-full pt-2 cursor-pointer bg-[#FFFCF5]`} onMouseDown={() => setIsOpen(!isOpen)}>
+        <div>
+          <p className="font-medium flex items-center justify-between gap-1 pl-4 pb-4 pr-4">
+            {props.dropDown[activeIndex]}
+            <Image src={"/icons/dropdown.svg"} width={20} height={20} alt="" />
+          </p>
+        </div>
+      </div>
+
+      {isOpen && (
+        <div className="absolute mt-1 bg-white rounded-xl z-10">
+          {props.dropDown.map((item, index) => (
+            <div
+              key={index}
+              className="p-2 cursor-pointer hover:bg-gray-100 font-medium rounded-lg"
+              onClick={() => {
+                setAciveIndex(index);
+                setIsOpen(false);
+                setCountdown(props.delay);
+              }}
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function ControlPanel() {
   return (
     <div className="flex justify-start">
-      <div className="flex flex-col gap-4 px-10 py-8 w-275 h-43 rounded-[40px] bg-[#F1E6D9]">
-        <div className="flex justify-between items-start">
-          <div className="w-[60%]">
-            <ControlSearch searchDelay={500} searchFunction={() => console.log("Searching function called")} />
+      <div className="flex flex-col justify-center px-10 py-8 w-275 h-43 rounded-[40px] bg-[#F1E6D9]">
+        <div className="flex justify-between items-center w-full gap-10">
+          <div className="flex flex-col gap-6 w-full">
+            <div className="w-full">
+              <ControlSearch searchDelay={500} searchFunction={() => console.log("Searching function called")} />
+            </div>
+
+            <div className="flex gap-12">
+              <ControlFilterDropdown
+                text="Condition"
+                dropDown={["All", "Public", "Private"]}
+                delay={500}
+                delayFunction={(filter: string) => console.log(`${filter} on`)}
+              ></ControlFilterDropdown>
+              <ControlFilterDropdown
+                text="Visibility"
+                dropDown={["All", "Good", "Fair", "Poor"]}
+                delay={500}
+                delayFunction={(filter: string) => console.log(`${filter} on`)}
+              ></ControlFilterDropdown>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 py-4 pr-4">
+          <div className="grid grid-cols-2 gap-4 shrink-0">
             <ControlButton
               backgroundHex="#D08033"
               hoverHex="#D08033"
