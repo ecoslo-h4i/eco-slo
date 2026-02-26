@@ -27,7 +27,7 @@ function ControlSearch(props: ControlSearchProps) {
   };
 
   return (
-    <div className="w-154 h-10.75 rounded-xl outline-1 outline-black bg-[#FFFCF5]">
+    <div className="h-10.75 rounded-xl outline outline-black bg-[#FFFCF5]">
       <input
         type="text"
         id="query"
@@ -54,7 +54,7 @@ function ControlButton(props: ControlButtonInterface) {
 
   return (
     <div
-      className="w-30.25 h-8.5 rounded-full outline-1 outline-black cursor-pointer select-none flex items-center justify-center px-4 gap-2 bg-[#FFFCF5]"
+      className="w-30.25 h-8.5 rounded-full outline-1 outline-black cursor-pointer select-none flex items-center justify-center px-4 gap-2"
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onClick={() => props.function()}
@@ -64,11 +64,10 @@ function ControlButton(props: ControlButtonInterface) {
         containerType: "inline-size",
       }}
     >
-      {" "}
       <p className="font-medium text-8xl whitespace-nowrap" style={{ fontSize: "clamp(0.5rem, 20cqw, 1rem)" }}>
         {props.text}
       </p>
-      {props.iconPath && <Image src={props.iconPath} width={20} height={20} alt="" />}
+      {props.iconPath && <Image src={props.iconPath} width={16} height={16} alt="" />}
     </div>
   );
 }
@@ -81,7 +80,7 @@ interface ControlFilterDropdownInterface {
 }
 
 function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
-  const [activeIndex, setAciveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
 
@@ -102,25 +101,34 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   }, [activeIndex, countdown, props]);
 
   return (
-    <div className="flex flex-col relative select-none">
-      <h2>{props.text}</h2>
-      <div className={`h-8 w-22 rounded-full pt-2 cursor-pointer bg-[#FFFCF5]`} onMouseDown={() => setIsOpen(!isOpen)}>
-        <div>
-          <p className="font-medium flex items-center justify-between gap-1 pl-4 pb-4 pr-4">
-            {props.dropDown[activeIndex]}
-            <Image src={"/icons/dropdown.svg"} width={20} height={20} alt="" />
-          </p>
-        </div>
+    <div className="flex flex-col gap-1 relative select-none">
+      <h2 className="text-sm font-medium text-black">{props.text}</h2>
+      <div
+        className="h-8 min-w-20 rounded-full cursor-pointer bg-[#FFFCF5] outline-1 outline-black"
+        onMouseDown={() => setIsOpen(!isOpen)}
+      >
+        <p className="font-medium flex items-center justify-between gap-2 px-3 h-full text-sm">
+          {props.dropDown[activeIndex]}
+          <Image
+            src="/icons/dropdown.svg"
+            width={14}
+            height={14}
+            alt=""
+            className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          />
+        </p>
       </div>
 
       {isOpen && (
-        <div className="absolute mt-1 bg-white rounded-xl z-10">
+        <div className="absolute top-full mt-1 bg-white rounded-xl z-10 shadow-md outline-1 outline-black/10 min-w-full overflow-hidden">
           {props.dropDown.map((item, index) => (
             <div
               key={index}
-              className="p-2 cursor-pointer hover:bg-gray-100 font-medium rounded-lg"
+              className={`px-3 py-2 cursor-pointer text-sm font-medium hover:bg-[#F1E6D9] transition-colors ${
+                index === activeIndex ? "bg-[#F1E6D9]" : ""
+              }`}
               onClick={() => {
-                setAciveIndex(index);
+                setActiveIndex(index);
                 setIsOpen(false);
                 setCountdown(props.delay);
               }}
@@ -139,31 +147,31 @@ export default function ControlPanel() {
     <div className="flex justify-start">
       <div className="flex flex-col justify-center px-10 py-8 w-275 h-43 rounded-[40px] bg-[#F1E6D9]">
         <div className="flex justify-between items-center w-full gap-10">
-          <div className="flex flex-col gap-6 w-full">
+          <div className="flex flex-col gap-4 w-full">
             <div className="w-full">
               <ControlSearch searchDelay={500} searchFunction={() => console.log("Searching function called")} />
             </div>
 
-            <div className="flex gap-12">
+            <div className="flex gap-6">
               <ControlFilterDropdown
                 text="Condition"
-                dropDown={["All", "Public", "Private"]}
-                delay={500}
-                delayFunction={(filter: string) => console.log(`${filter} on`)}
-              ></ControlFilterDropdown>
-              <ControlFilterDropdown
-                text="Visibility"
                 dropDown={["All", "Good", "Fair", "Poor"]}
                 delay={500}
-                delayFunction={(filter: string) => console.log(`${filter} on`)}
-              ></ControlFilterDropdown>
+                delayFunction={(filter: string) => console.log(`Condition: ${filter}`)}
+              />
+              <ControlFilterDropdown
+                text="Visibility"
+                dropDown={["All", "Public", "Private"]}
+                delay={500}
+                delayFunction={(filter: string) => console.log(`Visibility: ${filter}`)}
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 shrink-0">
             <ControlButton
               backgroundHex="#D08033"
-              hoverHex="#D08033"
+              hoverHex="#C07028"
               textHex="#FFFFFF"
               text="Edit"
               iconPath="/icons/penciledit.svg"
@@ -171,7 +179,7 @@ export default function ControlPanel() {
             />
             <ControlButton
               backgroundHex="#E83229"
-              hoverHex="#E83229"
+              hoverHex="#D02820"
               textHex="#FFFFFF"
               text="Delete"
               iconPath="/icons/trash.svg"
@@ -179,14 +187,14 @@ export default function ControlPanel() {
             />
             <ControlButton
               backgroundHex="#FFFFFF"
-              hoverHex="#FFFFFF"
+              hoverHex="#F5F5F5"
               textHex="#000000"
               text="Export CSV"
               function={() => console.log("Export function called")}
             />
             <ControlButton
               backgroundHex="#8A9573"
-              hoverHex="#8A9573"
+              hoverHex="#7A8563"
               textHex="#FFFFFF"
               text="Add Tree"
               iconPath="/icons/plus.svg"
