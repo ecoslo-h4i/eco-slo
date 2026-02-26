@@ -27,7 +27,7 @@ function ControlSearch(props: ControlSearchProps) {
   };
 
   return (
-    <div className="h-10.75 rounded-xl outline outline-black bg-[#FFFCF5]">
+    <div className="h-10.75 rounded-xl outline-1 outline-black bg-[#FFFCF5]">
       <input
         type="text"
         id="query"
@@ -68,6 +68,65 @@ function ControlButton(props: ControlButtonInterface) {
         {props.text}
       </p>
       {props.iconPath && <Image src={props.iconPath} width={16} height={16} alt="" />}
+    </div>
+  );
+}
+
+interface ControlStatusPillsInterface {
+  text: string;
+  options: string[];
+  delay: number;
+  delayFunction: (status: string) => void;
+  activeBackgroundHex: string;
+  activeTextHex: string;
+}
+
+function ControlStatusPills(props: ControlStatusPillsInterface) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [pendingIndex, setPendingIndex] = useState<number | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (countdown === null || pendingIndex === null) return;
+
+    if (countdown <= 0) {
+      props.delayFunction(props.options[pendingIndex]);
+      setCountdown(null);
+      setPendingIndex(null);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown(countdown - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [countdown, pendingIndex, props]);
+
+  const handleSelect = (index: number) => {
+    setActiveIndex(index);
+    setPendingIndex(index);
+    setCountdown(props.delay);
+  };
+
+  return (
+    <div className="flex flex-col gap-1 select-none">
+      <h2 className="text-sm font-medium text-black">{props.text}</h2>
+      <div className="flex gap-2">
+        {props.options.map((option, index) => (
+          <div
+            key={index}
+            className="h-8 rounded-xl cursor-pointer outline-1 outline-black flex items-center justify-center px-4 transition-colors"
+            onClick={() => handleSelect(index)}
+            style={{
+              backgroundColor: index === activeIndex ? props.activeBackgroundHex : "#FFFCF5",
+              color: index === activeIndex ? props.activeTextHex : "#000000",
+            }}
+          >
+            <p className="font-medium text-sm whitespace-nowrap">{option}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -152,7 +211,15 @@ export default function ControlPanel() {
               <ControlSearch searchDelay={500} searchFunction={() => console.log("Searching function called")} />
             </div>
 
-            <div className="flex gap-6">
+            <div className="flex gap-6 items-start">
+              <ControlStatusPills
+                text="Status"
+                options={["All", "Active", "Graduated"]}
+                delay={500}
+                delayFunction={(status: string) => console.log(`Status: ${status}`)}
+                activeBackgroundHex="#78855b"
+                activeTextHex="#FFFFFF"
+              />
               <ControlFilterDropdown
                 text="Condition"
                 dropDown={["All", "Good", "Fair", "Poor"]}
