@@ -6,13 +6,14 @@ type Tree = Database["public"]["Tables"]["trees"]["Row"];
  * Converts an array of objects to a CSV string.
  * @param data The array of objects to convert
  * @param headers Optional array of header strings. If not provided, object keys will be used as headers.
+ *                Headers must be valid object keys.
  * @returns The CSV string representation of the data
  */
 export function dataToCSV(data: any[], headers?: string[]): string {
   if (data.length === 0) return headers ? headers.join(",") : "";
-  const keys = Object.keys(data[0]);
+  const keys = headers || Object.keys(data[0]);
   const csvRows = data.map((val) => keys.map((key) => JSON.stringify(val[key] ?? "")).join(","));
-  return [(headers || keys).join(","), ...csvRows].join("\n");
+  return [keys.join(","), ...csvRows].join("\n");
 }
 
 /**
