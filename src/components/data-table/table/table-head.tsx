@@ -4,16 +4,21 @@ export default function TableHead({
   className,
   children,
   position,
+  columnWidth,
 }: {
   className?: string;
   children?: React.ReactNode;
   position?: "left" | "center" | "right";
+  columnWidth?: string;
 }) {
   return (
     <th
-      className={`px-4 py-2
+      className={`px-2 py-1
+        sticky top-0 z-20 bg-background
+        ${columnWidth || ""}
         ${position === "center" ? "text-center" : position === "right" ? "text-right" : "text-left"}
         ${className || ""}`}
+      style={{ boxShadow: "inset 0 -2px 0 0 var(--color-secondary)" }}
     >
       {children}
     </th>

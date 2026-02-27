@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import TreePreviewTable from "@/components/data-table/tree-preview-table";
 import { treeDashboardData } from "./data-table/tree-widget-data";
