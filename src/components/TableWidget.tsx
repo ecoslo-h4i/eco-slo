@@ -8,7 +8,7 @@ import MoveRightIcon from "./MoveRightIcon";
 
 function DashboardTreeWidget({ className }: { className?: string }) {
   return (
-    <div className={`${className} w-full h-full bg-card space-y-4 px-12 py-8 rounded-2xl`}>
+    <div className={`${className} w-full h-full bg-white space-y-4 px-12 py-8 rounded-2xl border`}>
       <div className="flex justify-between items-center">
         <h2 className="text-5xl font-serif">Trees</h2>
         <button

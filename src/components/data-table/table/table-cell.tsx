@@ -12,7 +12,7 @@ export default function TableCell({
   columnWidth?: string;
 }) {
   return (
-    <td className={`px-2 py-1 ${columnWidth || ""} ${className || ""}`}>
+    <td className={`px-2 py-1.5 ${columnWidth || ""} ${className || ""}`}>
       <div
         className={`flex items-center w-full 
           ${position === "center" ? "justify-center" : position === "right" ? "justify-end" : "justify-start"}`}

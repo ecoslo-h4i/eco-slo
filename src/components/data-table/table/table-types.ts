@@ -44,6 +44,8 @@ export type Table<T extends Record<string, unknown>> = {
   setColumnFilter: (columnId: string, update: (prev: string[]) => string[]) => void;
   resetColumnFilter: (columnId: string) => void;
   getColumnFilterValue: (columnId: string) => string[];
+  setColumnSearchFilter: (columnId: string, value: string) => void;
+  getColumnSearchFilterValue: (columnId: string) => string;
   getHead: (column: ColumnDef<T>) => React.ReactNode;
   getCell: (column: ColumnDef<T>, value: CellValue<T>) => React.ReactNode;
 };
@@ -144,6 +146,20 @@ export const useTable = <T extends Record<string, unknown>>(
     [columnFilters],
   );
 
+  const setColumnSearchFilter = React.useCallback((columnId: string, value: string) => {
+    setColumnFilters((prev) => {
+      return prev.map((filter) => (filter.id === columnId ? { ...filter, value: value ? [value] : [] } : filter));
+    });
+  }, []);
+
+  const getColumnSearchFilterValue = React.useCallback(
+    (columnId: string) => {
+      const filter = columnFilters.find((f) => f.id === columnId);
+      return filter && filter.value.length > 0 ? filter.value[0] : "";
+    },
+    [columnFilters],
+  );
+
   const setColumnSorting = React.useCallback((columnId: string, desc: boolean) => {
     setSorting({ id: columnId, desc });
   }, []);
@@ -170,6 +186,8 @@ export const useTable = <T extends Record<string, unknown>>(
       setColumnFilter,
       resetColumnFilter,
       getColumnFilterValue,
+      setColumnSearchFilter,
+      getColumnSearchFilterValue,
       getHead: (column) => {
         const tableInstance = tableRef.current ?? nextTable;
         return column.head ? column.head(tableInstance, column.name, column.id) : column.name;
@@ -190,6 +208,8 @@ export const useTable = <T extends Record<string, unknown>>(
     setColumnFilter,
     resetColumnFilter,
     getColumnFilterValue,
+    setColumnSearchFilter,
+    getColumnSearchFilterValue,
     getCell,
   ]);
 

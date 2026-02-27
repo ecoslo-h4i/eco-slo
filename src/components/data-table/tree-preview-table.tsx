@@ -78,8 +78,8 @@ function TreePreviewTable({ data, cols }: { data: treeWidgetSchema[]; cols: Colu
         <input
           className="py-1 px-2 bg-secondary text-foreground rounded-md"
           placeholder="Filter by Treekeeper #..."
-          value={table.getColumnFilterValue("treekeeper")[0] || ""}
-          onChange={(e) => table.setColumnFilter("treekeeper", (prev) => [e.target.value])}
+          value={table.getColumnSearchFilterValue("treekeeper")}
+          onChange={(e) => table.setColumnSearchFilter("treekeeper", e.target.value)}
         ></input>
       </div>
     </div>
