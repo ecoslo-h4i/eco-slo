@@ -9,23 +9,31 @@ type IParams = {
 };
 
 /**
- * Returns a single tree row by id
- * @returns { body: Tree[], status: number } if successful
- * @returns { message: string, status: number} if error
- * @returns {message: null, status: number} if tree not found
+ * GET API ROUTE: Fetch a single tree row by ID
+ *
+ * Retrieves one tree row using the provided ID.
+ *
+ * Parameters:
+ * @param params - route parameters
+ * @param params.id - the ID of the tree
+ *
+ * Returns:
+ * - 200 with { data } on success
+ * - 404 if no tree is found
+ * - 500 on server error
  */
 export async function GET(req: NextRequest, { params }: IParams) {
   const { id } = await params;
 
   try {
-    const message = await supabase.from("trees").select().eq("id", id).maybeSingle();
-    if (message.error) {
-      return NextResponse.json({ error: message.error }, { status: postgrestErrorToHttpStatus(message.error) });
+    const { data, error } = await supabase.from("trees").select().eq("id", id).single();
+    if (error) {
+      const status = postgrestErrorToHttpStatus(error);
+      return NextResponse.json({ error: error }, { status: status });
     }
-
-    return NextResponse.json({ message: message.data }, { status: 200 });
+    return NextResponse.json({ message: data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Unexpected Server Error" }, { status: 500 });
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -62,9 +70,18 @@ export async function PUT(req: NextRequest, { params }: IParams) {
 }
 
 /**
- * Deletes one tree row by id, returns deleted tree
- * @returns { message: Tree, status: number } if successful
- * @returns { message: string, status: number } if error
+ * DELETE API ROUTE: Deletes a tree row by ID
+ *
+ * Removes a tree row using the provided ID.
+ *
+ * Parameters:
+ * @param params - route parameters
+ * @param params.id - the ID of the tree
+ *
+ * Returns:
+ * - 200 with { data } containing the deleted tree
+ * - Supabase error with mapped status code on error
+ * - 500 on server error
  */
 export async function DELETE(req: NextRequest, { params }: IParams) {
   try {
@@ -72,11 +89,12 @@ export async function DELETE(req: NextRequest, { params }: IParams) {
     const { data, error } = await supabase.from("trees").delete().eq("id", id).limit(1).select().single();
 
     if (error) {
-      return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
+      const status = postgrestErrorToHttpStatus(error);
+      return NextResponse.json({ message: error.message }, { status: status });
     }
 
     return NextResponse.json({ message: data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Unexpected Server Error" }, { status: 500 });
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }

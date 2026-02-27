@@ -10,7 +10,8 @@ import { NextRequest, NextResponse } from "next/server";
  * Parameters: none
  *
  * Returns:
- * - 200 with { data: Tree[] } on success
+ * - 200 with { data } on success
+ * - 404 on no data found
  * - Supabase error with mapped status code { data: null, error: string }
  * - 500 on server error { data: null, error: "Internal Server Error" }
  */
@@ -18,7 +19,11 @@ export async function GET() {
   try {
     const { data, error } = await supabase.from("trees").select("*").order("created_at", { ascending: true });
     if (error) {
-      return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
+      const status = postgrestErrorToHttpStatus(error);
+      return NextResponse.json({ message: error.message }, { status: status });
+    }
+    if (data == null || data.length == 0) {
+      return NextResponse.json({ error: "No Data Found" }, { status: 404 });
     }
     return NextResponse.json({ message: data }, { status: 200 });
   } catch {
