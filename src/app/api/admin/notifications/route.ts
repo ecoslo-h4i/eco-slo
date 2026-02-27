@@ -2,6 +2,7 @@ import { supabase, createAuthenticatedClient } from "@/supabase-client";
 import { TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 import { NextRequest, NextResponse } from "next/server";
+
 /**
  * GET API ROUTE: Retrieves all notifications from the database
  *
@@ -18,7 +19,11 @@ export async function GET() {
   try {
     const { data, error } = await supabase.from("notifications").select("*").order("created_at", { ascending: true });
     if (error) {
-      return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
+      const status = postgrestErrorToHttpStatus(error);
+      return NextResponse.json({ message: error.message }, { status: status });
+    }
+    if (data === null || data.length == 0) {
+      return NextResponse.json({ error: "No data found" }, { status: 404 });
     }
     return NextResponse.json({ message: data }, { status: 200 });
   } catch {
@@ -29,7 +34,7 @@ export async function GET() {
 /**
  * POST API ROUTE: Creates a new notification
  *
- * Inserts a new row into the trees table using the JSON body from the request.
+ * Inserts a new row into the notifications table using the JSON body from the request.
  *
  * Parameters:
  * @param request - JSON body containing fields to insert, matching {@link TablesInsert<"notifications">}

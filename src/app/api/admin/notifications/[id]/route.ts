@@ -9,23 +9,31 @@ type IParams = {
 };
 
 /**
- * Returns a single notification row by id
- * @returns { body: Notification[], status: number } if successful
- * @returns { message: string, status: number} if error
- * @returns {message: null, status: number} if notification not found
+ * GET API ROUTE: Fetch a single notification by ID
+ *
+ * Retrieves one notification using the provided ID.
+ *
+ * Parameters:
+ * @param params - route parameters
+ * @param params.id - the ID of the notification
+ *
+ * Returns:
+ * - 200 with { data } on success
+ * - 404 if no notification is found
+ * - 500 on server error
  */
 export async function GET(req: NextRequest, { params }: IParams) {
   const { id } = await params;
 
   try {
-    const message = await supabase.from("notifications").select().eq("id", id).maybeSingle();
-    if (message.error) {
-      return NextResponse.json({ error: message.error }, { status: postgrestErrorToHttpStatus(message.error) });
+    const { data, error } = await supabase.from("notifications").select().eq("id", id).single();
+    if (error) {
+      const status = postgrestErrorToHttpStatus(error);
+      return NextResponse.json({ error: error }, { status: status });
     }
-
-    return NextResponse.json({ message: message.data }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ message: "Unexpected Server Error" }, { status: 500 });
+    return NextResponse.json({ data: data }, { status: 200 });
+  } catch {
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -41,7 +49,7 @@ export async function GET(req: NextRequest, { params }: IParams) {
  *
  * Returns:
  * - 200 with { data } on success
- * - Supabase error with mapped status code
+ * - Supabase error with mapped status code on error
  * - 500 on server error
  */
 export async function PUT(req: NextRequest, { params }: IParams) {
@@ -62,9 +70,18 @@ export async function PUT(req: NextRequest, { params }: IParams) {
 }
 
 /**
- * Deletes one notification row by id, returns deleted notification
- * @returns { message: Notification, status: number } if successful
- * @returns { message: string, status: number } if error
+ * DELETE API ROUTE: Deletes a notification by ID
+ *
+ * Removes a notification using the provided ID.
+ *
+ * Parameters:
+ * @param params - route parameters
+ * @param params.id - the ID of the notification
+ *
+ * Returns:
+ * - 200 with { data } containing the deleted notification
+ * - Supabase error with mapped status code on error
+ * - 500 on server error
  */
 export async function DELETE(req: NextRequest, { params }: IParams) {
   try {
