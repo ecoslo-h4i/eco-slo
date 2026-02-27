@@ -9,47 +9,47 @@ type IParams = {
 };
 
 /**
- * GET API ROUTE: Fetch a single tree row by ID
+ * GET API ROUTE: Fetch a single notification by ID
  *
- * Retrieves one tree row using the provided ID.
+ * Retrieves one notification using the provided ID.
  *
  * Parameters:
  * @param params - route parameters
- * @param params.id - the ID of the tree
+ * @param params.id - the ID of the notification
  *
  * Returns:
  * - 200 with { data } on success
- * - 404 if no tree is found
+ * - 404 if no notification is found
  * - 500 on server error
  */
 export async function GET(req: NextRequest, { params }: IParams) {
   const { id } = await params;
 
   try {
-    const { data, error } = await supabase.from("trees").select().eq("id", id).single();
+    const { data, error } = await supabase.from("notifications").select().eq("id", id).single();
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
       return NextResponse.json({ error: error }, { status: status });
     }
-    return NextResponse.json({ message: data }, { status: 200 });
-  } catch (error) {
+    return NextResponse.json({ data: data }, { status: 200 });
+  } catch {
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
 /**
- * PUT API ROUTE: Updates a single tree by ID
+ * PUT API ROUTE: Updates a single notification by ID
  *
- * Updates a tree record using the provided ID and request body.
+ * Updates a notification using the provided ID and request body.
  *
  * Parameters:
  * @param request - JSON body containing fields to update
  * @param params - route parameters
- * @param params.id - the ID of the tree
+ * @param params.id - the ID of the notification
  *
  * Returns:
  * - 200 with { data } on success
- * - Supabase error with mapped status code
+ * - Supabase error with mapped status code on error
  * - 500 on server error
  */
 export async function PUT(req: NextRequest, { params }: IParams) {
@@ -57,7 +57,7 @@ export async function PUT(req: NextRequest, { params }: IParams) {
     const { id } = await params;
     const body = await req.json();
 
-    const { data, error } = await supabase.from("trees").update(body).eq("id", id).select().single();
+    const { data, error } = await supabase.from("notifications").update(body).eq("id", id).select().single();
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
@@ -70,31 +70,30 @@ export async function PUT(req: NextRequest, { params }: IParams) {
 }
 
 /**
- * DELETE API ROUTE: Deletes a tree row by ID
+ * DELETE API ROUTE: Deletes a notification by ID
  *
- * Removes a tree row using the provided ID.
+ * Removes a notification using the provided ID.
  *
  * Parameters:
  * @param params - route parameters
- * @param params.id - the ID of the tree
+ * @param params.id - the ID of the notification
  *
  * Returns:
- * - 200 with { data } containing the deleted tree
+ * - 200 with { data } containing the deleted notification
  * - Supabase error with mapped status code on error
  * - 500 on server error
  */
 export async function DELETE(req: NextRequest, { params }: IParams) {
   try {
     const { id } = await params;
-    const { data, error } = await supabase.from("trees").delete().eq("id", id).limit(1).select().single();
+    const { data, error } = await supabase.from("notifications").delete().eq("id", id).limit(1).select().single();
 
     if (error) {
-      const status = postgrestErrorToHttpStatus(error);
-      return NextResponse.json({ message: error.message }, { status: status });
+      return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
     }
 
     return NextResponse.json({ message: data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ message: "Unexpected Server Error" }, { status: 500 });
   }
 }
