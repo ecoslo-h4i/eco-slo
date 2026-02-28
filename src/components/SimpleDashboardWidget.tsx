@@ -26,7 +26,7 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
           className={`flex items-end justify-between border-b-2 border-black pt-4 pb-4 ${hasButtons ? "mb-10" : "mb-0"}`}
         >
           <Link href={props.pageRoute}>
-            <h2 className="text-5xl font-avenir text-black leading-none">{props.name}</h2>
+            <h2 className="text-4xl font-avenir text-black leading-none">{props.name}</h2>
           </Link>
           <img src={props.iconPath} alt="" className="w-12 h-12 object-contain select-none pointer-events-none" />
         </div>
