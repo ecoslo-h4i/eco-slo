@@ -4,8 +4,9 @@ import NotificationsPopout from "@/components/notifications/NotificationsPopout"
 import { Notification } from "@/components/notifications/NotificationsPopout";
 import { useState } from "react";
 import NotificationWidget from "@/components/notifications/NotificationWidget";
+import { ReminderWidget, VolunteerWidget } from "@/components/SimpleDashboardWidget";
 
-// TODO: This is just for testing/development, remove once backend integration is finished
+// TODO: This is just for testing/development, remove once backend infftegration is finished
 function createNotificationList() {
   let list: Notification[] = [];
   for (let i = 0; i < 50; i++) {
@@ -68,12 +69,16 @@ export default function Dash() {
               }}
             ></NotificationWidget>
             {/*volunteers*/}
-            <div className="h-[366px] rounded-3xl border-2 border-[#CDAA7F] bg-[#EEE0CF]"></div>
+            <div className="h-[366px] rounded-3xl border-2 border-black bg-[#EEE0CF]">
+              <VolunteerWidget></VolunteerWidget>
+            </div>
             {/*reminders*/}
-            <div className="h-[366px] rounded-3xl border-2 border-[#CDAA7F] bg-[#EEE0CF]"></div>
+            <div className="h-[366px] rounded-3xl border-2 border-black bg-[#EEE0CF]">
+              <ReminderWidget></ReminderWidget>
+            </div>
           </div>
           {/*trees*/}
-          <div className="mt-8 rounded-3xl border-2 border-[#CDAA7F] h-[400px] bg-[#EEE0CF]"></div>
+          <div className="mt-8 rounded-3xl border-2 border-black h-[400px] bg-[#EEE0CF]"></div>
         </div>
       </main>
     </div>

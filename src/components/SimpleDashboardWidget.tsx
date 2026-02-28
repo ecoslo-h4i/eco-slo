@@ -20,22 +20,24 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
   const hasButtons = buttonsArray.length > 0;
 
   return (
-    <div className="bg-[#F5EADD] rounded-[40px] p-10 flex flex-col h-full min-h-[400px] w-full max-w-md">
+    <div className="flex flex-col h-full w-full p-8 justify-between">
       <div className="flex flex-col justify-center flex-grow">
-        <div className={`flex items-end justify-between border-b-2 border-black pb-2 ${hasButtons ? "mb-10" : "mb-0"}`}>
+        <div
+          className={`flex items-end justify-between border-b-2 border-black pt-4 pb-4 ${hasButtons ? "mb-10" : "mb-0"}`}
+        >
           <Link href={props.pageRoute}>
             <h2 className="text-5xl font-avenir text-black leading-none">{props.name}</h2>
           </Link>
           <img src={props.iconPath} alt="" className="w-12 h-12 object-contain select-none pointer-events-none" />
         </div>
 
-        <div className="flex flex-col gap-6 mt-4">
+        <div className="flex flex-col gap-6 mt-0 mb-px">
           {buttonsArray.map((button, index) => (
             <button
               key={index}
               onClick={button.handler}
-              className={`bg-[#758656] hover:bg-[#8A9573] text-white px-8 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer ${
-                index === buttonsArray.length - 1 ? "py-9" : "py-6"
+              className={`bg-[#758656] hover:bg-[#8A9573] text-white px-4 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer ${
+                index === buttonsArray.length - 1 ? "py-7" : "py-5"
               }`}
             >
               <p className="font-avenir">{button.name}</p>
