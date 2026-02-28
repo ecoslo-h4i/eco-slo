@@ -34,7 +34,9 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
             <button
               key={index}
               onClick={button.handler}
-              className="bg-[#758656] hover:bg-[#8A9573] text-white py-6 px-8 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className={`bg-[#758656] hover:bg-[#8A9573] text-white px-8 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer ${
+                index === buttonsArray.length - 1 ? "py-9" : "py-6"
+              }`}
             >
               <p className="font-avenir">{button.name}</p>
             </button>
@@ -46,11 +48,15 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
 }
 
 export function ReminderWidget() {
+  const router = useRouter();
   const props: DashboardWidgetProps = {
     name: "Reminders",
     iconPath: "/icons/reminder.svg",
     pageRoute: "/reminders",
-    buttons: null,
+    buttons: [
+      { name: "Open Dashboard →", handler: () => router.push("/reminders") },
+      { name: "Set New Reminder", handler: () => console.log("Tried to send message") },
+    ],
   };
   return (
     <div>
