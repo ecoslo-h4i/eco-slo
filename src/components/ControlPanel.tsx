@@ -215,21 +215,29 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
 }
 
 export default function ControlPanel() {
+  const CONTROL_STATUS_OPTIONS = ["All", "Active", "Graduated"];
+  const CONDITION_STATUS_OPTIONS = ["All", "Good", "Fair", "Poor"];
+  const VISIBILITY_STATUS_OPTIONS = ["All", "Public", "Private"];
+  const QUERY_DELAY = 500;
+
   return (
     <div className="flex justify-start">
       <div className="flex flex-col justify-center px-10 py-8 w-275 h-43 rounded-[40px] bg-[#F1E6D9]">
         <div className="flex justify-between items-center w-full gap-10">
           <div className="flex flex-col gap-4 w-full">
             <div className="w-full">
-              <ControlSearch searchDelay={500} searchFunction={() => console.log("Searching function called")} />
+              <ControlSearch
+                searchDelay={QUERY_DELAY}
+                searchFunction={() => console.log("Searching function called")}
+              />
             </div>
 
             <div className="flex gap-6 items-start">
               <div className="pr-16">
                 <ControlStatusPills
                   text="Status"
-                  options={["All", "Active", "Graduated"]}
-                  delay={500}
+                  options={CONTROL_STATUS_OPTIONS}
+                  delay={QUERY_DELAY}
                   delayFunction={(status: string) => console.log(`Status: ${status}`)}
                   activeBackgroundHex="#78855b"
                   activeTextHex="#FFFFFF"
@@ -237,14 +245,14 @@ export default function ControlPanel() {
               </div>
               <ControlFilterDropdown
                 text="Condition"
-                dropDown={["All", "Good", "Fair", "Poor"]}
-                delay={500}
+                dropDown={CONDITION_STATUS_OPTIONS}
+                delay={QUERY_DELAY}
                 delayFunction={(filter: string) => console.log(`Condition: ${filter}`)}
               />
               <ControlFilterDropdown
                 text="Visibility"
-                dropDown={["All", "Public", "Private"]}
-                delay={500}
+                dropDown={VISIBILITY_STATUS_OPTIONS}
+                delay={QUERY_DELAY}
                 delayFunction={(filter: string) => console.log(`Visibility: ${filter}`)}
               />
             </div>
