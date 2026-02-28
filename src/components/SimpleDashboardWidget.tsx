@@ -74,7 +74,7 @@ export function VolunteerWidget() {
     iconPath: "/icons/people.svg",
     pageRoute: "/volunteers",
     buttons: [
-      { name: "Open Dashboard →", handler: () => router.push("/dashboard") },
+      { name: "Open Dashboard →", handler: () => router.push("/volunteers") },
       { name: "Send Message", handler: () => console.log("Tried to send message") },
     ],
   };
