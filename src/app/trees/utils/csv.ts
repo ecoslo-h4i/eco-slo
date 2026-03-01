@@ -9,7 +9,7 @@ type Tree = Database["public"]["Tables"]["trees"]["Row"];
  *                Headers must be valid object keys.
  * @returns The CSV string representation of the data
  */
-export function dataToCSV(data: any[], headers?: string[]): string {
+function dataToCSV(data: any[], headers?: string[]): string {
   if (data.length === 0) return headers ? headers.join(",") : "";
   const keys = headers || Object.keys(data[0]);
   const csvRows = data.map((val) => keys.map((key) => JSON.stringify(val[key] ?? "")).join(","));
@@ -21,8 +21,14 @@ export function dataToCSV(data: any[], headers?: string[]): string {
  * @param trees The array of Tree objects to convert to CSV
  * @returns The CSV string representation of the tree data
  */
-export function treesToCSV(trees: Tree[]): string {
+function treesToCSV(trees: Tree[]): string {
   return dataToCSV(trees);
+}
+
+function localeISOString(date: Date): string {
+  const tzOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+  const localISOTime = new Date(date.getTime() - tzOffset).toISOString().slice(0, -5); // chop off ms
+  return localISOTime;
 }
 
 /**
@@ -38,7 +44,7 @@ export async function downloadTreeCSV() {
   const trees: Tree[] = (await response.json()).message as Tree[];
   // Write to csv file
   const csv = treesToCSV(trees);
-  const date = new Date().toISOString().split("T")[0];
+  const date = localeISOString(new Date());
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   // Create temporary link to trigger download
