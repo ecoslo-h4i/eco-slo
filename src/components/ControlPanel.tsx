@@ -225,7 +225,7 @@ export default function ControlPanel() {
       <div className="flex w-full min-h-43 flex-col justify-center rounded-[40px] bg-inherit px-10 py-8">
         <div className="flex justify-between items-center w-full gap-10">
           <div className="flex flex-col gap-4 w-full">
-            <div className="w-full">
+            <div className="w-256">
               <ControlSearch
                 searchDelay={QUERY_DELAY}
                 searchFunction={() => console.log("Searching function called")}
@@ -243,43 +243,30 @@ export default function ControlPanel() {
                   activeTextHex="#FFFFFF"
                 />
               </div>
-              <ControlFilterDropdown
-                text="Condition"
-                dropDown={CONDITION_STATUS_OPTIONS}
-                delay={QUERY_DELAY}
-                delayFunction={(filter: string) => console.log(`Condition: ${filter}`)}
-              />
-              <ControlFilterDropdown
-                text="Visibility"
-                dropDown={VISIBILITY_STATUS_OPTIONS}
-                delay={QUERY_DELAY}
-                delayFunction={(filter: string) => console.log(`Visibility: ${filter}`)}
-              />
+              <div className="flex gap-16">
+                <ControlFilterDropdown
+                  text="Condition"
+                  dropDown={CONDITION_STATUS_OPTIONS}
+                  delay={QUERY_DELAY}
+                  delayFunction={(filter: string) => console.log(`Condition: ${filter}`)}
+                />
+                <ControlFilterDropdown
+                  text="Visibility"
+                  dropDown={VISIBILITY_STATUS_OPTIONS}
+                  delay={QUERY_DELAY}
+                  delayFunction={(filter: string) => console.log(`Visibility: ${filter}`)}
+                />
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 shrink-0">
             <ControlButton
-              backgroundHex="#D08033"
-              hoverHex="#C07028"
-              textHex="#FFFFFF"
-              text="Edit"
-              iconPath="/icons/penciledit.svg"
-              function={() => console.log("Edit function called")}
-            />
-            <ControlButton
-              backgroundHex="#E83229"
-              hoverHex="#D02820"
-              textHex="#FFFFFF"
-              text="Delete"
-              iconPath="/icons/trash.svg"
-              function={() => console.log("Delete function called")}
-            />
-            <ControlButton
               backgroundHex="#FFFFFF"
               hoverHex="#F5F5F5"
               textHex="#000000"
               text="Export CSV"
+              iconPath="/icons/download.svg"
               function={() => console.log("Export function called")}
             />
             <ControlButton
