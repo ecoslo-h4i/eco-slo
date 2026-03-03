@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={`${tiktokSans.className} ${cardo.variable} ${avenir.variable} font-avenir`}>
-        <div className="flex min-h-screen">
+        <div className="flex flex-col min-h-screen">
           <Navbar />
           {children}
         </div>

@@ -4,7 +4,7 @@ interface NavbarButtonProps {
   link: string;
 }
 
-export default function NavbarButton({ icon, label, link }: NavbarButtonProps) {
+export default function SideNavbarButton({ icon, label, link }: NavbarButtonProps) {
   return (
     <a href={link} className="flex flex-col items-center justify-center gap-2">
       <div className="w-[45px] h-[45px] p-[3px] flex flex-col items-center justify-center rounded-full bg-[#758656]">
