@@ -221,8 +221,8 @@ export default function ControlPanel() {
   const QUERY_DELAY = 500;
 
   return (
-    <div className="flex justify-start">
-      <div className="flex flex-col justify-center px-10 py-8 w-275 h-43 rounded-[40px] bg-[#F1E6D9]">
+    <div className="w-full">
+      <div className="flex w-full min-h-43 flex-col justify-center rounded-[40px] bg-inherit px-10 py-8">
         <div className="flex justify-between items-center w-full gap-10">
           <div className="flex flex-col gap-4 w-full">
             <div className="w-full">
