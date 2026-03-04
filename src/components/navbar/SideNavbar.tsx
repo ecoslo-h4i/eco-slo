@@ -8,7 +8,7 @@ export default function SideNavbar() {
         <div className="w-24.5 h-24.5 flex items-center justify-center">
           <Image src="/icons/ecoslo-logo.png" width={98} height={98} alt="EcoSLO Logo" />
         </div>
-        <button className="bg-white text-black rounded-full w-20 h-[39px] text-sm font-avenir font-normal">
+        <button className="bg-white text-black rounded-full w-20 h-[39px] text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer">
           Log out
         </button>
       </div>

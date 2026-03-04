@@ -9,7 +9,7 @@ export default function TopNavbar() {
     return pathname === "/login" ? (
       <a
         href="/map"
-        className="flex flex-row items-center bg-white text-black rounded-full h-[39px] text-sm font-avenir font-normal p-3 gap-2"
+        className="flex flex-row items-center bg-white text-black rounded-full h-[39px] text-sm font-avenir font-normal p-3 gap-2 hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
       >
         <Image src="/icons/black-map.svg" width={18} height={18} alt="Map" />
         <span>Back to Map</span>
@@ -17,9 +17,9 @@ export default function TopNavbar() {
     ) : (
       <a
         href="/login"
-        className="flex items-center bg-white text-black rounded-full h-[39px] text-sm font-avenir font-normal p-3"
+        className="flex items-center bg-white text-black rounded-full h-[39px] text-sm font-avenir font-normal p-3 hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
       >
-        Login
+        <span>Login</span>
       </a>
     );
   };
