@@ -1,9 +1,22 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import { useRef } from "react";
-import { Map as LeafletMap } from "leaflet";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { useEffect, useState } from "react";
+import { Map as LeafletMap, Icon } from "leaflet";
+import { MapContainer, TileLayer, useMap, Marker, useMapEvents } from "react-leaflet";
+import { supabase } from "@/supabase-client";
+
+type Location = {
+  id: number;
+  latitude: number;
+  longitude: number;
+};
+
+const customIcon = new Icon({
+  iconUrl: "/icons/pin.svg",
+  iconSize: [48, 70],
+  iconAnchor: [24, 70],
+});
 
 function ZoomButtons() {
   const map = useMap();
@@ -28,12 +41,51 @@ function ZoomButtons() {
 }
 
 export default function Map() {
+  const [locations, setLocations] = useState<Location[]>([]);
+
+  useEffect(() => {
+    async function fetchLocations() {
+      const { data, error } = await supabase.from("trees").select(`
+          id,
+          ecoslo_num,
+          status,
+          date_planted,
+          species_name,
+          common_name,
+          address,
+          latitude,
+          longitude,
+          adopter_name,
+          is_public,
+          notes`);
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+      setLocations(data);
+    }
+    fetchLocations();
+  }, []);
+
+  console.log("Locations:", locations);
+
   return (
     <main>
       <div className="relative h-screen w-screen">
-        <MapContainer center={[35.2828, -120.6596]} zoom={13} zoomControl={false} className="h-full w-full">
+        <MapContainer
+          center={[35.2828, -120.6596]}
+          zoom={13}
+          minZoom={8}
+          maxZoom={6400}
+          zoomControl={false}
+          className="h-full w-full"
+        >
           <ZoomButtons />
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          {locations.map((marker) => (
+            <Marker key={marker.id} position={[marker.latitude, marker.longitude]} icon={customIcon}></Marker>
+          ))}
         </MapContainer>
       </div>
     </main>
