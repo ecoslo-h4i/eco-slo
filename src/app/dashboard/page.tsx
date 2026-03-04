@@ -6,7 +6,7 @@ import { useState } from "react";
 import NotificationWidget from "@/components/notifications/NotificationWidget";
 import { ReminderWidget, VolunteerWidget } from "@/components/SimpleDashboardWidget";
 
-// TODO: This is just for testing/development, remove once backend infftegration is finished
+// TODO: This is just for testing/development, remove once backend integration is finished
 function createNotificationList() {
   let list: Notification[] = [];
   for (let i = 0; i < 50; i++) {
