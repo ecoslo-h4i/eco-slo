@@ -1,18 +1,21 @@
 import Image from "next/image";
-import NavbarButton from "./NavbarButton";
+import NavbarButton from "./SideNavbarButton";
 
-export default function Navbar() {
+export default function SideNavbar() {
   return (
     <div className="flex flex-col min-h-screen w-35 bg-[#758656] pt-12 gap-15">
       <div className="flex flex-col items-center justify-center gap-5">
         <div className="w-24.5 h-24.5 flex items-center justify-center">
           <Image src="/icons/ecoslo-logo.png" width={98} height={98} alt="EcoSLO Logo" />
         </div>
-        <button className="bg-white text-black rounded-full w-20 h-[39px] text-sm font-avenir font-normal">
-          Log out
-        </button>
+        <a
+          href="/login"
+          className="flex items-center justify-center bg-white text-black rounded-full w-20 h-[39px] text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+        >
+          <span>Log out</span>
+        </a>
       </div>
-      <div className="flex flex-grow flex-col items-center gap-4">
+      <div className="flex flex-grow flex-col items-center gap-6">
         <NavbarButton icon="/icons/home.svg" label="Dashboard" link="/dashboard" />
         <NavbarButton icon="/icons/tree.svg" label="Trees" link="/trees" />
         <NavbarButton icon="/icons/volunteers.svg" label="Volunteers" link="/volunteers" />
