@@ -13,8 +13,8 @@ export default function TableHead({
 }) {
   return (
     <th
-      className={`px-2 py-1
-        sticky top-0 z-20 bg-card
+      className={`px-2 py-1 h-12
+        sticky top-0 z-20
         ${columnWidth || ""}
         ${position === "center" ? "text-center" : position === "right" ? "text-right" : "text-left"}
         ${className || ""}`}
