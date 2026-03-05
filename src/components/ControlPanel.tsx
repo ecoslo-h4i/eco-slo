@@ -27,14 +27,14 @@ function ControlSearch(props: ControlSearchProps) {
   };
 
   return (
-    <div className="h-10.75 rounded-xl outline-1 outline-black bg-[#FFFCF5]">
+    <div className="h-14 rounded-2xl outline-1 outline-black bg-[#FFFCF5]">
       <input
         type="text"
         id="query"
         placeholder="Search by Tree #, Species, etc..."
         value={query}
         onChange={handleChange}
-        className="w-full px-3 py-2 text-black placeholder:text-black outline-none bg-transparent"
+        className="w-full px-4 py-3.5 text-lg text-black placeholder:text-black outline-none bg-transparent"
       />
     </div>
   );
@@ -54,7 +54,7 @@ function ControlButton(props: ControlButtonInterface) {
 
   return (
     <div
-      className="w-30.25 h-8.5 rounded-full outline-1 outline-black cursor-pointer select-none flex items-center justify-center px-4 gap-2"
+      className="w-36 h-11 rounded-full outline-1 outline-black cursor-pointer select-none flex items-center justify-center px-5 gap-2.5"
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onClick={() => props.function()}
@@ -64,10 +64,10 @@ function ControlButton(props: ControlButtonInterface) {
         containerType: "inline-size",
       }}
     >
-      <p className="font-medium text-8xl whitespace-nowrap" style={{ fontSize: "clamp(0.5rem, 20cqw, 1rem)" }}>
+      <p className="font-medium text-base whitespace-nowrap" style={{ fontSize: "clamp(0.75rem, 15cqw, 1.125rem)" }}>
         {props.text}
       </p>
-      {props.iconPath && <Image src={props.iconPath} width={16} height={16} alt="" />}
+      {props.iconPath && <Image src={props.iconPath} width={22} height={22} alt="" />}
     </div>
   );
 }
@@ -110,20 +110,20 @@ function ControlStatusPills(props: ControlStatusPillsInterface) {
   };
 
   return (
-    <div className="flex flex-col gap-1 select-none">
-      <h2 className="text-sm font-medium text-black">{props.text}</h2>
+    <div className="flex flex-col gap-1.5 select-none">
+      <h2 className="text-lg font-medium text-black">{props.text}</h2>
       <div className="flex gap-2">
         {props.options.map((option, index) => (
           <div
             key={index}
-            className="h-8 rounded-xl cursor-pointer outline-1 outline-black flex items-center justify-center px-4 transition-colors"
+            className="h-11 rounded-xl cursor-pointer outline-1 outline-black flex items-center justify-center px-5 transition-colors"
             onClick={() => handleSelect(index)}
             style={{
               backgroundColor: index === activeIndex ? props.activeBackgroundHex : "#FFFCF5",
               color: index === activeIndex ? props.activeTextHex : "#000000",
             }}
           >
-            <p className="font-medium text-sm whitespace-nowrap">{option}</p>
+            <p className="font-medium text-lg whitespace-nowrap">{option}</p>
           </div>
         ))}
       </div>
@@ -162,28 +162,28 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   }, [activeIndex, countdown, props]);
 
   return (
-    <div className="flex flex-col gap-1 relative select-none w-fit">
-      <h2 className="text-sm font-medium text-black">{props.text}</h2>
+    <div className="flex flex-col gap-1.5 relative select-none w-fit">
+      <h2 className="text-lg font-medium text-black">{props.text}</h2>
 
       <div
-        className="h-8 rounded-full cursor-pointer bg-[#FFFCF5] outline-1 outline-black overflow-hidden"
+        className="h-11 rounded-full cursor-pointer bg-[#FFFCF5] outline-1 outline-black overflow-hidden"
         onMouseDown={() => setIsOpen(!isOpen)}
       >
-        <div className="relative h-full px-3">
+        <div className="relative h-full px-4">
           <div
-            className="invisible h-0 flex items-center gap-5 text-sm font-medium whitespace-nowrap"
+            className="invisible h-0 flex items-center gap-6 text-lg font-medium whitespace-nowrap"
             aria-hidden="true"
           >
             {longestItem}
-            <div className="w-3.5" />
+            <div className="w-4" />
           </div>
 
-          <div className="absolute inset-0 px-3 flex items-center justify-between gap-2 text-sm font-medium">
+          <div className="absolute inset-0 px-4 flex items-center justify-between gap-2.5 text-base font-medium">
             <span className="truncate">{props.dropDown[activeIndex]}</span>
             <Image
               src="/icons/dropdown.svg"
-              width={14}
-              height={14}
+              width={18}
+              height={18}
               alt=""
               className={`shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
             />
@@ -192,11 +192,11 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl z-10 shadow-md outline-1 outline-black/10 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-xl z-10 shadow-md outline-1 outline-black/10 overflow-hidden">
           {props.dropDown.map((item, index) => (
             <div
               key={index}
-              className={`px-3 py-2 cursor-pointer text-sm font-medium hover:bg-[#F1E6D9] transition-colors whitespace-nowrap ${
+              className={`px-4 py-2.5 cursor-pointer text-lg font-medium hover:bg-[#F1E6D9] transition-colors whitespace-nowrap ${
                 index === activeIndex ? "bg-[#F1E6D9]" : ""
               }`}
               onClick={() => {
@@ -221,11 +221,11 @@ export default function ControlPanel() {
   const QUERY_DELAY = 500;
 
   return (
-    <div className="flex justify-start">
-      <div className="flex flex-col justify-center px-10 py-8 w-275 h-43 rounded-[40px] bg-[#F1E6D9]">
+    <div className="w-full">
+      <div className="flex w-full min-h-43 flex-col justify-center rounded-[40px] bg-inherit px-10 py-8">
         <div className="flex justify-between items-center w-full gap-10">
           <div className="flex flex-col gap-4 w-full">
-            <div className="w-full">
+            <div className="w-256">
               <ControlSearch
                 searchDelay={QUERY_DELAY}
                 searchFunction={() => console.log("Searching function called")}
@@ -243,43 +243,30 @@ export default function ControlPanel() {
                   activeTextHex="#FFFFFF"
                 />
               </div>
-              <ControlFilterDropdown
-                text="Condition"
-                dropDown={CONDITION_STATUS_OPTIONS}
-                delay={QUERY_DELAY}
-                delayFunction={(filter: string) => console.log(`Condition: ${filter}`)}
-              />
-              <ControlFilterDropdown
-                text="Visibility"
-                dropDown={VISIBILITY_STATUS_OPTIONS}
-                delay={QUERY_DELAY}
-                delayFunction={(filter: string) => console.log(`Visibility: ${filter}`)}
-              />
+              <div className="flex gap-16">
+                <ControlFilterDropdown
+                  text="Condition"
+                  dropDown={CONDITION_STATUS_OPTIONS}
+                  delay={QUERY_DELAY}
+                  delayFunction={(filter: string) => console.log(`Condition: ${filter}`)}
+                />
+                <ControlFilterDropdown
+                  text="Visibility"
+                  dropDown={VISIBILITY_STATUS_OPTIONS}
+                  delay={QUERY_DELAY}
+                  delayFunction={(filter: string) => console.log(`Visibility: ${filter}`)}
+                />
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 shrink-0">
             <ControlButton
-              backgroundHex="#D08033"
-              hoverHex="#C07028"
-              textHex="#FFFFFF"
-              text="Edit"
-              iconPath="/icons/penciledit.svg"
-              function={() => console.log("Edit function called")}
-            />
-            <ControlButton
-              backgroundHex="#E83229"
-              hoverHex="#D02820"
-              textHex="#FFFFFF"
-              text="Delete"
-              iconPath="/icons/trash.svg"
-              function={() => console.log("Delete function called")}
-            />
-            <ControlButton
               backgroundHex="#FFFFFF"
               hoverHex="#F5F5F5"
               textHex="#000000"
               text="Export CSV"
+              iconPath="/icons/download.svg"
               function={() => console.log("Export function called")}
             />
             <ControlButton

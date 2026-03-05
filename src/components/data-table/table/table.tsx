@@ -8,9 +8,9 @@ type TableProps = {
 
 export default function Table({ className, tableClassName, children }: TableProps) {
   return (
-    <div className={`border border-secondary rounded-md overflow-hidden ${className || ""}`}>
-      <div className="h-full w-full overflow-auto">
-        <table className={`border-collapse min-w-full ${tableClassName || ""}`}>{children}</table>
+    <div className={`min-h-0 min-w-0 max-w-full border border-secondary rounded-md overflow-hidden ${className || ""}`}>
+      <div className="size-full min-h-0 w-full min-w-0 max-w-full overflow-auto">
+        <table className={`border-collapse w-max min-w-full ${tableClassName || ""}`}>{children}</table>
       </div>
     </div>
   );
