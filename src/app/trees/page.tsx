@@ -11,7 +11,7 @@ export default function Trees() {
         {/* control panel placeholder */}
         <div className="mt-10 h-16 rounded-3xl border-2 border-[#CDAA7F] bg-[#EEE0CF]" />
         {/* trees table placeholder */}
-        <TreePageTableWidget className="mt-8 w-full max-w-full h-[400px]" />
+        <TreePageTableWidget className="mt-8 w-full max-w-full" />
       </div>
     </main>
   );
