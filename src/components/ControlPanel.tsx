@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type MutableRefObject, useEffect, useState } from "react";
 import Image from "next/image";
+import { TreeSchema } from "./data-table/table-widget-defs";
+import { Table } from "./data-table/table/table-types";
+import { Console } from "console";
+import { treeSchemaToDownloadCSV } from "@/app/trees/utils/csv";
 
 interface ControlSearchProps {
   searchDelay: number;
-  searchFunction: () => void;
+  searchFunction: (status: string) => void;
 }
 
 function ControlSearch(props: ControlSearchProps) {
@@ -13,7 +17,7 @@ function ControlSearch(props: ControlSearchProps) {
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      props.searchFunction();
+      props.searchFunction(query);
     }, props.searchDelay);
 
     return () => {
@@ -31,7 +35,7 @@ function ControlSearch(props: ControlSearchProps) {
       <input
         type="text"
         id="query"
-        placeholder="Search by Tree #, Species, etc..."
+        placeholder="Search by Tree # or Species..."
         value={query}
         onChange={handleChange}
         className="w-full px-4 py-3.5 text-lg text-black placeholder:text-black outline-none bg-transparent"
@@ -192,7 +196,7 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-xl z-10 shadow-md outline-1 outline-black/10 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-xl z-200 shadow-md outline-1 outline-black/10 overflow-hidden">
           {props.dropDown.map((item, index) => (
             <div
               key={index}
@@ -214,11 +218,17 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   );
 }
 
-export default function ControlPanel() {
+interface ControlPanelProps {
+  tableRef: MutableRefObject<Table<TreeSchema> | null>;
+}
+
+export default function ControlPanel({ tableRef }: ControlPanelProps) {
+  void tableRef;
+
   const CONTROL_STATUS_OPTIONS = ["All", "Active", "Graduated"];
   const CONDITION_STATUS_OPTIONS = ["All", "Good", "Fair", "Poor"];
   const VISIBILITY_STATUS_OPTIONS = ["All", "Public", "Private"];
-  const QUERY_DELAY = 500;
+  const QUERY_DELAY = 0;
 
   return (
     <div className="w-full">
@@ -228,7 +238,19 @@ export default function ControlPanel() {
             <div className="w-256">
               <ControlSearch
                 searchDelay={QUERY_DELAY}
-                searchFunction={() => console.log("Searching function called")}
+                searchFunction={(query: string) => {
+                  const trimmedQuery = query.trimStart();
+                  const startsWithNumber = /^\d/.test(trimmedQuery);
+
+                  if (startsWithNumber) {
+                    tableRef.current?.setColumnSearchFilter("ecoslo_num", query);
+                    tableRef.current?.setColumnSearchFilter("species_name", "");
+                    return;
+                  }
+
+                  tableRef.current?.setColumnSearchFilter("species_name", query);
+                  tableRef.current?.setColumnSearchFilter("ecoslo_num", "");
+                }}
               />
             </div>
 
@@ -238,7 +260,11 @@ export default function ControlPanel() {
                   text="Status"
                   options={CONTROL_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
-                  delayFunction={(status: string) => console.log(`Status: ${status}`)}
+                  delayFunction={(status: string) =>
+                    tableRef.current?.setColumnFilter("status", (prev) =>
+                      status === "All" ? [] : [status.toLowerCase()],
+                    )
+                  }
                   activeBackgroundHex="#78855b"
                   activeTextHex="#FFFFFF"
                 />
@@ -248,13 +274,21 @@ export default function ControlPanel() {
                   text="Condition"
                   dropDown={CONDITION_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
-                  delayFunction={(filter: string) => console.log(`Condition: ${filter}`)}
+                  delayFunction={(status: string) =>
+                    tableRef.current?.setColumnFilter("status", (prev) =>
+                      status === "All" ? [] : [status.toLowerCase()],
+                    )
+                  }
                 />
                 <ControlFilterDropdown
                   text="Visibility"
                   dropDown={VISIBILITY_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
-                  delayFunction={(filter: string) => console.log(`Visibility: ${filter}`)}
+                  delayFunction={(status: string) =>
+                    tableRef.current?.setColumnFilter("is_public", (prev) =>
+                      status === "All" ? [] : [status.toLowerCase()],
+                    )
+                  }
                 />
               </div>
             </div>
@@ -267,7 +301,7 @@ export default function ControlPanel() {
               textHex="#000000"
               text="Export CSV"
               iconPath="/icons/download.svg"
-              function={() => console.log("Export function called")}
+              function={() => treeSchemaToDownloadCSV(tableRef.current?.data ?? [])}
             />
             <ControlButton
               backgroundHex="#8A9573"

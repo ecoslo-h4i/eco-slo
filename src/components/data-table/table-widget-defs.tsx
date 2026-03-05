@@ -1,4 +1,6 @@
+import Head from "next/head";
 import { ColumnDef } from "./table/column-def";
+import HeadControls from "./head-controls";
 
 export type TreeSchema = {
   id: number;
@@ -69,17 +71,27 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
   {
     id: "ecoslo_num",
     name: "EcoSLO #",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => value,
+    cellId: (value) => String(value),
+    comparator: (a, b) => Number(a) - Number(b),
   },
   {
     id: "species_name",
     name: "Species",
     cell: (value) => value,
+    cellId: (value) => String(value).toLowerCase(),
   },
   {
     id: "date_planted",
     name: "Date Planted",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => formatISODate(value),
+    comparator: (a, b) => {
+      const dateA = new Date(String(a));
+      const dateB = new Date(String(b));
+      return dateA.getTime() - dateB.getTime();
+    },
   },
   {
     id: "status",
@@ -91,6 +103,7 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
         </div>
       );
     },
+    cellId: (value) => String(value).toLowerCase(),
   },
   {
     id: "common_name",
@@ -120,12 +133,25 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
   {
     id: "is_public",
     name: "Is Public",
-    cell: (value) => String(value),
+    cell: (value) => {
+      if (typeof value === "boolean") {
+        return value ? "True" : "False";
+      }
+      return String(value);
+    },
+    cellId: (value) => {
+      if (typeof value === "boolean") {
+        return value ? "public" : "private";
+      }
+      return String(value).toLowerCase();
+    },
   },
   {
     id: "adopter_name",
     name: "Treekeeper",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => value,
+    comparator: (a, b) => String(a).localeCompare(String(b)),
   },
   {
     id: "adopter_phone",

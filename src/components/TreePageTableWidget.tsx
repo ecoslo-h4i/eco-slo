@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { dashboardTreeColumns, treeColumns, TreeSchema } from "./data-table/table-widget-defs";
+import { Table } from "./data-table/table/table-types";
 import TreePageTable from "./data-table/tree-page-table";
 
 type AdminTreesResponse = {
@@ -17,7 +18,13 @@ export async function getAdminTrees(): Promise<TreeSchema[]> {
   return Array.isArray(payload.message) ? payload.message : [];
 }
 
-function TreePageTableWidget({ className }: { className?: string }) {
+function TreePageTableWidget({
+  className,
+  onTableReady,
+}: {
+  className?: string;
+  onTableReady?: (table: Table<TreeSchema>) => void;
+}) {
   const [trees, setTrees] = useState<TreeSchema[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,12 +54,15 @@ function TreePageTableWidget({ className }: { className?: string }) {
   return (
     <div className={`min-w-0 flex flex-col overflow-hidden ${className || ""}`}>
       <div className="flex-1 min-h-0 min-w-0 flex flex-col">
-        {isLoading ? (
-          <div className="w-full h-full flex justify-center items-center">Loading trees...</div>
-        ) : error ? (
+        {error ? (
           <div className="w-full h-full flex justify-center items-center text-red-500">{error}</div>
         ) : (
-          <TreePageTable className="w-full max-w-full min-w-0 h-[80vh]" data={trees} cols={treeColumns} />
+          <TreePageTable
+            className="w-full max-w-full min-w-0 max-h-[80vh]"
+            data={trees}
+            cols={treeColumns}
+            onTableReady={onTableReady}
+          />
         )}
       </div>
     </div>
