@@ -1,5 +1,186 @@
 import { ColumnDef } from "./table/column-def";
 
+export type TreeSchema = {
+  id: number;
+  created_at: string; // ISO datetime string
+  status: string;
+  ecoslo_num: number;
+  species_name: string;
+  common_name: string;
+  funder: string;
+  date_planted: string; // ISO date string (YYYY-MM-DD)
+  address: string;
+  latitude: number;
+  longitude: number;
+  is_public: boolean;
+  adopter_name: string;
+  adopter_phone: string;
+  adopter_email: string;
+  weekly_watering_status: string;
+  next_mulching_date: string; // ISO date string
+  notes: string;
+};
+
+export const dashboardTreeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
+  {
+    id: "ecoslo_num",
+    name: "EcoSLO #",
+    cell: (value) => value,
+  },
+  {
+    id: "species_name",
+    name: "Species",
+    cell: (value) => value,
+  },
+  {
+    id: "date_planted",
+    name: "Date Planted",
+    cell: (value) => formatISODate(value),
+  },
+  {
+    id: "status",
+    name: "Status",
+    cell: (value) => {
+      return (
+        <div className="px-2 py-0.5 rounded-full inline-block text-center bg-secondary capitalize font-medium text-sm text-foreground">
+          {value}
+        </div>
+      );
+    },
+  },
+  {
+    id: "adopter_name",
+    name: "Treekeeper",
+    cell: (value) => value,
+  },
+  {
+    id: "adopter_email",
+    name: "Treekeeper Email",
+    cell: (value) => value,
+  },
+  {
+    id: "adopter_phone",
+    name: "Treekeeper Phone",
+    cell: (value) => formatPhoneNumber(value),
+  },
+];
+
+export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
+  {
+    id: "ecoslo_num",
+    name: "EcoSLO #",
+    cell: (value) => value,
+  },
+  {
+    id: "species_name",
+    name: "Species",
+    cell: (value) => value,
+  },
+  {
+    id: "date_planted",
+    name: "Date Planted",
+    cell: (value) => formatISODate(value),
+  },
+  {
+    id: "status",
+    name: "Status",
+    cell: (value) => {
+      return (
+        <div className="px-2 py-0.5 rounded-full inline-block text-center bg-secondary capitalize font-medium text-sm text-foreground">
+          {value}
+        </div>
+      );
+    },
+  },
+  {
+    id: "common_name",
+    name: "Common Name",
+    cell: (value) => value,
+  },
+  {
+    id: "funder",
+    name: "Funder",
+    cell: (value) => value,
+  },
+  {
+    id: "address",
+    name: "Address",
+    cell: (value) => value,
+  },
+  {
+    id: "latitude",
+    name: "Latitude",
+    cell: (value) => value,
+  },
+  {
+    id: "longitude",
+    name: "Longitude",
+    cell: (value) => value,
+  },
+  {
+    id: "is_public",
+    name: "Is Public",
+    cell: (value) => String(value),
+  },
+  {
+    id: "adopter_name",
+    name: "Treekeeper",
+    cell: (value) => value,
+  },
+  {
+    id: "adopter_phone",
+    name: "Treekeeper Phone",
+    cell: (value) => formatPhoneNumber(value),
+  },
+  {
+    id: "adopter_email",
+    name: "Treekeeper Email",
+    cell: (value) => value,
+  },
+  {
+    id: "weekly_watering_status",
+    name: "Weekly Watering Status",
+    cell: (value) => value,
+  },
+  {
+    id: "next_mulching_date",
+    name: "Next Mulching Date",
+    cell: (value) => formatISODate(value),
+  },
+  {
+    id: "notes",
+    name: "Notes",
+    cell: (value) => value,
+  },
+];
+
+export const formatPhoneNumber = (value: unknown): string => {
+  const digits = String(value ?? "").replace(/\D/g, "");
+
+  if (!digits) return "";
+  if (digits.length < 10) return digits;
+
+  const localNumber = digits.slice(-10);
+  const countryCode = digits.slice(0, -10);
+
+  const formattedLocal = `(${localNumber.slice(0, 3)}) ${localNumber.slice(3, 6)}-${localNumber.slice(6, 10)}`;
+  return countryCode ? `+${countryCode} ${formattedLocal}` : formattedLocal;
+};
+
+export const formatISODate = (value: unknown): string => {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+
+  const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return raw;
+
+  const [, year, month, day] = match;
+  const monthWithoutLeadingZero = String(Number(month));
+  const dayWithoutLeadingZero = String(Number(day));
+
+  return `${monthWithoutLeadingZero}/${dayWithoutLeadingZero}/${year}`;
+};
+
 export type treeWidgetSchema = {
   ecosloNumber: number;
   status: string;
@@ -9,7 +190,7 @@ export type treeWidgetSchema = {
   species: string;
 };
 
-export const columns: ColumnDef<treeWidgetSchema, keyof treeWidgetSchema>[] = [
+export const columnsOld: ColumnDef<treeWidgetSchema, keyof treeWidgetSchema>[] = [
   {
     id: "ecosloNumber",
     name: "EcoSLO #",
