@@ -5,6 +5,7 @@ import { Notification } from "@/components/notifications/NotificationsPopout";
 import { useState } from "react";
 import NotificationWidget from "@/components/notifications/NotificationWidget";
 import TreeDashboardWidget from "@/components/TreeDashboardWidget";
+import { ReminderWidget, VolunteerWidget } from "@/components/SimpleDashboardWidget";
 
 // TODO: This is just for testing/development, remove once backend integration is finished
 function createNotificationList() {
@@ -69,9 +70,13 @@ export default function Dash() {
               }}
             ></NotificationWidget>
             {/*volunteers*/}
-            <div className="h-[366px] rounded-3xl border-2 border-[#CDAA7F] bg-[#EEE0CF]"></div>
+            <div className="h-[366px] rounded-3xl border-2 border-black bg-[#EEE0CF]">
+              <VolunteerWidget></VolunteerWidget>
+            </div>
             {/*reminders*/}
-            <div className="h-[366px] rounded-3xl border-2 border-[#CDAA7F] bg-[#EEE0CF]"></div>
+            <div className="h-[366px] rounded-3xl border-2 border-black bg-[#EEE0CF]">
+              <ReminderWidget></ReminderWidget>
+            </div>
           </div>
           {/*trees*/}
           <TreeDashboardWidget className="mt-8 rounded-3xl border-2 border-[#CDAA7F] bg-[#EEE0CF]" />
