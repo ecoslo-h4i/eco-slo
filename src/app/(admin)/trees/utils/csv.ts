@@ -1,4 +1,5 @@
 import { Database } from "../../../../database/database.types";
+import { TreeSchema } from "@/components/data-table/table-widget-defs";
 
 type Tree = Database["public"]["Tables"]["trees"]["Row"];
 
@@ -34,16 +35,22 @@ function localeISOString(date: Date): string {
 /**
  * Downloads CSV file containing all tree data
  */
-export async function downloadTreeCSV() {
-  // Get tree data
+export async function fetchAndDownloadTreeCSV() {
   const response = await fetch("/api/public/trees");
   if (!response.ok) {
     console.error("Failed to fetch tree data for CSV export: ", response.statusText);
     return;
   }
   const trees: Tree[] = (await response.json()).message as Tree[];
-  // Write to csv file
-  const csv = treesToCSV(trees);
+
+  downloadTreeCSV(treesToCSV(trees));
+}
+
+export async function treeSchemaToDownloadCSV(trees: TreeSchema[]) {
+  downloadTreeCSV(dataToCSV(trees));
+}
+
+export async function downloadTreeCSV(csv: string) {
   const date = localeISOString(new Date());
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
