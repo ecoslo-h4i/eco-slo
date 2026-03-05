@@ -11,7 +11,7 @@ type Location = {
   longitude: number;
 };
 
-const center = [35.2828, -120.6596];
+const center: [number, number] = [35.2828, -120.6596];
 const zoom = 13;
 const Min_Zoom = 8;
 const Max_Zoom = 6400;
