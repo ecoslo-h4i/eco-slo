@@ -1,4 +1,4 @@
-import { Database } from "../../../database/database.types";
+import { Database } from "../../../../database/database.types";
 
 type Tree = Database["public"]["Tables"]["trees"]["Row"];
 
