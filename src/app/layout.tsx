@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Navbar from "@/components/navbar/Navbar";
 
 const tiktokSans = localFont({
   src: [
@@ -52,12 +51,7 @@ const avenir = localFont({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${tiktokSans.className} ${cardo.variable} ${avenir.variable} font-avenir`}>
-        <div className="flex min-h-screen">
-          <Navbar />
-          {children}
-        </div>
-      </body>
+      <body className={`${tiktokSans.className} ${cardo.variable} ${avenir.variable} font-avenir`}>{children}</body>
     </html>
   );
 }

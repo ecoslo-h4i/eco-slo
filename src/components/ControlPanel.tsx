@@ -5,7 +5,7 @@ import Image from "next/image";
 import { TreeSchema } from "./data-table/table-widget-defs";
 import { Table } from "./data-table/table/table-types";
 import { Console } from "console";
-import { treeSchemaToDownloadCSV } from "@/app/trees/utils/csv";
+import { treeSchemaToDownloadCSV } from "@/app/(admin)/trees/utils/csv";
 
 interface ControlSearchProps {
   searchDelay: number;
