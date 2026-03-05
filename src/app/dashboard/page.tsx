@@ -21,7 +21,7 @@ export default function Dash() {
   return (
     //the whole page div//
     <div className="flex flex-grow bg-[#FBF7EE]">
-      <div className="fixed top-3 right-3 h-auto w-auto">
+      <div className="fixed top-3 -right-100 h-auto w-auto z-30">
         <NotificationsPopout notificationList={createNotificationList()} trigger={notifPopout}></NotificationsPopout>
       </div>
       {/*main*/}

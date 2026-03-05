@@ -23,8 +23,7 @@ export type TreeSchema = {
 };
 
 type treeDetailsPopoutProps = {
-  tree: TreeSchema;
-  trigger: boolean;
+  tree?: TreeSchema;
   admin: boolean;
 };
 
@@ -34,6 +33,9 @@ type BasicInfoWidgetProps = {
 };
 
 export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
+  if (!props.tree) {
+    return <div></div>;
+  }
   const tree = props.tree;
   const basicInformation = [
     { title: "Species:", info: tree.species_name },
@@ -54,8 +56,8 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
     { title: "Weekly Watering:", info: tree.weekly_watering_status },
     { title: "Next Mulching", info: tree.next_mulching_date },
   ];
-  return props.trigger ? (
-    <div className="flex flex-col items-center h-auto w-[410px] p-[32px] pb-[0px] rounded-2xl rounded-r-none bg-[#fffcf5]">
+  return (
+    <div className="flex flex-col items-center h-auto w-[410px] p-[32px] pb-[0px] rounded-2xl rounded-r-none bg-[#fffcf5] drop-shadow-xl transition-transform duration-500 -translate-x-103">
       {/* Header */}
       <div className="flex flex-col items-center">
         <h1 className="text-[32px] font-serif">#{tree.ecoslo_num} Tree Details</h1>
@@ -105,8 +107,6 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
       </div>
       {/*Buttons Container */}
     </div>
-  ) : (
-    ""
   );
 }
 
@@ -116,7 +116,7 @@ function mapInfo(header: string, body: { title: string | null; info: string | nu
       <h1 className="font-semibold">{header}</h1>
       <div className="">
         {body.map((entry) => (
-          <div className={`flex flex-row ${header == "NOTES" ? "" : "gap-[80px]"}`} key={entry.title}>
+          <div className={`flex flex-row ${header == "NOTES" ? "" : "gap-[20px]"}`} key={entry.title}>
             <p className="">{entry.title}</p>
             <p className="ml-auto font-bold">{entry.info}</p>
           </div>

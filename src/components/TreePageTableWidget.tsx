@@ -17,7 +17,13 @@ export async function getAdminTrees(): Promise<TreeSchema[]> {
   return Array.isArray(payload.message) ? payload.message : [];
 }
 
-function TreePageTableWidget({ className }: { className?: string }) {
+function TreePageTableWidget({
+  className,
+  onRowClick,
+}: {
+  className?: string;
+  onRowClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, tree: TreeSchema) => void;
+}) {
   const [trees, setTrees] = useState<TreeSchema[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +58,12 @@ function TreePageTableWidget({ className }: { className?: string }) {
         ) : error ? (
           <div className="w-full h-full flex justify-center items-center text-red-500">{error}</div>
         ) : (
-          <TreePageTable className="w-full max-w-full min-w-0 h-[80vh]" data={trees} cols={treeColumns} />
+          <TreePageTable
+            className="w-full max-w-full min-w-0 h-[80vh]"
+            onRowClick={onRowClick}
+            data={trees}
+            cols={treeColumns}
+          />
         )}
       </div>
     </div>
