@@ -60,7 +60,7 @@ function TreePageTableWidget({
           <div className="w-full h-full flex justify-center items-center text-red-500">{error}</div>
         ) : (
           <TreePageTable
-            className="w-full max-w-full min-w-0 h-[80vh]"
+            className="w-full max-w-full min-w-0 max-h-[80vh]"
             onRowClick={onRowClick}
             onTableReady={onTableReady}
             data={trees}
