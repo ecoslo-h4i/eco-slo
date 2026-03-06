@@ -21,7 +21,7 @@ export default function NotificationsPopout(props: NotificationPopoutProps) {
   const [notificationList, setNotificationList] = useState(props.notificationList);
   const [readFilter, setReadFilter] = useState(READ_FILTER_ALL);
   return props.trigger ? (
-    <div className="h-[835px] w-[457px] p-[32px]  gap-[16px] bg-[#fffcf5] filter drop-shadow-xl">
+    <div className="h-[835px] w-[457px] p-[32px]  gap-[16px] bg-[#fffcf5] filter drop-shadow-xl transition-transform duration-500 -translate-x-103">
       <h1 className="text-[40px] font-serif font-medium">Notifications</h1>
       <hr className="mt-[5px] border-1"></hr>
       <div className="flex flex-row items-center mt-[15px] mb-[10px] gap-[10px]">
@@ -62,7 +62,7 @@ export default function NotificationsPopout(props: NotificationPopoutProps) {
       </div>
     </div>
   ) : (
-    ""
+    <div></div>
   );
 }
 

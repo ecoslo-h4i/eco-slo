@@ -15,11 +15,13 @@ function TreePageTable({
   className,
   data,
   cols,
+  onRowClick,
   onTableReady,
 }: {
   className?: string;
   data: TreeSchema[];
   cols: ColumnDef<TreeSchema>[];
+  onRowClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, tree: TreeSchema) => void;
   onTableReady?: (table: TableType<TreeSchema>) => void;
 }) {
   const table = useTable<TreeSchema>(data, cols);
@@ -48,7 +50,7 @@ function TreePageTable({
           </TableRow>
         ) : table.getRowModels().length ? (
           table.getRowModels().map((model, i) => (
-            <TableRow key={i} className="hover:bg-card/50">
+            <TableRow key={i} data={data[i]} onClick={onRowClick} className="hover:bg-card/50">
               {model.cells.map(({ column, value }, j) => (
                 <TableCell key={j} position={column.cellPosition} columnWidth={column.columnWidth}>
                   {table.getCell(column, value)}
