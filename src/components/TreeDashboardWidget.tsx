@@ -60,9 +60,7 @@ function TreeDashboardWidget({ className }: { className?: string }) {
         </div>
         <div className="h-[0.1rem] w-full bg-black"></div>
         <div className="flex-1 min-h-0 flex flex-col">
-          {isLoading ? (
-            <div className="w-full h-full flex justify-center items-center">Loading trees...</div>
-          ) : error ? (
+          {error ? (
             <div className="w-full h-full flex justify-center items-center text-red-500">{error}</div>
           ) : (
             <TreeDashboardTable className="w-full" data={trees} cols={dashboardTreeColumns} />
