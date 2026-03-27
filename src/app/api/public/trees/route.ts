@@ -10,7 +10,7 @@ export async function GET() {
   try {
     const { data, error } = await supabase
       .from("trees")
-      .select("id, latitude, longitude, ecoslo_num, species_name, common_name, date_planted, adopter_name");
+      .select("id, latitude, longitude, ecoslo_num, species_name, common_name, date_planted, tree_keeper_id");
 
     if (error) {
       console.error("Supabase error fetching trees:", error.message);
