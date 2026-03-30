@@ -42,6 +42,7 @@ const ERROR_HEADING = "Email Not Registered";
 const ERROR_MESSAGE =
   "It looks like the email you entered is not registered as a user. If you are a new treekeeper or admin, please contact administration for a sign-up link.";
 const ERROR_TRY_ANOTHER_TEXT = "Wrong email? Try another one.";
+const GENERIC_ERROR_MESSAGE = "We couldn't send your magic link. Please try again.";
 
 // make sure the email is valid
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -54,29 +55,65 @@ export default function LoginPage() {
   const [loginState, setLoginState] = useState<LoginState>(LOGIN_STATE.INPUT);
   const [email, setEmail] = useState("");
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(ERROR_MESSAGE);
 
-  const handleConfirm = () => {
+  const sendMagicLink = async (targetEmail: string): Promise<boolean> => {
+    try {
+      const response = await fetch("/auth/magiclink", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: targetEmail }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+      if (!response.ok) {
+        setErrorMessage(payload?.message ?? ERROR_MESSAGE);
+        return false;
+      }
+
+      return true;
+    } catch {
+      setErrorMessage(GENERIC_ERROR_MESSAGE);
+      return false;
+    }
+  };
+
+  const handleConfirm = async () => {
     const trimmed = email.trim();
     if (!isValidEmail(trimmed)) return;
-    setSubmittedEmail(trimmed);
-    setLoginState(LOGIN_STATE.CONFIRMATION);
-    // TODO: Send magic link via Supabase when auth is wired up
+
+    setIsSubmitting(true);
+    const sent = await sendMagicLink(trimmed);
+    setIsSubmitting(false);
+
+    if (sent) {
+      setSubmittedEmail(trimmed);
+      setLoginState(LOGIN_STATE.CONFIRMATION);
+      return;
+    }
+
+    setLoginState(LOGIN_STATE.ERROR);
   };
 
   const handleTryAnotherEmail = () => {
     setEmail("");
     setSubmittedEmail("");
+    setErrorMessage(ERROR_MESSAGE);
     setLoginState(LOGIN_STATE.INPUT);
   };
 
-  const handleResendLink = () => {
-    // TODO: Replace with actual resend logic when Supabase is wired up
-    console.log("Resend link clicked for:", submittedEmail);
-  };
+  const handleResendLink = async () => {
+    if (!submittedEmail) return;
 
-  // TODO: Remove before final PR - temporary way to test Error state locally
-  const handleShowErrorState = () => {
-    setLoginState(LOGIN_STATE.ERROR);
+    setIsSubmitting(true);
+    const sent = await sendMagicLink(submittedEmail);
+    setIsSubmitting(false);
+
+    if (!sent) {
+      setLoginState(LOGIN_STATE.ERROR);
+    }
   };
 
   if (loginState === LOGIN_STATE.INPUT) {
@@ -113,11 +150,11 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={!email.trim() || !isValidEmail(email.trim())}
+              disabled={!email.trim() || !isValidEmail(email.trim()) || isSubmitting}
               className="w-full rounded-lg px-4 py-3 text-[16px] font-medium text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               style={{ backgroundColor: CONFIRM_BTN_BG, fontFamily: FONT_SANS }}
             >
-              {CONFIRM_BUTTON_TEXT}
+              {isSubmitting ? "Sending..." : CONFIRM_BUTTON_TEXT}
             </button>
           </div>
         </div>
@@ -146,10 +183,11 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={handleResendLink}
+                disabled={isSubmitting}
                 className="w-full rounded-lg px-4 py-3 text-[16px] font-bold text-white transition-colors hover:opacity-90"
                 style={{ backgroundColor: RESEND_BTN_BG, fontFamily: FONT_SANS }}
               >
-                {RESEND_LINK_TEXT}
+                {isSubmitting ? "Sending..." : RESEND_LINK_TEXT}
               </button>
               <button
                 type="button"
@@ -178,7 +216,7 @@ export default function LoginPage() {
             {ERROR_HEADING}
           </h1>
           <p className="mb-6 text-[15px] leading-snug text-black" style={{ fontFamily: FONT_SANS }}>
-            {ERROR_MESSAGE}
+            {errorMessage}
           </p>
           <button
             type="button"
