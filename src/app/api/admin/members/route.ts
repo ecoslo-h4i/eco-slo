@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/database/database.types";
 import { hasOnlyAllowedKeys, isDate, isEmail, isPhone, postgrestErrorToHttpStatus } from "@/database/utils";
 
-type VolunteerRow = Database["public"]["Tables"]["volunteers"]["Row"];
-type VolunteerInsert = Database["public"]["Tables"]["volunteers"]["Insert"];
+type VolunteerRow = Database["public"]["Tables"]["members"]["Row"];
+type VolunteerInsert = Database["public"]["Tables"]["members"]["Insert"];
 
 /**
  * GET API ROUTE: Retrieves all members from the database

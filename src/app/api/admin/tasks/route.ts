@@ -47,7 +47,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const json = await request.json();
-    const body = json as TablesInsert<"notifications">;
+    const body = json as TablesInsert<"tasks">;
 
     const { data, error } = await supabase.from("tasks").insert(body).select();
 
