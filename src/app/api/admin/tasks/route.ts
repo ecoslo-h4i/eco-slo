@@ -4,9 +4,9 @@ import { postgrestErrorToHttpStatus } from "@/database/utils";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * GET API ROUTE: Retrieves all notifications from the database
+ * GET API ROUTE: Retrieves all tasks from the database
  *
- * Fetches all rows and columns from the notifications table, sorted by creation date ascending.
+ * Fetches all rows and columns from the tasks table, sorted by creation date ascending.
  *
  * Parameters: none
  *
@@ -17,7 +17,7 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function GET() {
   try {
-    const { data, error } = await supabase.from("notifications").select("*").order("created_at", { ascending: true });
+    const { data, error } = await supabase.from("tasks").select("*").order("created_at", { ascending: true });
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
       return NextResponse.json({ message: error.message }, { status: status });
@@ -34,7 +34,7 @@ export async function GET() {
 /**
  * POST API ROUTE: Creates a new notification
  *
- * Inserts a new row into the notifications table using the JSON body from the request.
+ * Inserts a new row into the tasks table using the JSON body from the request.
  *
  * Parameters:
  * @param request - JSON body containing fields to insert, matching {@link TablesInsert<"notifications">}
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     const json = await request.json();
     const body = json as TablesInsert<"notifications">;
 
-    const { data, error } = await supabase.from("notifications").insert(body).select();
+    const { data, error } = await supabase.from("tasks").insert(body).select();
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
