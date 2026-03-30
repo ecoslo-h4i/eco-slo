@@ -8,7 +8,7 @@ interface MagicLinkRequest {
   email: string;
 }
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const json = await request.json();
     const body = json as MagicLinkRequest;
