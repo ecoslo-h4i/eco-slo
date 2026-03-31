@@ -47,11 +47,84 @@ export type Database = {
         };
         Relationships: [];
       };
+      reminders: {
+        Row: {
+          assignees: number[];
+          created_at: string;
+          crons_expression: string;
+          id: number;
+          is_active: boolean;
+          is_group_task: boolean;
+          name: string;
+          task_message: string;
+        };
+        Insert: {
+          assignees?: number[];
+          created_at?: string;
+          crons_expression?: string;
+          id?: number;
+          is_active?: boolean;
+          is_group_task?: boolean;
+          name?: string;
+          task_message?: string;
+        };
+        Update: {
+          assignees?: number[];
+          created_at?: string;
+          crons_expression?: string;
+          id?: number;
+          is_active?: boolean;
+          is_group_task?: boolean;
+          name?: string;
+          task_message?: string;
+        };
+        Relationships: [];
+      };
+      surveys: {
+        Row: {
+          body: Json;
+          created_at: string;
+          id: number;
+          task: number | null;
+          tree: number | null;
+        };
+        Insert: {
+          body?: Json;
+          created_at?: string;
+          id?: number;
+          task?: number | null;
+          tree?: number | null;
+        };
+        Update: {
+          body?: Json;
+          created_at?: string;
+          id?: number;
+          task?: number | null;
+          tree?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "surveys_task_fkey";
+            columns: ["task"];
+            isOneToOne: false;
+            referencedRelation: "tasks";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "surveys_tree_fkey";
+            columns: ["tree"];
+            isOneToOne: false;
+            referencedRelation: "trees";
+            referencedColumns: ["ecoslo_num"];
+          },
+        ];
+      };
       tasks: {
         Row: {
           assignees: number[] | null;
           completion_date: string | null;
           created_at: string;
+          created_by: number | null;
           id: number;
           is_complete: boolean;
           message: string;
@@ -62,6 +135,7 @@ export type Database = {
           assignees?: number[] | null;
           completion_date?: string | null;
           created_at?: string;
+          created_by?: number | null;
           id?: number;
           is_complete?: boolean;
           message: string;
@@ -72,11 +146,42 @@ export type Database = {
           assignees?: number[] | null;
           completion_date?: string | null;
           created_at?: string;
+          created_by?: number | null;
           id?: number;
           is_complete?: boolean;
           message?: string;
           surveys_needed?: number;
           title?: string;
+        };
+        Relationships: [];
+      };
+      templates: {
+        Row: {
+          assignees: number[];
+          created_at: string;
+          crons_expression: string;
+          id: number;
+          is_group_task: boolean;
+          name: string;
+          task_message: string;
+        };
+        Insert: {
+          assignees?: number[];
+          created_at?: string;
+          crons_expression?: string;
+          id?: number;
+          is_group_task?: boolean;
+          name?: string;
+          task_message?: string;
+        };
+        Update: {
+          assignees?: number[];
+          created_at?: string;
+          crons_expression?: string;
+          id?: number;
+          is_group_task?: boolean;
+          name?: string;
+          task_message?: string;
         };
         Relationships: [];
       };
