@@ -5,10 +5,16 @@ import { Map as LeafletMap, Icon } from "leaflet";
 import { MapContainer, TileLayer, useMap, Marker, useMapEvents } from "react-leaflet";
 import { supabase } from "@/supabase-client";
 
-type Location = {
+type Tree = {
   id: number;
   latitude: number;
   longitude: number;
+  species_name?: string | null;
+  common_name: string;
+  address: string;
+  status: string;
+  date_planted: string;
+  is_public: boolean;
 };
 
 const center: [number, number] = [35.2828, -120.6596];
@@ -18,6 +24,12 @@ const Max_Zoom = 6400;
 
 const customIcon = new Icon({
   iconUrl: "/icons/pin.svg",
+  iconSize: [48, 70],
+  iconAnchor: [24, 70],
+});
+
+const selectedIcon = new Icon({
+  iconUrl: "/icons/pinactive.svg",
   iconSize: [48, 70],
   iconAnchor: [24, 70],
 });
@@ -45,7 +57,8 @@ function ZoomButtons() {
 }
 
 export default function MapClient() {
-  const [locations, setLocations] = useState<Location[]>([]);
+  const [locations, setLocations] = useState<Tree[]>([]);
+  const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
 
   useEffect(() => {
     async function fetchLocations() {
@@ -85,10 +98,20 @@ export default function MapClient() {
         >
           <ZoomButtons />
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {locations.map((marker) => (
-            <Marker key={marker.id} position={[marker.latitude, marker.longitude]} icon={customIcon}></Marker>
-          ))}
+          {locations.map((marker) => {
+            const isSelected = selectedTree?.id == marker.id;
+
+            return (
+              <Marker
+                key={marker.id}
+                position={[marker.latitude, marker.longitude]}
+                icon={isSelected ? selectedIcon : customIcon}
+                eventHandlers={{ click: () => setSelectedTree(marker) }}
+              />
+            );
+          })}
         </MapContainer>
+        {/*<MapPopout tree = {selectedTree} onClose={()=> setSelectedTree(null)}/>*/}
       </div>
     </main>
   );
