@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Map as LeafletMap, Icon } from "leaflet";
 import { MapContainer, TileLayer, useMap, Marker, useMapEvents } from "react-leaflet";
 import { supabase } from "@/supabase-client";
+import MapPopout from "./MapPopout";
 
 type Tree = {
   id: number;
@@ -13,6 +14,7 @@ type Tree = {
   common_name: string;
   address: string;
   status: string;
+  notes: string;
   date_planted: string;
   is_public: boolean;
 };
@@ -72,7 +74,6 @@ export default function MapClient() {
           address,
           latitude,
           longitude,
-          adopter_name,
           is_public,
           notes`);
 
@@ -111,7 +112,7 @@ export default function MapClient() {
             );
           })}
         </MapContainer>
-        {/*<MapPopout tree = {selectedTree} onClose={()=> setSelectedTree(null)}/>*/}
+        <MapPopout tree={selectedTree} onClose={() => setSelectedTree(null)} />
       </div>
     </main>
   );

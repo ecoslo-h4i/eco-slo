@@ -1,9 +1,4 @@
-import dynamic from "next/dynamic";
-
-const MapClient = dynamic(() => import("components/MapClient"), {
-  ssr: false,
-  loading: () => <p>Loading...</p>,
-});
+import MapClient from "@/components/MapClient";
 
 export default function Map() {
   return (
