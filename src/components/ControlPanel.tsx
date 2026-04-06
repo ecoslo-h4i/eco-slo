@@ -242,14 +242,16 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
                   const trimmedQuery = query.trimStart();
                   const startsWithNumber = /^\d/.test(trimmedQuery);
 
-                  if (startsWithNumber) {
-                    tableRef.current?.setColumnSearchFilter("ecoslo_num", query);
-                    tableRef.current?.setColumnSearchFilter("species_name", "");
-                    return;
-                  }
+                  tableRef.current?.setSearchQuery(trimmedQuery);
 
-                  tableRef.current?.setColumnSearchFilter("species_name", query);
-                  tableRef.current?.setColumnSearchFilter("ecoslo_num", "");
+                  // if (startsWithNumber) {
+                  //   tableRef.current?.setColumnSearchFilter("ecoslo_num", query);
+                  //   tableRef.current?.setColumnSearchFilter("species_name", "");
+                  //   return;
+                  // }
+
+                  // tableRef.current?.setColumnSearchFilter("species_name", query);
+                  // tableRef.current?.setColumnSearchFilter("ecoslo_num", "");
                 }}
               />
             </div>
