@@ -1,4 +1,3 @@
-import Head from "next/head";
 import { ColumnDef } from "./table/column-def";
 import HeadControls from "./head-controls";
 
