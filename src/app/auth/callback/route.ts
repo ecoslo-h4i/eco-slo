@@ -15,6 +15,9 @@ export async function GET(request: NextRequest) {
     if (error) {
       return NextResponse.json({ message: error.message }, { status: 400 });
     }
+    if (!data.session || !data.user) {
+      return NextResponse.json({ message: "User invalid" }, { status: 400 });
+    }
     redirect("/dashboard");
   } catch (error) {
     if (isRedirectError(error)) {
