@@ -3,25 +3,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/database/database.types";
 import { hasOnlyAllowedKeys, isDate, isEmail, isPhone, postgrestErrorToHttpStatus } from "@/database/utils";
 
-type VolunteerRow = Database["public"]["Tables"]["volunteers"]["Row"];
-type VolunteerInsert = Database["public"]["Tables"]["volunteers"]["Insert"];
+type VolunteerRow = Database["public"]["Tables"]["members"]["Row"];
+type VolunteerInsert = Database["public"]["Tables"]["members"]["Insert"];
 
 /**
- * GET API ROUTE: Retrieves all volunteers from the database
+ * GET API ROUTE: Retrieves all members from the database
  *
- * Fetches all rows and columns from the volunteers table, sorted by creation date ascending.
+ * Fetches all rows and columns from the members table, sorted by creation date ascending.
  *
  * Parameters: none
  *
  * Returns:
- * - 200 with { data: Volunteer[] } on success
- * - 404 with { data: null, error: "Not Found" } if no volunteers exist
- * - Supabase error with mapped status code { data: null, error: string }
+ * - 200 with { message: Volunteer[] } on success
+ * - 404 with { message: null, error: "Not Found" } if no members exist
+ * - Supabase error with mapped status code { message: null, error: string }
  * - 500 on server error { data: null, error: "Internal Server Error" }
  */
 export async function GET() {
   try {
-    const { data, error } = await supabase.from("volunteers").select("*").order("created_at", { ascending: true });
+    const { data, error } = await supabase.from("members").select("*").order("created_at", { ascending: true });
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
@@ -29,10 +29,10 @@ export async function GET() {
     }
 
     if (!data || data.length === 0) {
-      return NextResponse.json({ data: null, error: "Not Found" }, { status: 404 });
+      return NextResponse.json({ message: null, error: "Not Found" }, { status: 404 });
     }
 
-    NextResponse.json({ data: data }, { status: 200 });
+    return NextResponse.json({ message: data }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });
   }
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const { data, error } = await supabase.from("volunteers").insert(body).select().single<VolunteerRow>();
+    const { data, error } = await supabase.from("members").insert(body).select().single<VolunteerRow>();
 
     if (error) {
       console.log("Supabase error creating volunteer:", error.message);
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message: data }, { status: 201 });
   } catch (error) {
-    console.error("Unexpected error in /api/admin/volunteers POST:", error);
+    console.error("Unexpected error in /api/admin/members POST:", error);
     return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });
   }
 }

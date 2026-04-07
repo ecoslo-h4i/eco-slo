@@ -13,9 +13,9 @@ export type NotificationPopoutProps = {
   trigger: boolean;
 };
 
-const READ_FILTER_ALL: Number = 0;
-const READ_FILTER_UNREAD: Number = 1;
-const READ_FILTER_READ: Number = 2;
+const READ_FILTER_ALL: number = 0;
+const READ_FILTER_UNREAD: number = 1;
+const READ_FILTER_READ: number = 2;
 
 export default function NotificationsPopout(props: NotificationPopoutProps) {
   const [notificationList, setNotificationList] = useState(props.notificationList);
@@ -67,7 +67,7 @@ export default function NotificationsPopout(props: NotificationPopoutProps) {
 }
 
 function mapNotifications(
-  read: Number,
+  read: number,
   notificationList: Notification[],
   onDelete: (timestamp: string) => void,
   onRead: (timestamp: string) => void,

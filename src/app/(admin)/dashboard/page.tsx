@@ -9,7 +9,7 @@ import { ReminderWidget, VolunteerWidget } from "@/components/SimpleDashboardWid
 
 // TODO: This is just for testing/development, remove once backend integration is finished
 function createNotificationList() {
-  let list: Notification[] = [];
+  const list: Notification[] = [];
   for (let i = 0; i < 50; i++) {
     list[i] = { notificationText: "notification" + i, timestamp: i + "m", read: i % 2 == 1 ? true : false };
   }

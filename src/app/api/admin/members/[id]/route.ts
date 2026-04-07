@@ -24,7 +24,7 @@ export async function GET(_request: NextRequest, { params }: { params: IParams }
   try {
     const { id } = await params;
 
-    const { data, error } = await supabase.from("volunteers").select("*").eq("id", id).single();
+    const { data, error } = await supabase.from("members").select("*").eq("id", id).single();
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
@@ -61,7 +61,7 @@ export async function PUT(request: NextRequest, { params }: { params: IParams })
     const { id } = await params;
     const body = await request.json();
 
-    const { data, error } = await supabase.from("volunteers").update(body).eq("id", id).select().single();
+    const { data, error } = await supabase.from("members").update(body).eq("id", id).select().single();
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
@@ -92,7 +92,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: IParam
   try {
     const { id } = await params;
 
-    const { data, error } = await supabase.from("volunteers").delete().eq("id", id).select().single();
+    const { data, error } = await supabase.from("members").delete().eq("id", id).select().single();
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
