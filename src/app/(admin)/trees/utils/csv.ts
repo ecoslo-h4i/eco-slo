@@ -10,7 +10,7 @@ type Tree = Database["public"]["Tables"]["trees"]["Row"];
  *                Headers must be valid object keys.
  * @returns The CSV string representation of the data
  */
-function dataToCSV(data: any[], headers?: string[]): string {
+export function dataToCSV(data: Record<string, unknown>[], headers?: string[]): string {
   if (data.length === 0) return headers ? headers.join(",") : "";
   const keys = headers || Object.keys(data[0]);
   const csvRows = data.map((val) => keys.map((key) => JSON.stringify(val[key] ?? "")).join(","));

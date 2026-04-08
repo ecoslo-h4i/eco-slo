@@ -1,11 +1,11 @@
 "use client";
 
-import { type MutableRefObject, useEffect, useState } from "react";
+import { ChangeEvent, type MutableRefObject, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { TreeSchema } from "./data-table/table-widget-defs";
 import { Table } from "./data-table/table/table-types";
 import { Console } from "console";
-import { treeSchemaToDownloadCSV } from "@/app/(admin)/trees/utils/csv";
+import { dataToCSV, downloadTreeCSV } from "@/app/(admin)/trees/utils/csv";
 
 interface ControlSearchProps {
   searchDelay: number;
@@ -25,7 +25,7 @@ function ControlSearch(props: ControlSearchProps) {
     };
   }, [query, props.searchDelay, props.searchFunction, props]);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const next = e.target.value;
     setQuery(next);
   };
@@ -87,30 +87,27 @@ interface ControlStatusPillsInterface {
 
 function ControlStatusPills(props: ControlStatusPillsInterface) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [pendingIndex, setPendingIndex] = useState<number | null>(null);
-  const [countdown, setCountdown] = useState<number | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (countdown === null || pendingIndex === null) return;
-
-    if (countdown <= 0) {
-      props.delayFunction(props.options[pendingIndex]);
-      setCountdown(null);
-      setPendingIndex(null);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setCountdown(countdown - 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [countdown, pendingIndex, props]);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleSelect = (index: number) => {
     setActiveIndex(index);
-    setPendingIndex(index);
-    setCountdown(props.delay);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      props.delayFunction(props.options[index]);
+      console.log("Pill func");
+    }, props.delay);
   };
 
   return (
@@ -145,25 +142,29 @@ interface ControlFilterDropdownInterface {
 function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const longestItem = props.dropDown.reduce((a, b) => (a.length > b.length ? a : b), "");
-
   useEffect(() => {
-    if (countdown === null) return;
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
-    if (countdown <= 0) {
-      props.delayFunction(props.dropDown[activeIndex]);
-      setCountdown(null);
-      return;
+  const handleSelect = (index: number) => {
+    setActiveIndex(index);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
 
-    const timer = setTimeout(() => {
-      setCountdown(countdown - 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [activeIndex, countdown, props]);
+    timeoutRef.current = setTimeout(() => {
+      props.delayFunction(props.dropDown[index]);
+      console.log("Drop down func");
+    }, props.delay);
+  };
 
   return (
     <div className="flex flex-col gap-1.5 relative select-none w-fit">
@@ -203,11 +204,7 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
               className={`px-4 py-2.5 cursor-pointer text-lg font-medium hover:bg-[#F1E6D9] transition-colors whitespace-nowrap ${
                 index === activeIndex ? "bg-[#F1E6D9]" : ""
               }`}
-              onClick={() => {
-                setActiveIndex(index);
-                setIsOpen(false);
-                setCountdown(props.delay);
-              }}
+              onClick={() => handleSelect(index)}
             >
               {item}
             </div>
@@ -228,7 +225,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
   const CONTROL_STATUS_OPTIONS = ["All", "Active", "Graduated"];
   const CONDITION_STATUS_OPTIONS = ["All", "Good", "Fair", "Poor"];
   const VISIBILITY_STATUS_OPTIONS = ["All", "Public", "Private"];
-  const QUERY_DELAY = 0;
+  const QUERY_DELAY = 500;
 
   return (
     <div className="w-full">
@@ -301,7 +298,20 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
               textHex="#000000"
               text="Export CSV"
               iconPath="/icons/download.svg"
-              function={() => treeSchemaToDownloadCSV(tableRef.current?.data ?? [])}
+              function={() => {
+                // Use current row model state instead of internal data to ensure filters are applied to exported CSV
+                downloadTreeCSV(
+                  dataToCSV(
+                    tableRef?.current?.getRowModels().map((rowModel) => {
+                      const row: Record<string, unknown> = {};
+                      rowModel.cells.forEach((cell) => {
+                        row[cell.column.id] = cell.value;
+                      });
+                      return row;
+                    }) ?? [],
+                  ),
+                );
+              }}
             />
             <ControlButton
               backgroundHex="#8A9573"
