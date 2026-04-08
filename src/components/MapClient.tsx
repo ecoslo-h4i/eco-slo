@@ -6,16 +6,23 @@ import { MapContainer, TileLayer, useMap, Marker, useMapEvents } from "react-lea
 import { supabase } from "@/supabase-client";
 import MapPopout from "./MapPopout";
 
+type Member = {
+  id: number;
+  firstname: string;
+  lastname: string;
+};
+
 type Tree = {
   id: number;
   latitude: number;
   longitude: number;
+  member: Member | null;
   species_name?: string | null;
   common_name: string;
   address: string;
   status: string;
-  notes: string;
   date_planted: string;
+  notes: string;
   is_public: boolean;
 };
 
@@ -58,6 +65,15 @@ function ZoomButtons() {
   );
 }
 
+function MapClickHandler({ onMapClick }: { onMapClick: () => void }) {
+  useMapEvents({
+    click: () => {
+      onMapClick();
+    },
+  });
+  return null;
+}
+
 export default function MapClient() {
   const [locations, setLocations] = useState<Tree[]>([]);
   const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
@@ -74,6 +90,11 @@ export default function MapClient() {
           address,
           latitude,
           longitude,
+          member: tree_keeper_id (
+            id,
+            firstname,
+            lastname
+          ),
           is_public,
           notes`);
 
@@ -88,7 +109,7 @@ export default function MapClient() {
 
   return (
     <main>
-      <div className="relative h-screen w-screen">
+      <div className="relative w-full h-screen">
         <MapContainer
           center={center}
           zoom={zoom}
@@ -98,6 +119,7 @@ export default function MapClient() {
           className="h-full w-full"
         >
           <ZoomButtons />
+          <MapClickHandler onMapClick={() => setSelectedTree(null)} />
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           {locations.map((marker) => {
             const isSelected = selectedTree?.id == marker.id;
