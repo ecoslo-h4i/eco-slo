@@ -79,7 +79,7 @@ function ControlButton(props: ControlButtonInterface) {
 interface ControlStatusPillsInterface {
   text: string;
   options: string[];
-  delay: number;
+  delay: number; // Delay in ms before calling delayFunction
   delayFunction: (status: string) => void;
   activeBackgroundHex: string;
   activeTextHex: string;
@@ -106,7 +106,6 @@ function ControlStatusPills(props: ControlStatusPillsInterface) {
 
     timeoutRef.current = setTimeout(() => {
       props.delayFunction(props.options[index]);
-      console.log("Pill func");
     }, props.delay);
   };
 
@@ -135,7 +134,7 @@ function ControlStatusPills(props: ControlStatusPillsInterface) {
 interface ControlFilterDropdownInterface {
   text: string;
   dropDown: string[];
-  delay: number;
+  delay: number; // Delay in ms before calling delayFunction
   delayFunction: (filter: string) => void;
 }
 
@@ -162,7 +161,6 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
 
     timeoutRef.current = setTimeout(() => {
       props.delayFunction(props.dropDown[index]);
-      console.log("Drop down func");
     }, props.delay);
   };
 
@@ -225,7 +223,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
   const CONTROL_STATUS_OPTIONS = ["All", "Active", "Graduated"];
   const CONDITION_STATUS_OPTIONS = ["All", "Good", "Fair", "Poor"];
   const VISIBILITY_STATUS_OPTIONS = ["All", "Public", "Private"];
-  const QUERY_DELAY = 500;
+  const QUERY_DELAY = 0;
 
   return (
     <div className="w-full">
