@@ -1,5 +1,5 @@
-import MapClient from "@/components/MapClient";
+import MapPageClient from "@/components/MapPageClient";
 
 export default function Map() {
-  return <MapClient />;
+  return <MapPageClient />;
 }
