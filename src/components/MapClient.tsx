@@ -1,8 +1,7 @@
 "use client";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useState } from "react";
-import { Map as LeafletMap, Icon } from "leaflet";
-import { MapContainer, TileLayer, useMap, Marker, useMapEvents } from "react-leaflet";
+import { useEffect, useRef, useState } from "react";
+import L, { Icon } from "leaflet";
 import { supabase } from "@/supabase-client";
 import MapPopout from "./MapPopout";
 import { QueryData } from "@supabase/supabase-js";
@@ -29,8 +28,8 @@ type Tree = {
 
 const center: [number, number] = [35.2828, -120.6596];
 const zoom = 13;
-const Min_Zoom = 8;
-const Max_Zoom = 6400;
+const MIN_ZOOM = 8;
+const MAX_ZOOM = 18;
 
 const treesQuery = supabase.from("trees").select(`
   id,
@@ -65,40 +64,13 @@ const selectedIcon = new Icon({
   iconAnchor: [24, 70],
 });
 
-function ZoomButtons() {
-  const map = useMap();
-  return (
-    <div className="absolute top-4 left-4 z-1000 flex flex-col gap-3">
-      <button
-        type="button"
-        className="grid h-[58px] w-[58px] place-items-center bg-[#A8B97C] rounded-full text-4xl leading-none text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] hover:cursor-pointer"
-        onClick={() => map.zoomIn()}
-      >
-        +
-      </button>
-      <button
-        type="button"
-        className="grid h-[58px] w-[58px] place-items-center bg-[#A8B97C] rounded-full text-4xl leading-none text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] hover:cursor-pointer"
-        onClick={() => map.zoomOut()}
-      >
-        -
-      </button>
-    </div>
-  );
-}
-
-function MapClickHandler({ onMapClick }: { onMapClick: () => void }) {
-  useMapEvents({
-    click: () => {
-      onMapClick();
-    },
-  });
-  return null;
-}
-
 export default function MapClient() {
   const [locations, setLocations] = useState<Tree[]>([]);
   const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
+
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markersLayerRef = useRef<L.LayerGroup | null>(null);
 
   useEffect(() => {
     async function fetchLocations() {
@@ -128,33 +100,93 @@ export default function MapClient() {
     fetchLocations();
   }, []);
 
+  useEffect(() => {
+    const container = mapContainerRef.current;
+
+    if (!container || mapRef.current) {
+      return;
+    }
+
+    const map = L.map(container, {
+      center,
+      zoom,
+      minZoom: MIN_ZOOM,
+      maxZoom: MAX_ZOOM,
+      zoomControl: false,
+    });
+
+    mapRef.current = map;
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
+    }).addTo(map);
+
+    markersLayerRef.current = L.layerGroup().addTo(map);
+
+    map.on("click", () => {
+      setSelectedTree(null);
+    });
+
+    return () => {
+      map.off();
+      map.remove();
+      mapRef.current = null;
+      markersLayerRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mapRef.current || !markersLayerRef.current) {
+      return;
+    }
+
+    markersLayerRef.current.clearLayers();
+
+    for (const tree of locations) {
+      const isSelected = selectedTree?.id === tree.id;
+
+      const marker = L.marker([tree.latitude, tree.longitude], {
+        icon: isSelected ? selectedIcon : customIcon,
+      });
+
+      marker.on("click", () => {
+        setSelectedTree(tree);
+      });
+
+      marker.addTo(markersLayerRef.current);
+    }
+  }, [locations, selectedTree]);
+
+  const zoomIn = () => {
+    mapRef.current?.zoomIn();
+  };
+
+  const zoomOut = () => {
+    mapRef.current?.zoomOut();
+  };
+
   return (
     <main className="flex-1 w-full min-h-0">
       <div className="relative w-full h-full">
-        <MapContainer
-          center={center}
-          zoom={zoom}
-          minZoom={Min_Zoom}
-          maxZoom={Max_Zoom}
-          zoomControl={false}
-          className="h-full w-full"
-        >
-          <ZoomButtons />
-          <MapClickHandler onMapClick={() => setSelectedTree(null)} />
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {locations.map((marker) => {
-            const isSelected = selectedTree?.id == marker.id;
+        <div ref={mapContainerRef} className="h-full w-full" />
 
-            return (
-              <Marker
-                key={marker.id}
-                position={[marker.latitude, marker.longitude]}
-                icon={isSelected ? selectedIcon : customIcon}
-                eventHandlers={{ click: () => setSelectedTree(marker) }}
-              />
-            );
-          })}
-        </MapContainer>
+        <div className="absolute top-4 left-4 z-[1000] flex flex-col gap-3">
+          <button
+            type="button"
+            className="grid h-[58px] w-[58px] place-items-center rounded-full bg-[#A8B97C] text-4xl leading-none text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] hover:cursor-pointer"
+            onClick={zoomIn}
+          >
+            +
+          </button>
+          <button
+            type="button"
+            className="grid h-[58px] w-[58px] place-items-center rounded-full bg-[#A8B97C] text-4xl leading-none text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] hover:cursor-pointer"
+            onClick={zoomOut}
+          >
+            -
+          </button>
+        </div>
+
         <MapPopout tree={selectedTree} onClose={() => setSelectedTree(null)} />
       </div>
     </main>
