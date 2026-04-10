@@ -5,6 +5,7 @@ import { Map as LeafletMap, Icon } from "leaflet";
 import { MapContainer, TileLayer, useMap, Marker, useMapEvents } from "react-leaflet";
 import { supabase } from "@/supabase-client";
 import MapPopout from "./MapPopout";
+import { QueryData } from "@supabase/supabase-js";
 
 type Member = {
   id: number;
@@ -30,6 +31,27 @@ const center: [number, number] = [35.2828, -120.6596];
 const zoom = 13;
 const Min_Zoom = 8;
 const Max_Zoom = 6400;
+
+const treesQuery = supabase.from("trees").select(`
+  id,
+  ecoslo_num,
+  status,
+  date_planted,
+  species_name,
+  common_name,
+  address,
+  latitude,
+  longitude,
+  member: tree_keeper_id (
+    id,
+    firstname,
+    lastname
+  ),
+  is_public,
+  notes
+`);
+
+type TreeRow = QueryData<typeof treesQuery>[number];
 
 const customIcon = new Icon({
   iconUrl: "/icons/pin.svg",
@@ -80,29 +102,28 @@ export default function MapClient() {
 
   useEffect(() => {
     async function fetchLocations() {
-      const { data, error } = await supabase.from("trees").select(`
-          id,
-          ecoslo_num,
-          status,
-          date_planted,
-          species_name,
-          common_name,
-          address,
-          latitude,
-          longitude,
-          member: tree_keeper_id (
-            id,
-            firstname,
-            lastname
-          ),
-          is_public,
-          notes`);
+      const { data, error } = await treesQuery;
 
       if (error) {
         console.error(error);
         return;
       }
-      setLocations(data);
+
+      const normalized: Tree[] = (data ?? []).map((row: TreeRow) => ({
+        id: row.id,
+        latitude: row.latitude,
+        longitude: row.longitude,
+        member: Array.isArray(row.member) ? (row.member[0] ?? null) : row.member,
+        species_name: row.species_name ?? null,
+        common_name: row.common_name,
+        address: row.address,
+        status: row.status,
+        date_planted: row.date_planted,
+        notes: row.notes,
+        is_public: row.is_public,
+      }));
+
+      setLocations(normalized);
     }
     fetchLocations();
   }, []);
