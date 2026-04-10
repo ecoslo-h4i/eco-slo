@@ -108,8 +108,8 @@ export default function MapClient() {
   }, []);
 
   return (
-    <main>
-      <div className="relative w-full h-screen">
+    <main className="flex-1 w-full min-h-0">
+      <div className="relative w-full h-full">
         <MapContainer
           center={center}
           zoom={zoom}
