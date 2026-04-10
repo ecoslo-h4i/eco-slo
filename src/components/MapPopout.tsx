@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 type Member = {
   id: number;
   firstname: string;
@@ -32,7 +34,7 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
     <aside className="absolute right-0 top-0 z-[3000] h-full w-[400px] overflow-y-auto flex-col bg-[#FFFCF5] px-8 py-10">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-[22px] leading-none text-black">EcoSLO #{tree.id}</h2>
+          <h2 className="text-[22px] leading-none text-black">ECOSLO #{tree.id}</h2>
           <span className="rounded-full bg-[#EEEAE4] px-3 py-1 text-[11px] text-black/50">{tree.status}</span>
         </div>
         <button
@@ -58,13 +60,13 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
           </p>
         </div>
         <div className="px-4 py-3 rounded-2xl bg-[#EEEAE4]">
-          <p className="mb-1 text-[12px] font-semibold text-black">Adopter</p>
+          <p className="mb-1 text-[12px] font-semibold text-black">Tree Keeper</p>
           <p className="text-[14px] text-black font-semibold">
             {tree.member?.firstname} {tree.member?.lastname}
           </p>
         </div>
         <div className="px-4 py-3 rounded-2xl bg-[#EEEAE4]">
-          <p className="mb-1 text-[12px] font-semibold text-black">Public/Private</p>
+          <p className="mb-1 text-[12px] font-semibold text-black">Visibility</p>
           <p className="text-[14px] text-black font-semibold">{tree.is_public ? "Public" : "Private"}</p>
         </div>
         <div className="px-4 py-3 rounded-2xl bg-[#EEEAE4]">
