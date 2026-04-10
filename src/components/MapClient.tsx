@@ -4,11 +4,26 @@ import { useEffect, useState } from "react";
 import { Map as LeafletMap, Icon } from "leaflet";
 import { MapContainer, TileLayer, useMap, Marker, useMapEvents } from "react-leaflet";
 import { supabase } from "@/supabase-client";
+import MapPopout from "./MapPopout";
 
-type Location = {
+type Member = {
+  id: number;
+  firstname: string;
+  lastname: string;
+};
+
+type Tree = {
   id: number;
   latitude: number;
   longitude: number;
+  member: Member | null;
+  species_name?: string | null;
+  common_name: string;
+  address: string;
+  status: string;
+  date_planted: string;
+  notes: string;
+  is_public: boolean;
 };
 
 const center: [number, number] = [35.2828, -120.6596];
@@ -18,6 +33,12 @@ const Max_Zoom = 6400;
 
 const customIcon = new Icon({
   iconUrl: "/icons/pin.svg",
+  iconSize: [48, 70],
+  iconAnchor: [24, 70],
+});
+
+const selectedIcon = new Icon({
+  iconUrl: "/icons/pinactive.svg",
   iconSize: [48, 70],
   iconAnchor: [24, 70],
 });
@@ -44,8 +65,18 @@ function ZoomButtons() {
   );
 }
 
+function MapClickHandler({ onMapClick }: { onMapClick: () => void }) {
+  useMapEvents({
+    click: () => {
+      onMapClick();
+    },
+  });
+  return null;
+}
+
 export default function MapClient() {
-  const [locations, setLocations] = useState<Location[]>([]);
+  const [locations, setLocations] = useState<Tree[]>([]);
+  const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
 
   useEffect(() => {
     async function fetchLocations() {
@@ -59,7 +90,11 @@ export default function MapClient() {
           address,
           latitude,
           longitude,
-          adopter_name,
+          member: tree_keeper_id (
+            id,
+            firstname,
+            lastname
+          ),
           is_public,
           notes`);
 
@@ -73,8 +108,8 @@ export default function MapClient() {
   }, []);
 
   return (
-    <main>
-      <div className="relative h-screen w-screen">
+    <main className="flex-1 w-full min-h-0">
+      <div className="relative w-full h-full">
         <MapContainer
           center={center}
           zoom={zoom}
@@ -84,11 +119,22 @@ export default function MapClient() {
           className="h-full w-full"
         >
           <ZoomButtons />
+          <MapClickHandler onMapClick={() => setSelectedTree(null)} />
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {locations.map((marker) => (
-            <Marker key={marker.id} position={[marker.latitude, marker.longitude]} icon={customIcon}></Marker>
-          ))}
+          {locations.map((marker) => {
+            const isSelected = selectedTree?.id == marker.id;
+
+            return (
+              <Marker
+                key={marker.id}
+                position={[marker.latitude, marker.longitude]}
+                icon={isSelected ? selectedIcon : customIcon}
+                eventHandlers={{ click: () => setSelectedTree(marker) }}
+              />
+            );
+          })}
         </MapContainer>
+        <MapPopout tree={selectedTree} onClose={() => setSelectedTree(null)} />
       </div>
     </main>
   );
