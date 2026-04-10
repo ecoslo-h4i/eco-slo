@@ -6,9 +6,9 @@ import { NextRequest, NextResponse } from "next/server";
 // TODO: surveys — spec fields issue/needs_contact/image_link are stored inside body (jsonb), validate body shape when schema is finalized
 
 type IParams = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export async function GET(req: NextRequest, { params }: IParams) {

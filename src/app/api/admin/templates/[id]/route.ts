@@ -5,9 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
 // TODO: enforce auth — use createAuthenticatedClient(jwt) when auth is wired up
 
 type IParams = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export async function GET(req: NextRequest, { params }: IParams) {
