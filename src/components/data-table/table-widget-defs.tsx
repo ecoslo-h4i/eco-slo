@@ -1,4 +1,3 @@
-import Head from "next/head";
 import { ColumnDef } from "./table/column-def";
 import HeadControls from "./head-controls";
 
@@ -75,12 +74,14 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
     cell: (value) => value,
     cellId: (value) => String(value),
     comparator: (a, b) => Number(a) - Number(b),
+    canSearch: true,
   },
   {
     id: "species_name",
     name: "Species",
     cell: (value) => value,
     cellId: (value) => String(value).toLowerCase(),
+    canSearch: true,
   },
   {
     id: "date_planted",
@@ -92,6 +93,7 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
       const dateB = new Date(String(b));
       return dateA.getTime() - dateB.getTime();
     },
+    canSearch: true,
   },
   {
     id: "status",
@@ -104,31 +106,37 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
       );
     },
     cellId: (value) => String(value).toLowerCase(),
+    canSearch: true,
   },
   {
     id: "common_name",
     name: "Common Name",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "funder",
     name: "Funder",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "address",
     name: "Address",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "latitude",
     name: "Latitude",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "longitude",
     name: "Longitude",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "is_public",
@@ -145,6 +153,7 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
       }
       return String(value).toLowerCase();
     },
+    canSearch: true,
   },
   {
     id: "adopter_name",
@@ -152,31 +161,37 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => value,
     comparator: (a, b) => String(a).localeCompare(String(b)),
+    canSearch: true,
   },
   {
     id: "adopter_phone",
     name: "Treekeeper Phone",
     cell: (value) => formatPhoneNumber(value),
+    canSearch: true,
   },
   {
     id: "adopter_email",
     name: "Treekeeper Email",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "weekly_watering_status",
     name: "Weekly Watering Status",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "next_mulching_date",
     name: "Next Mulching Date",
     cell: (value) => formatISODate(value),
+    canSearch: true,
   },
   {
     id: "notes",
     name: "Notes",
     cell: (value) => value,
+    canSearch: true,
   },
 ];
 

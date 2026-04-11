@@ -13,5 +13,6 @@ export type ColumnDef<
   headPosition?: "left" | "center" | "right";
   cellPosition?: "left" | "center" | "right";
   columnWidth?: string;
-  canHide?: boolean;
+  canHide?: boolean; //default true
+  canSearch?: boolean; //default false
 };

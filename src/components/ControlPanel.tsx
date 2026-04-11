@@ -4,7 +4,6 @@ import { type MutableRefObject, useEffect, useState } from "react";
 import Image from "next/image";
 import { TreeSchema } from "./data-table/table-widget-defs";
 import { Table } from "./data-table/table/table-types";
-import { Console } from "console";
 import { treeSchemaToDownloadCSV } from "@/app/(admin)/trees/utils/csv";
 
 interface ControlSearchProps {
@@ -240,16 +239,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
                 searchDelay={QUERY_DELAY}
                 searchFunction={(query: string) => {
                   const trimmedQuery = query.trimStart();
-                  const startsWithNumber = /^\d/.test(trimmedQuery);
-
-                  if (startsWithNumber) {
-                    tableRef.current?.setColumnSearchFilter("ecoslo_num", query);
-                    tableRef.current?.setColumnSearchFilter("species_name", "");
-                    return;
-                  }
-
-                  tableRef.current?.setColumnSearchFilter("species_name", query);
-                  tableRef.current?.setColumnSearchFilter("ecoslo_num", "");
+                  tableRef.current?.setSearchQuery(trimmedQuery);
                 }}
               />
             </div>
