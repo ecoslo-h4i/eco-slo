@@ -9,9 +9,10 @@ export const dynamic = "force-dynamic";
  */
 export async function GET() {
   try {
+    // Keep columns aligned with the live `trees` table; avoid selecting columns that may not exist in every env.
     const { data, error } = await supabase
       .from("trees")
-      .select("id, latitude, longitude, ecoslo_num, species_name, common_name, date_planted, adopter_name");
+      .select("id, latitude, longitude, ecoslo_num, species_name, common_name, date_planted");
 
     if (error) {
       console.error("Supabase error fetching trees:", error.message);
