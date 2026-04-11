@@ -2,7 +2,7 @@ import type { SurveyTaskOption, SurveyTreeOption } from "@/types/survey";
 
 /**
  * Reference-only fixtures for tests or Storybook. The live form loads options from
- * GET /api/public/tasks and GET /api/public/trees only.
+ * GET /api/public/tasks and GET /api/public/survey/trees only.
  */
 export const SURVEY_TEST_TASKS: SurveyTaskOption[] = [
   { id: 1, label: "Sample task A" },

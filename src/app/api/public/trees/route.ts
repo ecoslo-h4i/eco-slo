@@ -2,24 +2,22 @@ import { supabase } from "@/supabase-client";
 import { NextResponse } from "next/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 
-export const dynamic = "force-dynamic";
-
 /**
- * GET — public tree list for selectors (`surveys.tree` references `trees.ecoslo_num`).
+ * Example GET API route for public facing tree data.
+ * @returns {message: string, status: number}
  */
 export async function GET() {
   try {
-    // Keep columns aligned with the live `trees` table; avoid selecting columns that may not exist in every env.
     const { data, error } = await supabase
       .from("trees")
-      .select("id, latitude, longitude, ecoslo_num, species_name, common_name, date_planted");
+      .select("id, latitude, longitude, ecoslo_num, species_name, common_name, date_planted, adopter_name");
 
     if (error) {
       console.error("Supabase error fetching trees:", error.message);
       return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
     }
 
-    return NextResponse.json({ message: data ?? [] }, { status: 200 });
+    return NextResponse.json({ message: data }, { status: 200 });
   } catch (e) {
     console.error("Unexpected error in /api/public/trees GET", e);
     return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });

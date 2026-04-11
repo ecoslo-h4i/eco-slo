@@ -32,10 +32,10 @@ export async function fetchPublicTasks(): Promise<{ tasks: SurveyTaskOption[]; e
 }
 
 /**
- * Lists trees for the survey selector via `GET /api/public/trees` → `trees.ecoslo_num`.
+ * Lists trees for the survey selector via `GET /api/public/survey/trees` → `trees.ecoslo_num`.
  */
 export async function fetchPublicTrees(): Promise<{ trees: SurveyTreeOption[]; error: string | null }> {
-  const res = await fetch("/api/public/trees", { method: "GET", cache: "no-store" });
+  const res = await fetch("/api/public/survey/trees", { method: "GET", cache: "no-store" });
   const json = await readJson(res);
   if (!res.ok) {
     return { trees: [], error: apiErrorMessage(json, `Could not load trees (${res.status}).`) };

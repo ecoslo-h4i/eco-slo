@@ -6,7 +6,7 @@ export type SurveyTaskOption = {
   label: string;
 };
 
-/** Row shape from `GET /api/public/trees` for selectors (`surveys.tree` → `trees.ecoslo_num`). */
+/** Row shape from `GET /api/public/survey/trees` for selectors (`surveys.tree` → `trees.ecoslo_num`). */
 export type SurveyTreeOption = {
   ecoslo_num: number;
   common_name: string;
