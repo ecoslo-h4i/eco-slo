@@ -56,6 +56,51 @@ export type Database = {
           },
         ];
       };
+      surveys: {
+        Row: {
+          body: Json;
+          created_at: string;
+          id: number;
+          task: number;
+          tree: number;
+        };
+        Insert: {
+          body: Json;
+          created_at?: string;
+          id?: number;
+          task: number;
+          tree: number;
+        };
+        Update: {
+          body?: Json;
+          created_at?: string;
+          id?: number;
+          task?: number;
+          tree?: number;
+        };
+        Relationships: [];
+      };
+      tasks: {
+        Row: {
+          created_at: string | null;
+          description: string | null;
+          id: number;
+          title: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          description?: string | null;
+          id?: number;
+          title: string;
+        };
+        Update: {
+          created_at?: string | null;
+          description?: string | null;
+          id?: number;
+          title?: string;
+        };
+        Relationships: [];
+      };
       test: {
         Row: {
           created_at: string;

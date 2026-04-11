@@ -18,6 +18,7 @@ export default function Navbar() {
         <NavbarButton icon="/icons/volunteers.svg" label="Volunteers" link="/volunteers" />
         <NavbarButton icon="/icons/analytics.svg" label="Reminders" link="/reminders" />
         <NavbarButton icon="/icons/map.svg" label="Tree Map" link="/map" />
+        <NavbarButton icon="/icons/penciledit.svg" label="Survey" link="/survey" />
         <NavbarButton icon="/icons/settings.svg" label="Settings" link="/settings" />
       </div>
     </div>

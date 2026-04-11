@@ -2,9 +2,10 @@ import { supabase } from "@/supabase-client";
 import { NextResponse } from "next/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 
+export const dynamic = "force-dynamic";
+
 /**
- * Example GET API route for public facing tree data.
- * @returns {message: string, status: number}
+ * GET — public tree list for selectors (`surveys.tree` references `trees.ecoslo_num`).
  */
 export async function GET() {
   try {
@@ -17,7 +18,7 @@ export async function GET() {
       return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
     }
 
-    return NextResponse.json({ message: data }, { status: 200 });
+    return NextResponse.json({ message: data ?? [] }, { status: 200 });
   } catch (e) {
     console.error("Unexpected error in /api/public/trees GET", e);
     return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });
