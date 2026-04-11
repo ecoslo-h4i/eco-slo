@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 
 type IParams = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 /**

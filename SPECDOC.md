@@ -123,9 +123,11 @@ The platform should eventually support the following operational areas:
 The platform currently recognizes three product-level user groups.
 
 ### 1. Admin
+
 Admins can manage internal operations.
 
 Expected capabilities:
+
 - see and edit all internal data
 - manage trees
 - manage members
@@ -135,18 +137,22 @@ Expected capabilities:
 - access internal dashboard pages
 
 ### 2. Tree Keeper
+
 Tree Keepers are members who are responsible for one or more trees.
 
 Expected capabilities:
+
 - view tasks relevant to them
 - complete visible tasks
 - submit surveys related to assigned work
 - view or update tree-related information that product rules permit
 
 ### 3. Public
+
 Public users are not authenticated internal users.
 
 Expected capabilities:
+
 - access the public tree map
 - view public tree information only
 - no access to internal admin/member/task/reminder workflows
@@ -162,23 +168,28 @@ The following sections reflect the **current database schema** and should be tre
 ## Enums
 
 ### `TreeStatus`
+
 - `Active`
 - `Graduated`
 
 ### `WateringStatus`
+
 - `Completed`
 - `Pending`
 
 ### `MulchingStatus`
+
 - `Completed`
 - `Pending`
 
 ### `Condition`
+
 - `good`
 - `fair`
 - `poor`
 
 ### `MemberType`
+
 - `Admin`
 - `Tree Keeper`
 
@@ -189,6 +200,7 @@ The following sections reflect the **current database schema** and should be tre
 Represents all trees managed by ECOSLO.
 
 ### Columns
+
 - `id`: bigint, primary key
 - `created_at`: timestamptz, defaults to `now()`
 - `status`: `TreeStatus`, defaults to `Active`
@@ -212,10 +224,12 @@ Represents all trees managed by ECOSLO.
 - `tree_keeper_id`: bigint, nullable, foreign key to `members.id`
 
 ### Relationships
+
 - `trees.tree_keeper_id -> members.id`
 - `surveys.tree -> trees.ecoslo_num`
 
 ### Product meaning
+
 - `status` is for lifecycle state only: `Active` or `Graduated`
 - `condition` is for tree health/quality state: `good`, `fair`, `poor`
 - `notes` should be treated as general or tree-keeper-visible notes
@@ -230,6 +244,7 @@ Represents all trees managed by ECOSLO.
 Represents internal members, including admins and tree keepers.
 
 ### Columns
+
 - `id`: bigint, primary key
 - `created_at`: timestamptz, defaults to `now()`
 - `firstname`: text
@@ -242,11 +257,14 @@ Represents internal members, including admins and tree keepers.
 - `role`: `MemberType`, nullable
 
 ### Relationships
+
 Referenced by:
+
 - `tasks.created_by -> members.id`
 - `trees.tree_keeper_id -> members.id`
 
 ### Product meaning
+
 - Members replaces older `volunteers` terminology
 - `role` distinguishes `Admin` and `Tree Keeper`
 - `trees_assigned` should represent ECOSLO tree numbers or assigned tree references as currently implemented
@@ -259,6 +277,7 @@ Referenced by:
 Represents one-off tasks assigned to one or more members.
 
 ### Columns
+
 - `id`: bigint, primary key
 - `created_at`: timestamptz, defaults to `now()`
 - `completion_date`: timestamptz, nullable
@@ -270,10 +289,12 @@ Represents one-off tasks assigned to one or more members.
 - `created_by`: bigint, nullable, foreign key to `members.id`
 
 ### Relationships
+
 - `tasks.created_by -> members.id`
 - `surveys.task -> tasks.id`
 
 ### Product meaning
+
 - Tasks are **one-off** items, not recurring schedules
 - A single task may be assigned to one member or many members
 - Group tasks remain a **single shared task object**, not duplicated tasks per assignee
@@ -286,6 +307,7 @@ Represents one-off tasks assigned to one or more members.
 Represents survey submissions associated with a task and/or tree.
 
 ### Columns
+
 - `id`: bigint, primary key
 - `created_at`: timestamptz, defaults to `now()`
 - `task`: bigint, nullable, foreign key to `tasks.id`
@@ -293,13 +315,16 @@ Represents survey submissions associated with a task and/or tree.
 - `body`: jsonb
 
 ### Relationships
+
 - `surveys.task -> tasks.id`
 - `surveys.tree -> trees.ecoslo_num`
 
 ### Product meaning
+
 The current survey table stores detailed survey form data inside `body`.
 
 This means fields such as the following should be serialized inside `body` rather than expected as top-level DB columns:
+
 - issue type
 - optional `other` issue text
 - image link
@@ -313,6 +338,7 @@ This means fields such as the following should be serialized inside `body` rathe
 Represents recurring reminder definitions.
 
 ### Columns
+
 - `id`: bigint, primary key
 - `created_at`: timestamptz, defaults to `now()`
 - `name`: text, defaults to empty string
@@ -323,6 +349,7 @@ Represents recurring reminder definitions.
 - `is_group_task`: boolean, defaults to `false`
 
 ### Product meaning
+
 - Reminders define recurring operational workflows
 - Reminder definitions are intended to drive future scheduled task generation
 - `crons_expression` is the current persistence field for schedule configuration
@@ -336,6 +363,7 @@ Represents recurring reminder definitions.
 Represents reusable reminder/task templates.
 
 ### Columns
+
 - `id`: bigint, primary key
 - `created_at`: timestamptz, defaults to `now()`
 - `crons_expression`: text, defaults to empty string
@@ -345,6 +373,7 @@ Represents reusable reminder/task templates.
 - `name`: text, defaults to empty string
 
 ### Product meaning
+
 - Templates store reusable scheduling/message definitions
 - The schema is intentionally very similar to `reminders`
 - Templates are meant to support faster creation of reminders or repeated operational workflows
@@ -367,11 +396,13 @@ trees   (1) ──< surveys (many)     via surveys.tree → trees.ecoslo_num
 This section captures clarified logic that should be treated as part of the current spec.
 
 ## 1. Tasks are one-off only
+
 Tasks are one-off work items. Recurring behavior belongs to the reminders system, not the tasks page itself.
 
 ---
 
 ## 2. Survey-gated task completion uses `surveys_needed`
+
 The original planning materials used both boolean-style and integer-style descriptions for whether a task needs a survey. The clarified product rule is:
 
 - `tasks.surveys_needed = 0` means the task does **not** currently require any remaining survey submissions before completion
@@ -380,6 +411,7 @@ The original planning materials used both boolean-style and integer-style descri
 - A separate boolean field is **not required** in the current model
 
 ### Completion behavior
+
 - If `surveys_needed = 0`, the task can be completed directly
 - If `surveys_needed > 0`, the user should be redirected into or required to complete the survey workflow
 - Each valid survey submission tied to that task should decrement `surveys_needed` by 1
@@ -389,6 +421,7 @@ The original planning materials used both boolean-style and integer-style descri
   - `completion_date = current timestamp`
 
 ### Group task behavior
+
 - Group tasks remain a single shared task object
 - If a group task is completed, it is completed for the whole group
 - For survey-gated shared tasks, `surveys_needed` represents the number of required remaining survey submissions for that shared task object
@@ -396,7 +429,9 @@ The original planning materials used both boolean-style and integer-style descri
 ---
 
 ## 3. Survey data is stored in `surveys.body`
+
 The current schema for `public.surveys` contains only:
+
 - `task`
 - `tree`
 - `body`
@@ -404,7 +439,9 @@ The current schema for `public.surveys` contains only:
 Therefore, all detailed survey response content should be stored in `body`.
 
 ### Expected survey body content
+
 The exact JSON structure may evolve, but it should support fields such as:
+
 - `issue`
 - `otherIssueText`
 - `imageLink`
@@ -425,7 +462,9 @@ Example conceptual shape:
 ---
 
 ## 4. Members replaces Volunteers
+
 All new development should use:
+
 - **Members** for the overall internal user table
 - **Tree Keepers** for the role formerly referred to as volunteers in some planning notes
 
@@ -434,6 +473,7 @@ Avoid introducing new `volunteers` naming in routes, components, or docs unless 
 ---
 
 ## 5. Trees use both `status` and `condition`
+
 These fields have distinct meanings and should not be conflated.
 
 - `status` = lifecycle state
@@ -448,6 +488,7 @@ These fields have distinct meanings and should not be conflated.
 ---
 
 ## 6. Reminders and Templates are schema-driven first
+
 Reminder and template behavior should be designed around the actual database schema rather than around rough UI labels alone.
 
 - `name`, `task_message`, `crons_expression`, `assignees`, and `is_group_task` are the current source-of-truth fields
@@ -463,9 +504,11 @@ The following sections describe intended page behavior based on the original PRD
 # Trees Page
 
 ## Purpose
+
 Allow admins to manage tree records and inspect tree-related operational data.
 
 ## Core requirements
+
 - list trees
 - search, filter, sort, and paginate
 - export tree data
@@ -474,9 +517,11 @@ Allow admins to manage tree records and inspect tree-related operational data.
 - delete trees where allowed
 
 ## Data source
+
 Primary source: `public.trees`
 
 ## Important tree fields for display/use
+
 - `ecoslo_num`
 - `status`
 - `condition`
@@ -498,6 +543,7 @@ Primary source: `public.trees`
 - `survey_logs`
 
 ## Expected UI features
+
 - page header
 - export CSV button
 - add tree action
@@ -511,6 +557,7 @@ Primary source: `public.trees`
 - view/edit details panel
 
 ## Notes
+
 - Public/private visibility should be driven by `is_public`
 - Tree keeper information should be derived via `tree_keeper_id -> members.id`
 - `survey_logs` may be used later to surface survey history
@@ -520,9 +567,11 @@ Primary source: `public.trees`
 # Members Page
 
 ## Purpose
+
 Allow admins to manage internal members and tree keeper assignments.
 
 ## Core requirements
+
 - list members
 - create new members
 - edit members
@@ -530,9 +579,11 @@ Allow admins to manage internal members and tree keeper assignments.
 - distinguish roles
 
 ## Data source
+
 Primary source: `public.members`
 
 ## Important fields
+
 - `firstname`
 - `lastname`
 - `email`
@@ -543,6 +594,7 @@ Primary source: `public.members`
 - `trees_count`
 
 ## Expected UI features
+
 - page header
 - export CSV button
 - add member action
@@ -556,12 +608,15 @@ Primary source: `public.members`
 # Tasks Page
 
 ## Purpose
+
 Allow internal users to view and manage one-off tasks.
 
 ## Data source
+
 Primary source: `public.tasks`
 
 ## Important fields
+
 - `id`
 - `created_at`
 - `title`
@@ -573,24 +628,30 @@ Primary source: `public.tasks`
 - `created_by`
 
 ## Access rules
+
 ### Admins
+
 - can view all tasks
 - can create tasks
 - can complete tasks
 - can sort/filter tasks
 
 ### Tree Keepers
+
 - should only see tasks assigned directly to them or shared tasks that include them
 - can complete visible tasks
 - should not see unrelated tasks
 
 ### Public
+
 - no access
 
 ## UI direction
+
 The original PRD described a table-like tasks page, but current design work is trending toward a **card-based task list with top filters**. The exact final UI can evolve, but it must support the same underlying product behavior.
 
 ## Expected UI capabilities
+
 - search tasks
 - filter by completion status
 - filter by assignee
@@ -600,11 +661,13 @@ The original PRD described a table-like tasks page, but current design work is t
 - complete tasks
 
 ## Task completion rules
+
 - if `surveys_needed = 0`, allow direct completion
 - if `surveys_needed > 0`, direct the user into survey submission flow
 - after the final required survey is submitted, auto-complete the task
 
 ## Data handling expectations
+
 - `assignees` is stored as a bigint array of member IDs
 - any assignee-facing display may require member lookup/formatting
 - completed tasks may later be cleaned up or expired, but that is not currently encoded in schema
@@ -614,13 +677,16 @@ The original PRD described a table-like tasks page, but current design work is t
 # Reminders Page
 
 ## Purpose
+
 Allow admins to view, create, edit, activate/deactivate, and delete recurring reminders.
 
 ## Data source
+
 Primary source: `public.reminders`
 Secondary supporting source: `public.templates`
 
 ## Reminder fields
+
 - `id`
 - `created_at`
 - `name`
@@ -631,6 +697,7 @@ Secondary supporting source: `public.templates`
 - `is_group_task`
 
 ## Template fields
+
 - `id`
 - `created_at`
 - `name`
@@ -640,6 +707,7 @@ Secondary supporting source: `public.templates`
 - `is_group_task`
 
 ## Expected UI capabilities
+
 - list existing reminders
 - inspect a selected reminder
 - create a new reminder
@@ -650,6 +718,7 @@ Secondary supporting source: `public.templates`
 - edit message template content
 
 ## Product behavior
+
 - reminders are definitions for recurring workflows
 - reminders should be admin-managed
 - reminder schedule data ultimately persists into `crons_expression`
@@ -658,7 +727,9 @@ Secondary supporting source: `public.templates`
 - templates should support reusable reminder/task configuration
 
 ## Notes on UI vs data model
+
 Some designs may use labels like:
+
 - Type
 - Audience
 - Schedule
@@ -671,34 +742,43 @@ These can be valid UI affordances, but the backing persistence should still be a
 # Survey Page
 
 ## Purpose
+
 Allow users to submit structured survey information tied to a task and tree.
 
 ## Data source
+
 Primary source: `public.surveys`
 Supporting sources:
+
 - `public.tasks`
 - `public.trees`
 
 ## Required survey record structure
+
 Each created survey should be able to persist:
+
 - `task`: selected `tasks.id`
 - `tree`: selected `trees.ecoslo_num`
 - `body`: structured survey content
 
 ## Expected survey body content
+
 The form should be able to collect and store fields such as:
+
 - issue type
 - optional custom issue text
 - image link
 - needs contact / admin contact response
 
 ## Product behavior
+
 - submitting a survey should create a `surveys` row
 - the survey should be tied to the relevant task and tree
 - valid task-linked survey creation should decrement `tasks.surveys_needed`
 - when `tasks.surveys_needed` reaches `0`, the task should auto-complete
 
 ## Expected UI capabilities
+
 - select task
 - select tree
 - select issue type
@@ -712,13 +792,17 @@ The form should be able to collect and store fields such as:
 # Public Map Page
 
 ## Purpose
+
 Expose public tree information to non-authenticated users.
 
 ## Data source
+
 Public-safe subset of `public.trees`
 
 ## Publicly safe fields
+
 At minimum, the public map should only expose non-sensitive tree/location metadata required for display, such as:
+
 - tree identifier
 - latitude/longitude
 - species/common names
@@ -729,6 +813,7 @@ At minimum, the public map should only expose non-sensitive tree/location metada
 - `is_public`
 
 ## Expected UI capabilities
+
 - render map and markers
 - allow marker selection
 - show public tree info panel
@@ -740,9 +825,11 @@ At minimum, the public map should only expose non-sensitive tree/location metada
 # Login / Auth Pages
 
 ## Purpose
+
 Support authenticated access for internal users.
 
 ## Expected capabilities
+
 - login page with email entry
 - magic link flow
 - auth callback handling
@@ -750,6 +837,7 @@ Support authenticated access for internal users.
 - route protection for internal pages
 
 ## Notes
+
 The original planning notes referenced Supabase-based magic-link auth and SSR/callback/session work. Exact implementation may continue evolving, but auth pages should support internal member access cleanly.
 
 ---
@@ -757,20 +845,24 @@ The original planning notes referenced Supabase-based magic-link auth and SSR/ca
 # Dashboard Page
 
 ## Purpose
+
 Provide a high-level operational overview for internal users, especially admins.
 
 ## Expected data sources
+
 - tasks
 - reminders
 - trees
 
 ## Expected UI capabilities
+
 - tasks widget
 - reminders widget
 - trees widget
 - navigation into full page flows
 
 ## Notes
+
 Dashboard implementation can follow after core operational pages are established.
 
 ---
@@ -794,11 +886,13 @@ Not all of this workflow is fully encoded in the current schema or current sprin
 ## Tree Lifecycle Intent
 
 The original PRD specified tree lifecycle concepts such as:
+
 - trees graduating after three years
 - recurring watering/mulching/pruning/check-in logic
 - alerts before graduation
 
 The current schema partially supports maintenance tracking through:
+
 - `status`
 - `next_watering_date`
 - `weekly_watering_status`
@@ -812,12 +906,14 @@ Additional lifecycle automation may be implemented later, but these concepts rem
 ## Export / Search / Filtering Expectations
 
 Across internal management pages, the general product expectation is:
+
 - searchable data lists
 - useful filters tied to actual schema fields
 - paginated or otherwise navigable result sets
 - export support for operational/admin use
 
 These capabilities apply most strongly to:
+
 - Trees
 - Members
 - Tasks

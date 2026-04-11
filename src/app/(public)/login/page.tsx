@@ -81,7 +81,7 @@ export default function LoginPage() {
 
   if (loginState === LOGIN_STATE.INPUT) {
     return (
-      <div className="flex min-h-screen min-w-full flex-col" style={{ backgroundColor: PAGE_BG, width: "100vw" }}>
+      <div className="flex h-full min-w-full flex-col" style={{ backgroundColor: PAGE_BG, width: "100vw" }}>
         <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
           <div
             className="w-full max-w-xl rounded-xl border px-12 py-12 shadow-sm"
@@ -127,7 +127,7 @@ export default function LoginPage() {
 
   if (loginState === LOGIN_STATE.CONFIRMATION) {
     return (
-      <div className="flex min-h-screen min-w-full flex-col" style={{ backgroundColor: PAGE_BG, width: "100vw" }}>
+      <div className="flex h-full min-w-full flex-col" style={{ backgroundColor: PAGE_BG, width: "100vw" }}>
         <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
           <div
             className="w-full max-w-xl rounded-xl border px-12 py-12 shadow-sm"
@@ -168,7 +168,7 @@ export default function LoginPage() {
 
   // Error state
   return (
-    <div className="flex min-h-screen min-w-full flex-col" style={{ backgroundColor: PAGE_BG, width: "100vw" }}>
+    <div className="flex h-full min-w-full flex-col" style={{ backgroundColor: PAGE_BG, width: "100vw" }}>
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
         <div
           className="w-full max-w-xl rounded-xl border px-12 py-12 shadow-sm"
