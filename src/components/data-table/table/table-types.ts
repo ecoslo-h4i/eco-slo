@@ -1,7 +1,9 @@
 import React from "react";
 import { ColumnDef } from "./column-def";
 
-const normalizeFilterString = (value: string) => value.toLowerCase().replace(/\s+/g, "");
+import Fuse from "fuse.js";
+
+const FUSE_MATCH_THRESHOLD = 0.3;
 
 type ColumnKey<T extends Record<string, unknown>> = Extract<keyof T, string>;
 type CellValue<T extends Record<string, unknown>> = T[ColumnKey<T>];
@@ -12,8 +14,6 @@ export type VisibilityState = {
 
 export type ColumnFiltersState = ColumnFilter[];
 
-//If value[].length === 1, filter checks if cellId includes filter
-//If value[].length > 1, uses direct comparison
 export interface ColumnFilter {
   id: string;
   value: string[];
@@ -44,8 +44,9 @@ export type Table<T extends Record<string, unknown>> = {
   setColumnFilter: (columnId: string, update: (prev: string[]) => string[]) => void;
   resetColumnFilter: (columnId: string) => void;
   getColumnFilterValue: (columnId: string) => string[];
-  setColumnSearchFilter: (columnId: string, value: string) => void;
-  getColumnSearchFilterValue: (columnId: string) => string;
+  setSearchQuery: (value: string) => void;
+  getSearchQuery: () => string;
+  setSearchColumns: (columnIds: string[]) => void;
   getHead: (column: ColumnDef<T>) => React.ReactNode;
   getCell: (column: ColumnDef<T>, value: CellValue<T>) => React.ReactNode;
 };
@@ -54,7 +55,27 @@ export const useTable = <T extends Record<string, unknown>>(
   data: T[],
   columnDefs: ColumnDef<T>[],
   initialHiddenColumns: string[] = [],
+  initialSearchColumns: string[] = [],
 ): Table<T> => {
+  const defaultSearchColumnIds = React.useMemo(() => {
+    return columnDefs.filter((column) => column.canSearch === true).map((column) => column.id);
+  }, [columnDefs]);
+
+  const [searchColumns, setSearchColumnsState] = React.useState<string[]>(
+    initialSearchColumns.length > 0 ? initialSearchColumns : defaultSearchColumnIds,
+  );
+
+  const fuse = React.useMemo(
+    () =>
+      new Fuse(data, {
+        includeScore: true,
+        threshold: FUSE_MATCH_THRESHOLD,
+        ignoreLocation: true,
+        keys: searchColumns,
+      }),
+    [data, searchColumns],
+  );
+
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(() => {
     return columnDefs.reduce<VisibilityState>((acc, column) => {
       if (column.canHide === false) return acc;
@@ -71,6 +92,9 @@ export const useTable = <T extends Record<string, unknown>>(
   });
 
   const [sorting, setSorting] = React.useState<SortingState>({ id: "", desc: false });
+
+  const [searchQuery, setSearchQueryState] = React.useState<string>("");
+
   const tableRef = React.useRef<Table<T> | null>(null);
 
   const visibleColumns = React.useMemo(() => {
@@ -85,17 +109,21 @@ export const useTable = <T extends Record<string, unknown>>(
   }, [columnFilters]);
 
   const rowModels: RowModel<T>[] = React.useMemo(() => {
-    const filteredRows = data.filter((row) => {
+    const searchMatchRows =
+      searchQuery && searchColumns.length > 0
+        ? fuse
+            .search(searchQuery.trim())
+            .filter(({ score }) => (score ?? 1) <= FUSE_MATCH_THRESHOLD)
+            .map(({ item }) => item)
+        : data;
+
+    const filteredRows = searchMatchRows.filter((row) => {
       return columnDefs.every((column) => {
         if (!column.cellId) return true;
         const filterValues = filtersById[column.id] ?? [];
         if (filterValues.length === 0) return true;
 
         const cellId = column.cellId(row[column.id]);
-
-        if (filterValues.length === 1) {
-          return normalizeFilterString(cellId).includes(normalizeFilterString(filterValues[0]));
-        }
 
         return filterValues.includes(cellId);
       });
@@ -120,7 +148,7 @@ export const useTable = <T extends Record<string, unknown>>(
         value: row[column.id],
       })),
     }));
-  }, [data, columnDefs, filtersById, visibleColumns, sorting]);
+  }, [data, columnDefs, filtersById, visibleColumns, sorting, searchQuery, searchColumns, fuse]);
 
   const setColumnVisibilityValue = React.useCallback((columnId: string, update: (prev: boolean) => boolean) => {
     setColumnVisibility((prev) => ({ ...prev, [columnId]: update(prev[columnId] ?? true) }));
@@ -146,19 +174,15 @@ export const useTable = <T extends Record<string, unknown>>(
     [columnFilters],
   );
 
-  const setColumnSearchFilter = React.useCallback((columnId: string, value: string) => {
-    setColumnFilters((prev) => {
-      return prev.map((filter) => (filter.id === columnId ? { ...filter, value: value ? [value] : [] } : filter));
-    });
+  const setSearchQuery = React.useCallback((value: string) => {
+    setSearchQueryState(value);
   }, []);
 
-  const getColumnSearchFilterValue = React.useCallback(
-    (columnId: string) => {
-      const filter = columnFilters.find((f) => f.id === columnId);
-      return filter && filter.value.length > 0 ? filter.value[0] : "";
-    },
-    [columnFilters],
-  );
+  const getSearchQuery = React.useCallback(() => searchQuery, [searchQuery]);
+
+  const setSearchColumns = React.useCallback((columnIds: string[]) => {
+    setSearchColumnsState(columnIds);
+  }, []);
 
   const setColumnSorting = React.useCallback((columnId: string, desc: boolean) => {
     setSorting({ id: columnId, desc });
@@ -186,8 +210,9 @@ export const useTable = <T extends Record<string, unknown>>(
       setColumnFilter,
       resetColumnFilter,
       getColumnFilterValue,
-      setColumnSearchFilter,
-      getColumnSearchFilterValue,
+      setSearchQuery,
+      getSearchQuery,
+      setSearchColumns,
       getHead: (column) => {
         const tableInstance = tableRef.current ?? nextTable;
         return column.head ? column.head(tableInstance, column.name, column.id) : column.name;
@@ -208,8 +233,9 @@ export const useTable = <T extends Record<string, unknown>>(
     setColumnFilter,
     resetColumnFilter,
     getColumnFilterValue,
-    setColumnSearchFilter,
-    getColumnSearchFilterValue,
+    setSearchQuery,
+    getSearchQuery,
+    setSearchColumns,
     getCell,
   ]);
 

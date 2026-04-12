@@ -3,7 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 
 type IParams = {
-  id: string;
+  params: Promise<{
+    id: string;
+  }>;
 };
 
 /**
@@ -20,7 +22,7 @@ type IParams = {
  * - 404 if no volunteer is found
  * - 500 on server error
  */
-export async function GET(_request: NextRequest, { params }: { params: IParams }) {
+export async function GET(_request: NextRequest, { params }: IParams) {
   try {
     const { id } = await params;
 
@@ -56,7 +58,7 @@ export async function GET(_request: NextRequest, { params }: { params: IParams }
  * - Supabase error with mapped status code
  * - 500 on server error
  */
-export async function PUT(request: NextRequest, { params }: { params: IParams }) {
+export async function PUT(request: NextRequest, { params }: IParams) {
   try {
     const { id } = await params;
     const body = await request.json();
@@ -88,7 +90,7 @@ export async function PUT(request: NextRequest, { params }: { params: IParams })
  * - Supabase error with mapped status code
  * - 500 on server error
  */
-export async function DELETE(_request: NextRequest, { params }: { params: IParams }) {
+export async function DELETE(_request: NextRequest, { params }: IParams) {
   try {
     const { id } = await params;
 

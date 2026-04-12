@@ -234,16 +234,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
                 searchDelay={QUERY_DELAY}
                 searchFunction={(query: string) => {
                   const trimmedQuery = query.trimStart();
-                  const startsWithNumber = /^\d/.test(trimmedQuery);
-
-                  if (startsWithNumber) {
-                    tableRef.current?.setColumnSearchFilter("ecoslo_num", query);
-                    tableRef.current?.setColumnSearchFilter("species_name", "");
-                    return;
-                  }
-
-                  tableRef.current?.setColumnSearchFilter("species_name", query);
-                  tableRef.current?.setColumnSearchFilter("ecoslo_num", "");
+                  tableRef.current?.setSearchQuery(trimmedQuery);
                 }}
               />
             </div>

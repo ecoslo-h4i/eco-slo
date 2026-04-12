@@ -17,6 +17,7 @@
     "@supabase/supabase-js": "^2.89.0",
     "dotenv": "^17.2.3",
     "env": "^0.0.2",
+    "fuse.js": "^7.3.0",
     "leaflet": "^1.9.4",
     "mongoose": "^8",
     "next": "^16.2.1",
