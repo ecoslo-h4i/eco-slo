@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ChangeEvent, type MutableRefObject, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { TreeSchema } from "./data-table/table-widget-defs";
+import { Table } from "./data-table/table/table-types";
+import { dataToCSV, downloadTreeCSV } from "@/app/(admin)/trees/utils/csv";
 
 interface ControlSearchProps {
   searchDelay: number;
-  searchFunction: () => void;
+  searchFunction: (status: string) => void;
 }
 
 function ControlSearch(props: ControlSearchProps) {
@@ -13,7 +16,7 @@ function ControlSearch(props: ControlSearchProps) {
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      props.searchFunction();
+      props.searchFunction(query);
     }, props.searchDelay);
 
     return () => {
@@ -21,7 +24,7 @@ function ControlSearch(props: ControlSearchProps) {
     };
   }, [query, props.searchDelay, props.searchFunction, props]);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const next = e.target.value;
     setQuery(next);
   };
@@ -31,7 +34,7 @@ function ControlSearch(props: ControlSearchProps) {
       <input
         type="text"
         id="query"
-        placeholder="Search by Tree #, Species, etc..."
+        placeholder="Search by Tree # or Species..."
         value={query}
         onChange={handleChange}
         className="w-full px-4 py-3.5 text-lg text-black placeholder:text-black outline-none bg-transparent"
@@ -75,7 +78,7 @@ function ControlButton(props: ControlButtonInterface) {
 interface ControlStatusPillsInterface {
   text: string;
   options: string[];
-  delay: number;
+  delay: number; // Delay in ms before calling delayFunction
   delayFunction: (status: string) => void;
   activeBackgroundHex: string;
   activeTextHex: string;
@@ -83,30 +86,26 @@ interface ControlStatusPillsInterface {
 
 function ControlStatusPills(props: ControlStatusPillsInterface) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [pendingIndex, setPendingIndex] = useState<number | null>(null);
-  const [countdown, setCountdown] = useState<number | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (countdown === null || pendingIndex === null) return;
-
-    if (countdown <= 0) {
-      props.delayFunction(props.options[pendingIndex]);
-      setCountdown(null);
-      setPendingIndex(null);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setCountdown(countdown - 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [countdown, pendingIndex, props]);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleSelect = (index: number) => {
     setActiveIndex(index);
-    setPendingIndex(index);
-    setCountdown(props.delay);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      props.delayFunction(props.options[index]);
+    }, props.delay);
   };
 
   return (
@@ -134,32 +133,35 @@ function ControlStatusPills(props: ControlStatusPillsInterface) {
 interface ControlFilterDropdownInterface {
   text: string;
   dropDown: string[];
-  delay: number;
+  delay: number; // Delay in ms before calling delayFunction
   delayFunction: (filter: string) => void;
 }
 
 function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const longestItem = props.dropDown.reduce((a, b) => (a.length > b.length ? a : b), "");
-
   useEffect(() => {
-    if (countdown === null) return;
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
-    if (countdown <= 0) {
-      props.delayFunction(props.dropDown[activeIndex]);
-      setCountdown(null);
-      return;
+  const handleSelect = (index: number) => {
+    setActiveIndex(index);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
 
-    const timer = setTimeout(() => {
-      setCountdown(countdown - 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [activeIndex, countdown, props]);
+    timeoutRef.current = setTimeout(() => {
+      props.delayFunction(props.dropDown[index]);
+    }, props.delay);
+  };
 
   return (
     <div className="flex flex-col gap-1.5 relative select-none w-fit">
@@ -192,18 +194,14 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-xl z-10 shadow-md outline-1 outline-black/10 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-xl z-200 shadow-md outline-1 outline-black/10 overflow-hidden">
           {props.dropDown.map((item, index) => (
             <div
               key={index}
               className={`px-4 py-2.5 cursor-pointer text-lg font-medium hover:bg-[#F1E6D9] transition-colors whitespace-nowrap ${
                 index === activeIndex ? "bg-[#F1E6D9]" : ""
               }`}
-              onClick={() => {
-                setActiveIndex(index);
-                setIsOpen(false);
-                setCountdown(props.delay);
-              }}
+              onClick={() => handleSelect(index)}
             >
               {item}
             </div>
@@ -214,11 +212,17 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   );
 }
 
-export default function ControlPanel() {
+interface ControlPanelProps {
+  tableRef: MutableRefObject<Table<TreeSchema> | null>;
+}
+
+export default function ControlPanel({ tableRef }: ControlPanelProps) {
+  void tableRef;
+
   const CONTROL_STATUS_OPTIONS = ["All", "Active", "Graduated"];
   const CONDITION_STATUS_OPTIONS = ["All", "Good", "Fair", "Poor"];
   const VISIBILITY_STATUS_OPTIONS = ["All", "Public", "Private"];
-  const QUERY_DELAY = 500;
+  const QUERY_DELAY = 0;
 
   return (
     <div className="w-full">
@@ -228,7 +232,10 @@ export default function ControlPanel() {
             <div className="w-256">
               <ControlSearch
                 searchDelay={QUERY_DELAY}
-                searchFunction={() => console.log("Searching function called")}
+                searchFunction={(query: string) => {
+                  const trimmedQuery = query.trimStart();
+                  tableRef.current?.setSearchQuery(trimmedQuery);
+                }}
               />
             </div>
 
@@ -238,7 +245,11 @@ export default function ControlPanel() {
                   text="Status"
                   options={CONTROL_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
-                  delayFunction={(status: string) => console.log(`Status: ${status}`)}
+                  delayFunction={(status: string) =>
+                    tableRef.current?.setColumnFilter("status", (prev) =>
+                      status === "All" ? [] : [status.toLowerCase()],
+                    )
+                  }
                   activeBackgroundHex="#78855b"
                   activeTextHex="#FFFFFF"
                 />
@@ -248,13 +259,21 @@ export default function ControlPanel() {
                   text="Condition"
                   dropDown={CONDITION_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
-                  delayFunction={(filter: string) => console.log(`Condition: ${filter}`)}
+                  delayFunction={(status: string) =>
+                    tableRef.current?.setColumnFilter("status", (prev) =>
+                      status === "All" ? [] : [status.toLowerCase()],
+                    )
+                  }
                 />
                 <ControlFilterDropdown
                   text="Visibility"
                   dropDown={VISIBILITY_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
-                  delayFunction={(filter: string) => console.log(`Visibility: ${filter}`)}
+                  delayFunction={(status: string) =>
+                    tableRef.current?.setColumnFilter("is_public", (prev) =>
+                      status === "All" ? [] : [status.toLowerCase()],
+                    )
+                  }
                 />
               </div>
             </div>
@@ -267,7 +286,20 @@ export default function ControlPanel() {
               textHex="#000000"
               text="Export CSV"
               iconPath="/icons/download.svg"
-              function={() => console.log("Export function called")}
+              function={() => {
+                // Use current row model state instead of internal data to ensure filters are applied to exported CSV
+                downloadTreeCSV(
+                  dataToCSV(
+                    tableRef?.current?.getRowModels().map((rowModel) => {
+                      const row: Record<string, unknown> = {};
+                      rowModel.cells.forEach((cell) => {
+                        row[cell.column.id] = cell.value;
+                      });
+                      return row;
+                    }) ?? [],
+                  ),
+                );
+              }}
             />
             <ControlButton
               backgroundHex="#8A9573"

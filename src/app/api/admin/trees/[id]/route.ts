@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 
 type IParams = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 /**
@@ -18,7 +18,7 @@ type IParams = {
  * @param params.id - the ID of the tree
  *
  * Returns:
- * - 200 with { data } on success
+ * - 200 with { message } on success
  * - 404 if no tree is found
  * - 500 on server error
  */
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest, { params }: IParams) {
  * @param params.id - the ID of the tree
  *
  * Returns:
- * - 200 with { data } on success
+ * - 200 with { message } on success
  * - Supabase error with mapped status code
  * - 500 on server error
  */
@@ -63,7 +63,7 @@ export async function PUT(req: NextRequest, { params }: IParams) {
       const status = postgrestErrorToHttpStatus(error);
       return NextResponse.json({ error: error }, { status: status });
     }
-    return NextResponse.json({ data: data }, { status: 200 });
+    return NextResponse.json({ message: data }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }

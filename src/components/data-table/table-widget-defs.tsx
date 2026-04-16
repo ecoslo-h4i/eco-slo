@@ -1,4 +1,5 @@
 import { ColumnDef } from "./table/column-def";
+import HeadControls from "./head-controls";
 
 export type TreeSchema = {
   id: number;
@@ -69,17 +70,30 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
   {
     id: "ecoslo_num",
     name: "EcoSLO #",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => value,
+    cellId: (value) => String(value),
+    comparator: (a, b) => Number(a) - Number(b),
+    canSearch: true,
   },
   {
     id: "species_name",
     name: "Species",
     cell: (value) => value,
+    cellId: (value) => String(value).toLowerCase(),
+    canSearch: true,
   },
   {
     id: "date_planted",
     name: "Date Planted",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => formatISODate(value),
+    comparator: (a, b) => {
+      const dateA = new Date(String(a));
+      const dateB = new Date(String(b));
+      return dateA.getTime() - dateB.getTime();
+    },
+    canSearch: true,
   },
   {
     id: "status",
@@ -91,66 +105,93 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
         </div>
       );
     },
+    cellId: (value) => String(value).toLowerCase(),
+    canSearch: true,
   },
   {
     id: "common_name",
     name: "Common Name",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "funder",
     name: "Funder",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "address",
     name: "Address",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "latitude",
     name: "Latitude",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "longitude",
     name: "Longitude",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "is_public",
     name: "Is Public",
-    cell: (value) => String(value),
+    cell: (value) => {
+      if (typeof value === "boolean") {
+        return value ? "True" : "False";
+      }
+      return String(value);
+    },
+    cellId: (value) => {
+      if (typeof value === "boolean") {
+        return value ? "public" : "private";
+      }
+      return String(value).toLowerCase();
+    },
+    canSearch: true,
   },
   {
     id: "adopter_name",
     name: "Treekeeper",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => value,
+    comparator: (a, b) => String(a).localeCompare(String(b)),
+    canSearch: true,
   },
   {
     id: "adopter_phone",
     name: "Treekeeper Phone",
     cell: (value) => formatPhoneNumber(value),
+    canSearch: true,
   },
   {
     id: "adopter_email",
     name: "Treekeeper Email",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "weekly_watering_status",
     name: "Weekly Watering Status",
     cell: (value) => value,
+    canSearch: true,
   },
   {
     id: "next_mulching_date",
     name: "Next Mulching Date",
     cell: (value) => formatISODate(value),
+    canSearch: true,
   },
   {
     id: "notes",
     name: "Notes",
     cell: (value) => value,
+    canSearch: true,
   },
 ];
 

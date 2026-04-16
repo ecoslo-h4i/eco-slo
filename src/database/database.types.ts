@@ -8,51 +8,114 @@ export type Database = {
   };
   public: {
     Tables: {
-      notifications: {
+      members: {
         Row: {
           created_at: string;
+          email: string;
+          firstname: string;
           id: number;
-          label: string | null;
-          message: string;
-          recipient: string;
-          sender: string;
-          severity: string;
-          timestamp: string;
+          joined: string;
+          lastname: string;
+          phone: string;
+          role: Database["public"]["Enums"]["MemberType"] | null;
+          trees_assigned: number[] | null;
+          trees_count: number;
         };
         Insert: {
           created_at?: string;
+          email: string;
+          firstname: string;
           id?: number;
-          label?: string | null;
-          message: string;
-          recipient: string;
-          sender: string;
-          severity: string;
-          timestamp?: string;
+          joined?: string;
+          lastname: string;
+          phone: string;
+          role?: Database["public"]["Enums"]["MemberType"] | null;
+          trees_assigned?: number[] | null;
+          trees_count?: number;
         };
         Update: {
           created_at?: string;
+          email?: string;
+          firstname?: string;
           id?: number;
-          label?: string | null;
-          message?: string;
-          recipient?: string;
-          sender?: string;
-          severity?: string;
-          timestamp?: string;
+          joined?: string;
+          lastname?: string;
+          phone?: string;
+          role?: Database["public"]["Enums"]["MemberType"] | null;
+          trees_assigned?: number[] | null;
+          trees_count?: number;
+        };
+        Relationships: [];
+      };
+      reminders: {
+        Row: {
+          assignees: number[];
+          created_at: string;
+          crons_expression: string;
+          id: number;
+          is_active: boolean;
+          is_group_task: boolean;
+          name: string;
+          task_message: string;
+        };
+        Insert: {
+          assignees?: number[];
+          created_at?: string;
+          crons_expression?: string;
+          id?: number;
+          is_active?: boolean;
+          is_group_task?: boolean;
+          name?: string;
+          task_message?: string;
+        };
+        Update: {
+          assignees?: number[];
+          created_at?: string;
+          crons_expression?: string;
+          id?: number;
+          is_active?: boolean;
+          is_group_task?: boolean;
+          name?: string;
+          task_message?: string;
+        };
+        Relationships: [];
+      };
+      surveys: {
+        Row: {
+          body: Json;
+          created_at: string;
+          id: number;
+          task: number | null;
+          tree: number | null;
+        };
+        Insert: {
+          body?: Json;
+          created_at?: string;
+          id?: number;
+          task?: number | null;
+          tree?: number | null;
+        };
+        Update: {
+          body?: Json;
+          created_at?: string;
+          id?: number;
+          task?: number | null;
+          tree?: number | null;
         };
         Relationships: [
           {
-            foreignKeyName: "Notifications_recipient_fkey";
-            columns: ["recipient"];
+            foreignKeyName: "surveys_task_fkey";
+            columns: ["task"];
             isOneToOne: false;
-            referencedRelation: "volunteers";
-            referencedColumns: ["email"];
+            referencedRelation: "tasks";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "Notifications_sender_fkey";
-            columns: ["sender"];
+            foreignKeyName: "surveys_tree_fkey";
+            columns: ["tree"];
             isOneToOne: false;
-            referencedRelation: "volunteers";
-            referencedColumns: ["email"];
+            referencedRelation: "trees";
+            referencedColumns: ["ecoslo_num"];
           },
         ];
       };
@@ -122,10 +185,9 @@ export type Database = {
       trees: {
         Row: {
           address: string;
-          adopter_email: string;
-          adopter_name: string;
-          adopter_phone: string;
+          admin_notes: string;
           common_name: string;
+          condition: Database["public"]["Enums"]["Condition"];
           created_at: string;
           date_planted: string;
           ecoslo_num: number;
@@ -135,37 +197,43 @@ export type Database = {
           latitude: number;
           longitude: number;
           next_mulching_date: string | null;
+          next_watering_date: string | null;
           notes: string | null;
           species_name: string;
-          status: string;
-          weekly_watering_status: string | null;
+          status: Database["public"]["Enums"]["TreeStatus"];
+          survey_logs: number[] | null;
+          tree_keeper_id: number | null;
+          weekly_watering_status: Database["public"]["Enums"]["WateringStatus"];
+          yearly_mulching_status: Database["public"]["Enums"]["MulchingStatus"];
         };
         Insert: {
           address: string;
-          adopter_email: string;
-          adopter_name: string;
-          adopter_phone: string;
+          admin_notes?: string;
           common_name: string;
+          condition?: Database["public"]["Enums"]["Condition"];
           created_at?: string;
           date_planted: string;
-          ecoslo_num: number;
+          ecoslo_num?: number;
           funder: string;
           id?: number;
           is_public?: boolean;
           latitude: number;
           longitude: number;
           next_mulching_date?: string | null;
+          next_watering_date?: string | null;
           notes?: string | null;
           species_name: string;
-          status: string;
-          weekly_watering_status?: string | null;
+          status?: Database["public"]["Enums"]["TreeStatus"];
+          survey_logs?: number[] | null;
+          tree_keeper_id?: number | null;
+          weekly_watering_status?: Database["public"]["Enums"]["WateringStatus"];
+          yearly_mulching_status?: Database["public"]["Enums"]["MulchingStatus"];
         };
         Update: {
           address?: string;
-          adopter_email?: string;
-          adopter_name?: string;
-          adopter_phone?: string;
+          admin_notes?: string;
           common_name?: string;
+          condition?: Database["public"]["Enums"]["Condition"];
           created_at?: string;
           date_planted?: string;
           ecoslo_num?: number;
@@ -175,48 +243,24 @@ export type Database = {
           latitude?: number;
           longitude?: number;
           next_mulching_date?: string | null;
+          next_watering_date?: string | null;
           notes?: string | null;
           species_name?: string;
-          status?: string;
-          weekly_watering_status?: string | null;
+          status?: Database["public"]["Enums"]["TreeStatus"];
+          survey_logs?: number[] | null;
+          tree_keeper_id?: number | null;
+          weekly_watering_status?: Database["public"]["Enums"]["WateringStatus"];
+          yearly_mulching_status?: Database["public"]["Enums"]["MulchingStatus"];
         };
-        Relationships: [];
-      };
-      volunteers: {
-        Row: {
-          created_at: string;
-          email: string;
-          firstname: string;
-          id: number;
-          joined: string;
-          lastname: string;
-          phone: string;
-          trees_planted: string[] | null;
-          type: string;
-        };
-        Insert: {
-          created_at?: string;
-          email: string;
-          firstname: string;
-          id?: number;
-          joined?: string;
-          lastname: string;
-          phone: string;
-          trees_planted?: string[] | null;
-          type?: string;
-        };
-        Update: {
-          created_at?: string;
-          email?: string;
-          firstname?: string;
-          id?: number;
-          joined?: string;
-          lastname?: string;
-          phone?: string;
-          trees_planted?: string[] | null;
-          type?: string;
-        };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "trees_tree_keeper_id_fkey";
+            columns: ["tree_keeper_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {
@@ -226,7 +270,11 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      Condition: "good" | "fair" | "poor";
+      MemberType: "Admin" | "Tree Keeper";
+      MulchingStatus: "Completed" | "Pending";
+      TreeStatus: "Active" | "Graduated";
+      WateringStatus: "Completed" | "Pending";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -345,6 +393,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      Condition: ["good", "fair", "poor"],
+      MemberType: ["Admin", "Tree Keeper"],
+      MulchingStatus: ["Completed", "Pending"],
+      TreeStatus: ["Active", "Graduated"],
+      WateringStatus: ["Completed", "Pending"],
+    },
   },
 } as const;
