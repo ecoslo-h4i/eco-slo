@@ -9,27 +9,6 @@ export type DashboardTreeSchema = TreeSchema & {
   last_updated: string;
 };
 
-// export type TreeSchema = {
-//   id: number;
-//   created_at: string; // ISO datetime string
-//   status: string;
-//   ecoslo_num: number;
-//   species_name: string;
-//   common_name: string;
-//   funder: string;
-//   date_planted: string; // ISO date string (YYYY-MM-DD)
-//   address: string;
-//   latitude: number;
-//   longitude: number;
-//   is_public: boolean;
-//   adopter_name: string;
-//   adopter_phone: string;
-//   adopter_email: string;
-//   weekly_watering_status: string;
-//   next_mulching_date: string; // ISO date string
-//   notes: string;
-// };
-
 export const dashboardTreeColumns: ColumnDef<DashboardTreeSchema, keyof DashboardTreeSchema>[] = [
   {
     id: "ecoslo_num",

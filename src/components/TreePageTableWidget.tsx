@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dashboardTreeColumns, treeColumns, TreeSchema } from "./data-table/table-widget-defs";
+import { treeColumns, TreeSchema } from "./data-table/table-widget-defs";
 import { Table } from "./data-table/table/table-types";
 import TreePageTable from "./data-table/tree-page-table";
 
@@ -60,7 +60,7 @@ function TreePageTableWidget({
           <div className="w-full h-full flex justify-center items-center text-red-500">{error}</div>
         ) : (
           <TreePageTable
-            className="w-full max-w-full min-w-0 max-h-[80vh]"
+            className="w-full max-w-full min-w-0"
             onRowClick={onRowClick}
             onTableReady={onTableReady}
             data={trees}

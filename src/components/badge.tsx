@@ -2,10 +2,10 @@ type BadgeVariant = "default" | "muted" | "warning" | "destructive";
 type IconSide = "left" | "right";
 
 const badgeVariantClasses: Record<BadgeVariant, string> = {
-  default: "text-primary bg-primary/10 border border-primary/20",
-  muted: "text-text-muted bg-text-muted/30",
+  default: "text-primary bg-primary/15 border border-primary/20",
+  muted: "text-text-muted bg-text-muted/15 border border-text-muted/20",
   warning: "text-warning bg-warning/15 border border-warning/20",
-  destructive: "text-destructive bg-destructive/10 border border-destructive/20",
+  destructive: "text-destructive bg-destructive/15 border border-destructive/20",
 };
 
 export default function Badge({

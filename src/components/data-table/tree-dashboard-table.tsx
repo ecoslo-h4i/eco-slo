@@ -7,7 +7,7 @@ import TableRow from "./table/table-row";
 import TableHead from "./table/table-head";
 import TableBody from "./table/table-body";
 import TableCell from "./table/table-cell";
-import { TreeSchema, treeWidgetSchema } from "./table-widget-defs";
+import { TreeSchema } from "./table-widget-defs";
 import { ColumnDef } from "./table/column-def";
 import { useTable } from "./table/table-types";
 

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "lint:fix": "next lint --fix",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "test": "echo 'Install jest (or another unit test suite) to use this command.'",
     "prepare": "husky"
