@@ -59,7 +59,7 @@ export type Database = {
           task_message: string;
         };
         Insert: {
-          assignees?: number[];
+          assignees: number[];
           created_at?: string;
           crons_expression?: string;
           id?: number;
@@ -89,7 +89,7 @@ export type Database = {
           tree: number | null;
         };
         Insert: {
-          body?: Json;
+          body: Json;
           created_at?: string;
           id?: number;
           task?: number | null;
@@ -119,48 +119,77 @@ export type Database = {
           },
         ];
       };
-      surveys: {
-        Row: {
-          body: Json;
-          created_at: string;
-          id: number;
-          task: number;
-          tree: number;
-        };
-        Insert: {
-          body: Json;
-          created_at?: string;
-          id?: number;
-          task: number;
-          tree: number;
-        };
-        Update: {
-          body?: Json;
-          created_at?: string;
-          id?: number;
-          task?: number;
-          tree?: number;
-        };
-        Relationships: [];
-      };
       tasks: {
         Row: {
-          created_at: string | null;
-          description: string | null;
+          assignees: number[] | null;
+          completion_date: string | null;
+          created_at: string;
+          created_by: number | null;
           id: number;
+          is_complete: boolean;
+          message: string;
+          surveys_needed: number;
           title: string;
         };
         Insert: {
-          created_at?: string | null;
-          description?: string | null;
+          assignees?: number[] | null;
+          completion_date?: string | null;
+          created_at?: string;
+          created_by?: number | null;
           id?: number;
-          title: string;
+          is_complete?: boolean;
+          message: string;
+          surveys_needed?: number;
+          title?: string;
         };
         Update: {
-          created_at?: string | null;
-          description?: string | null;
+          assignees?: number[] | null;
+          completion_date?: string | null;
+          created_at?: string;
+          created_by?: number | null;
           id?: number;
+          is_complete?: boolean;
+          message?: string;
+          surveys_needed?: number;
           title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tasks_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      templates: {
+        Row: {
+          assignees: number[];
+          created_at: string;
+          crons_expression: string;
+          id: number;
+          is_group_task: boolean;
+          name: string;
+          task_message: string;
+        };
+        Insert: {
+          assignees: number[];
+          created_at?: string;
+          crons_expression?: string;
+          id?: number;
+          is_group_task?: boolean;
+          name?: string;
+          task_message?: string;
+        };
+        Update: {
+          assignees?: number[];
+          created_at?: string;
+          crons_expression?: string;
+          id?: number;
+          is_group_task?: boolean;
+          name?: string;
+          task_message?: string;
         };
         Relationships: [];
       };
