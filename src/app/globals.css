@@ -4,18 +4,44 @@
   --font-avenir: var(--font-avenir), font-avenir;
   --font-serif: var(--font-cardo);
 
-  --color-background: #fef9ef;
-  --color-foreground: #ffffff;
-  --color-background-accent: #ffffff;
-  --color-foreground-accent: #000000;
+  --color-background: #f7f2ec;
 
-  --color-primary: #90ad58;
-  --color-primary-muted: #bcce9b;
+  --color-card: #ece7df;
+
+  --color-primary: #6b7456;
+  --color-primary-muted: #e1e0d2;
+  --color-primary-border: #d5d7c3;
+  --color-icon-primary-muted: #d4d6cd;
+
+  --color-warning: #d4a574;
+  --color-warning-muted: #e6daca;
+  --color-warning-border: #e0c9b0;
+
+  --color-destructive: #b85b50;
+  --color-destructive-muted: #e9e0d8;
+  --color-destructive-border: #dfc5bd;
+
+  --color-text-dark: #2a2825;
+  --color-text-muted: #6b6662;
+  --color-text-light: #ffffff;
+
+  --color-border: #d4cec3;
+  --color-background-muted: #d4cec3;
+
+  --color-button: #f7f2ec;
+  --color-button-muted: #dedbd1;
+  --color-button-light: #ffffff;
+
+  --color-table-header: #e4dfd7;
+  --color-table-row-light: #f5f3ef;
+  --color-table-row-dark: #ece7df;
 
   --color-secondary: #415763;
   --color-secondary-muted: #698293;
 
-  --color-card: #eee0cf;
+  --color-foreground: #ffffff;
+  --color-background-accent: #ffffff;
+  --color-foreground-accent: #000000;
 }
 
 @layer utilities {

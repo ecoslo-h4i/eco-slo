@@ -1,28 +1,36 @@
 import { ColumnDef } from "./table/column-def";
 import HeadControls from "./head-controls";
+import { Database } from "@/database/database.types";
+import Badge from "../badge";
 
-export type TreeSchema = {
-  id: number;
-  created_at: string; // ISO datetime string
-  status: string;
-  ecoslo_num: number;
-  species_name: string;
-  common_name: string;
-  funder: string;
-  date_planted: string; // ISO date string (YYYY-MM-DD)
-  address: string;
-  latitude: number;
-  longitude: number;
-  is_public: boolean;
-  adopter_name: string;
-  adopter_phone: string;
-  adopter_email: string;
-  weekly_watering_status: string;
-  next_mulching_date: string; // ISO date string
-  notes: string;
+export type TreeSchema = Database["public"]["Tables"]["trees"]["Row"];
+
+export type DashboardTreeSchema = TreeSchema & {
+  last_updated: string;
 };
 
-export const dashboardTreeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
+// export type TreeSchema = {
+//   id: number;
+//   created_at: string; // ISO datetime string
+//   status: string;
+//   ecoslo_num: number;
+//   species_name: string;
+//   common_name: string;
+//   funder: string;
+//   date_planted: string; // ISO date string (YYYY-MM-DD)
+//   address: string;
+//   latitude: number;
+//   longitude: number;
+//   is_public: boolean;
+//   adopter_name: string;
+//   adopter_phone: string;
+//   adopter_email: string;
+//   weekly_watering_status: string;
+//   next_mulching_date: string; // ISO date string
+//   notes: string;
+// };
+
+export const dashboardTreeColumns: ColumnDef<DashboardTreeSchema, keyof DashboardTreeSchema>[] = [
   {
     id: "ecoslo_num",
     name: "EcoSLO #",
@@ -34,35 +42,23 @@ export const dashboardTreeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
     cell: (value) => value,
   },
   {
-    id: "date_planted",
-    name: "Date Planted",
-    cell: (value) => formatISODate(value),
-  },
-  {
     id: "status",
     name: "Status",
-    cell: (value) => {
-      return (
-        <div className="px-2 py-0.5 rounded-full inline-block text-center bg-secondary capitalize font-medium text-sm text-foreground">
-          {value}
-        </div>
-      );
-    },
+    cell: (value) => (
+      <Badge variant={value == "Active" ? "default" : "muted"} className="capitalize">
+        {value}
+      </Badge>
+    ),
   },
   {
-    id: "adopter_name",
+    id: "tree_keeper_id",
     name: "Treekeeper",
     cell: (value) => value,
   },
   {
-    id: "adopter_email",
-    name: "Treekeeper Email",
-    cell: (value) => value,
-  },
-  {
-    id: "adopter_phone",
-    name: "Treekeeper Phone",
-    cell: (value) => formatPhoneNumber(value),
+    id: "last_updated",
+    name: "Last Update",
+    cell: (value) => formatISODate(value),
   },
 ];
 
@@ -71,16 +67,59 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
     id: "ecoslo_num",
     name: "EcoSLO #",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
-    cell: (value) => value,
+    cell: (value) => <p className="w-24 font-bold">#{value}</p>,
     cellId: (value) => String(value),
     comparator: (a, b) => Number(a) - Number(b),
     canSearch: true,
   },
   {
+    id: "status",
+    name: "Status",
+    cell: (value) => (
+      <Badge variant={String(value).toLowerCase() == "active" ? "default" : "muted"} className="capitalize">
+        {value}
+      </Badge>
+    ),
+    cellId: (value) => String(value).toLowerCase(),
+    canSearch: true,
+  },
+  {
+    id: "condition",
+    name: "Condition",
+    cell: (value) => (
+      <Badge
+        variant={
+          String(value).toLowerCase() == "good"
+            ? "default"
+            : String(value).toLowerCase() == "fair"
+              ? "warning"
+              : "destructive"
+        }
+        className="capitalize"
+      >
+        {value}
+      </Badge>
+    ),
+    cellId: (value) => String(value).toLowerCase(),
+    canSearch: true,
+  },
+  {
     id: "species_name",
     name: "Species",
-    cell: (value) => value,
+    cell: (value) => <p className="max-w-48 truncate">{value}</p>,
     cellId: (value) => String(value).toLowerCase(),
+    canSearch: true,
+  },
+  {
+    id: "common_name",
+    name: "Common Name",
+    cell: (value) => <p className="max-w-48 truncate">{value}</p>,
+    canSearch: true,
+  },
+  {
+    id: "funder",
+    name: "Funder",
+    cell: (value) => <p className="max-w-48 truncate text-text-muted">{value}</p>,
     canSearch: true,
   },
   {
@@ -96,57 +135,31 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
     canSearch: true,
   },
   {
-    id: "status",
-    name: "Status",
-    cell: (value) => {
-      return (
-        <div className="px-2 py-0.5 rounded-full inline-block text-center bg-secondary capitalize font-medium text-sm text-foreground">
-          {value}
-        </div>
-      );
-    },
-    cellId: (value) => String(value).toLowerCase(),
-    canSearch: true,
-  },
-  {
-    id: "common_name",
-    name: "Common Name",
-    cell: (value) => value,
-    canSearch: true,
-  },
-  {
-    id: "funder",
-    name: "Funder",
-    cell: (value) => value,
-    canSearch: true,
-  },
-  {
     id: "address",
     name: "Address",
-    cell: (value) => value,
+    cell: (value) => <p className="max-w-48 truncate">{value}</p>,
     canSearch: true,
   },
   {
     id: "latitude",
     name: "Latitude",
-    cell: (value) => value,
+    cell: (value) => <p className="max-w-24 truncate text-text-muted">{value}</p>,
     canSearch: true,
   },
   {
     id: "longitude",
     name: "Longitude",
-    cell: (value) => value,
+    cell: (value) => <p className="max-w-24 truncate text-text-muted">{value}</p>,
     canSearch: true,
   },
   {
     id: "is_public",
     name: "Is Public",
-    cell: (value) => {
-      if (typeof value === "boolean") {
-        return value ? "True" : "False";
-      }
-      return String(value);
-    },
+    cell: (value) => (
+      <Badge variant={value ? "default" : "muted"} className="capitalize">
+        {value ? "True" : "False"}
+      </Badge>
+    ),
     cellId: (value) => {
       if (typeof value === "boolean") {
         return value ? "public" : "private";
@@ -156,29 +169,27 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
     canSearch: true,
   },
   {
-    id: "adopter_name",
-    name: "Treekeeper",
+    id: "tree_keeper_id",
+    name: "Treekeeper Id",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => value,
     comparator: (a, b) => String(a).localeCompare(String(b)),
     canSearch: true,
   },
   {
-    id: "adopter_phone",
-    name: "Treekeeper Phone",
-    cell: (value) => formatPhoneNumber(value),
-    canSearch: true,
-  },
-  {
-    id: "adopter_email",
-    name: "Treekeeper Email",
-    cell: (value) => value,
+    id: "next_watering_date",
+    name: "Next Watering Date",
+    cell: (value) => formatISODate(value),
     canSearch: true,
   },
   {
     id: "weekly_watering_status",
     name: "Weekly Watering Status",
-    cell: (value) => value,
+    cell: (value) => (
+      <Badge variant={String(value).toLowerCase() == "completed" ? "default" : "muted"} className="capitalize">
+        {value}
+      </Badge>
+    ),
     canSearch: true,
   },
   {
@@ -188,9 +199,32 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
     canSearch: true,
   },
   {
+    id: "yearly_mulching_status",
+    name: "Yearly Mulching Status",
+    cell: (value) => (
+      <Badge variant={String(value).toLowerCase() == "completed" ? "default" : "muted"} className="capitalize">
+        {value}
+      </Badge>
+    ),
+    cellId: (value) => String(value).toLowerCase(),
+    canSearch: true,
+  },
+  {
     id: "notes",
     name: "Notes",
-    cell: (value) => value,
+    cell: (value) => <p className="max-w-64 truncate">{value}</p>,
+    canSearch: true,
+  },
+  {
+    id: "admin_notes",
+    name: "Admin Notes",
+    cell: (value) => <p className="max-w-64 truncate">{value}</p>,
+    canSearch: true,
+  },
+  {
+    id: "survey_logs",
+    name: "Survey Logs",
+    cell: (value) => <p className="max-w-64 truncate">{value}</p>,
     canSearch: true,
   },
 ];
@@ -216,10 +250,8 @@ export const formatISODate = (value: unknown): string => {
   if (!match) return raw;
 
   const [, year, month, day] = match;
-  const monthWithoutLeadingZero = String(Number(month));
-  const dayWithoutLeadingZero = String(Number(day));
 
-  return `${monthWithoutLeadingZero}/${dayWithoutLeadingZero}/${year}`;
+  return `${year}-${month}-${day}`;
 };
 
 export type treeWidgetSchema = {

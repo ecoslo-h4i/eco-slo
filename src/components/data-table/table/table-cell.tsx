@@ -14,7 +14,7 @@ export default function TableCell({
   columnSpan?: number;
 }) {
   return (
-    <td className={`px-2 py-1.5 ${columnWidth || ""} ${className || ""}`} colSpan={columnSpan}>
+    <td className={`${columnWidth || ""} ${className || ""}`} colSpan={columnSpan}>
       <div
         className={`flex items-center w-full 
           ${position === "center" ? "justify-center" : position === "right" ? "justify-end" : "justify-start"}`}
