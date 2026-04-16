@@ -119,69 +119,48 @@ export type Database = {
           },
         ];
       };
-      tasks: {
+      surveys: {
         Row: {
-          assignees: number[] | null;
-          completion_date: string | null;
+          body: Json;
           created_at: string;
-          created_by: number | null;
           id: number;
-          is_complete: boolean;
-          message: string;
-          surveys_needed: number;
-          title: string;
+          task: number;
+          tree: number;
         };
         Insert: {
-          assignees?: number[] | null;
-          completion_date?: string | null;
+          body: Json;
           created_at?: string;
-          created_by?: number | null;
           id?: number;
-          is_complete?: boolean;
-          message: string;
-          surveys_needed?: number;
-          title?: string;
+          task: number;
+          tree: number;
         };
         Update: {
-          assignees?: number[] | null;
-          completion_date?: string | null;
+          body?: Json;
           created_at?: string;
-          created_by?: number | null;
           id?: number;
-          is_complete?: boolean;
-          message?: string;
-          surveys_needed?: number;
-          title?: string;
+          task?: number;
+          tree?: number;
         };
         Relationships: [];
       };
-      templates: {
+      tasks: {
         Row: {
-          assignees: number[];
-          created_at: string;
-          crons_expression: string;
+          created_at: string | null;
+          description: string | null;
           id: number;
-          is_group_task: boolean;
-          name: string;
-          task_message: string;
+          title: string;
         };
         Insert: {
-          assignees?: number[];
-          created_at?: string;
-          crons_expression?: string;
+          created_at?: string | null;
+          description?: string | null;
           id?: number;
-          is_group_task?: boolean;
-          name?: string;
-          task_message?: string;
+          title: string;
         };
         Update: {
-          assignees?: number[];
-          created_at?: string;
-          crons_expression?: string;
+          created_at?: string | null;
+          description?: string | null;
           id?: number;
-          is_group_task?: boolean;
-          name?: string;
-          task_message?: string;
+          title?: string;
         };
         Relationships: [];
       };
