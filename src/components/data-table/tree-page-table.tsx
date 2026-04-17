@@ -90,18 +90,18 @@ function TreePageTable({
             {rowModels.map((model, i) => (
               <TableRow
                 key={i}
-                data={data[i]}
+                data={model.row}
                 onClick={onRowClick}
                 className={`${i % 2 === 0 ? "bg-table-row-light" : "bg-table-row-dark"} hover:bg-table-header cursor-pointer`}
               >
-                {model.cells.map(({ column, value }, j) => (
+                {model.cells.map(({ column, value, row }, j) => (
                   <TableCell
                     key={j}
                     className="px-4 h-16"
                     position={column.cellPosition}
                     columnWidth={column.columnWidth}
                   >
-                    {table.getCell(column, value)}
+                    {table.getCell(column, value, row)}
                   </TableCell>
                 ))}
               </TableRow>

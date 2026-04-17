@@ -7,7 +7,7 @@ import TableRow from "./table/table-row";
 import TableHead from "./table/table-head";
 import TableBody from "./table/table-body";
 import TableCell from "./table/table-cell";
-import { TreeSchema } from "./table-widget-defs";
+import { DashboardTreeSchema } from "./table-widget-defs";
 import { ColumnDef } from "./table/column-def";
 import { useTable } from "./table/table-types";
 
@@ -17,10 +17,10 @@ function TreeDashboardTable({
   cols,
 }: {
   className?: string;
-  data: TreeSchema[];
-  cols: ColumnDef<TreeSchema>[];
+  data: DashboardTreeSchema[];
+  cols: ColumnDef<DashboardTreeSchema>[];
 }) {
-  const table = useTable<TreeSchema>(data, cols, [], [], 5);
+  const table = useTable<DashboardTreeSchema>(data, cols, [], [], 5);
   const columns = table.getColumns();
   const rowModels = table.getRowModels();
   const placeholderRowCount = Math.max(table.getPageSize() - rowModels.length, 0);
@@ -73,14 +73,14 @@ function TreeDashboardTable({
           <>
             {rowModels.map((model, i) => (
               <TableRow key={i} className={`${i % 2 === 0 ? "bg-table-row-light" : "bg-table-row-dark"}`}>
-                {model.cells.map(({ column, value }, j) => (
+                {model.cells.map(({ column, value, row }, j) => (
                   <TableCell
                     key={j}
                     className="px-4 h-12"
                     position={column.cellPosition}
                     columnWidth={column.columnWidth}
                   >
-                    {table.getCell(column, value)}
+                    {table.getCell(column, value, row)}
                   </TableCell>
                 ))}
               </TableRow>

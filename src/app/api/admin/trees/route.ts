@@ -17,7 +17,20 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function GET() {
   try {
-    const { data, error } = await supabase.from("trees").select("*").order("created_at", { ascending: true });
+    const { data, error } = await supabase
+      .from("trees")
+      .select(
+        `
+        *,
+        tree_keeper:tree_keeper_id (
+          firstname,
+          lastname,
+          email,
+          phone
+        )
+      `,
+      )
+      .order("created_at", { ascending: true });
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
       return NextResponse.json({ message: error.message }, { status: status });

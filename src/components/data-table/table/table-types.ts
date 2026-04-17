@@ -1,12 +1,23 @@
 import React from "react";
-import { ColumnDef } from "./column-def";
+import { ColumnDef, FieldPath, FieldPathValue } from "./column-def";
 
 import Fuse from "fuse.js";
 
 const FUSE_MATCH_THRESHOLD = 0.3;
 
-type ColumnKey<T extends Record<string, unknown>> = Extract<keyof T, string>;
-type CellValue<T extends Record<string, unknown>> = T[ColumnKey<T>];
+const getValueAtPath = <T extends Record<string, unknown>, P extends FieldPath<T>>(
+  row: T,
+  path: P,
+): FieldPathValue<T, P> => {
+  const value = path.split(".").reduce<unknown>((currentValue, segment) => {
+    if (currentValue == null || typeof currentValue !== "object") return undefined;
+    return (currentValue as Record<string, unknown>)[segment];
+  }, row);
+
+  return value as FieldPathValue<T, P>;
+};
+
+type CellValue<T extends Record<string, unknown>> = FieldPathValue<T, FieldPath<T>>;
 
 export type VisibilityState = {
   [x: string]: boolean;
@@ -25,9 +36,11 @@ export type SortingState = {
 };
 
 export type RowModel<T extends Record<string, unknown>> = {
+  row: T;
   cells: {
     column: ColumnDef<T>;
     value: CellValue<T>;
+    row: T;
   }[];
 };
 
@@ -39,7 +52,7 @@ export type Table<T extends Record<string, unknown>> = {
   getHideableColumns: () => ColumnDef<T>[];
   getRowModels: () => RowModel<T>[];
   getHead: (column: ColumnDef<T>) => React.ReactNode;
-  getCell: (column: ColumnDef<T>, value: CellValue<T>) => React.ReactNode;
+  getCell: (column: ColumnDef<T>, value: CellValue<T>, row: T) => React.ReactNode;
   getColumnSorting: () => SortingState;
   setColumnSorting: (columnId: string, desc: boolean) => void;
   setColumnVisibility: (columnId: string, update: (prev: boolean) => boolean) => void;
@@ -48,7 +61,7 @@ export type Table<T extends Record<string, unknown>> = {
   resetColumnFilter: (columnId: string) => void;
   getSearchQuery: () => string;
   setSearchQuery: (value: string) => void;
-  setSearchColumns: (columnIds: string[]) => void;
+  setSearchColumns: (update: (prev: string[]) => string[]) => void;
   getUnpaginatedRowCount: () => number;
   getPageCount: () => number;
   getPageSize: () => number;
@@ -98,15 +111,21 @@ export const useTable = <T extends Record<string, unknown>>(
     initialSearchColumns.length > 0 ? initialSearchColumns : defaultSearchColumnIds,
   );
 
+  const searchAccessorKeys = React.useMemo(() => {
+    return searchColumns
+      .map((columnId) => columnDefs.find((column) => column.id === columnId)?.accessorKey)
+      .filter((accessorKey): accessorKey is FieldPath<T> => accessorKey !== undefined);
+  }, [columnDefs, searchColumns]);
+
   const fuse = React.useMemo(
     () =>
       new Fuse(data, {
         includeScore: true,
         threshold: FUSE_MATCH_THRESHOLD,
         ignoreLocation: true,
-        keys: searchColumns,
+        keys: searchAccessorKeys,
       }),
-    [data, searchColumns],
+    [data, searchAccessorKeys],
   );
 
   const [pageIndex, setPageIndex] = React.useState<number>(0);
@@ -129,12 +148,12 @@ export const useTable = <T extends Record<string, unknown>>(
   }, [columnDefs, columnVisibility]);
 
   const searchMatchRows = React.useMemo(() => {
-    if (!searchQuery || searchColumns.length === 0) return data;
+    if (!searchQuery || searchAccessorKeys.length === 0) return data;
     return fuse
       .search(searchQuery.trim())
       .filter(({ score }) => (score ?? 1) <= FUSE_MATCH_THRESHOLD)
       .map(({ item }) => item);
-  }, [data, searchQuery, searchColumns, fuse]);
+  }, [data, searchQuery, searchAccessorKeys, fuse]);
 
   const filteredRows = React.useMemo(() => {
     return searchMatchRows.filter((row) => {
@@ -144,7 +163,7 @@ export const useTable = <T extends Record<string, unknown>>(
         const filterValues = filtersById[column.id] ?? [];
         if (filterValues.length === 0) return true;
 
-        const cellId = column.cellId(row[column.id]);
+        const cellId = column.cellId(getValueAtPath(row, column.accessorKey) as CellValue<T>);
         return filterValues.includes(cellId);
       });
     });
@@ -155,7 +174,10 @@ export const useTable = <T extends Record<string, unknown>>(
     if (!activeSortColumn || !activeSortColumn.comparator) return filteredRows;
 
     return [...filteredRows].sort((leftRow, rightRow) => {
-      const compareResult = activeSortColumn.comparator!(leftRow[activeSortColumn.id], rightRow[activeSortColumn.id]);
+      const compareResult = activeSortColumn.comparator!(
+        getValueAtPath(leftRow, activeSortColumn.accessorKey) as CellValue<T>,
+        getValueAtPath(rightRow, activeSortColumn.accessorKey) as CellValue<T>,
+      );
       return sorting.desc ? -compareResult : compareResult;
     });
   }, [filteredRows, sorting, columnDefs]);
@@ -167,16 +189,18 @@ export const useTable = <T extends Record<string, unknown>>(
 
   const rowModels: RowModel<T>[] = React.useMemo(() => {
     return paginatedRows.map((row) => ({
+      row,
       cells: visibleColumns.map((column) => ({
         column,
-        value: row[column.id],
+        value: getValueAtPath(row, column.accessorKey) as CellValue<T>,
+        row,
       })),
     }));
   }, [paginatedRows, visibleColumns]);
   //endregion
 
-  const getCell = React.useCallback((column: ColumnDef<T>, value: CellValue<T>) => {
-    return column.cell ? column.cell(value) : (String(value) as React.ReactNode);
+  const getCell = React.useCallback((column: ColumnDef<T>, value: CellValue<T>, row: T) => {
+    return column.cell ? column.cell(value, row) : (String(value) as React.ReactNode);
   }, []);
 
   const getColumnSorting = React.useCallback(() => {
@@ -217,8 +241,8 @@ export const useTable = <T extends Record<string, unknown>>(
     setSearchQueryState(value);
   }, []);
 
-  const setSearchColumns = React.useCallback((columnIds: string[]) => {
-    setSearchColumnsState(columnIds);
+  const setSearchColumns = React.useCallback((update: (prev: string[]) => string[]) => {
+    setSearchColumnsState(update);
   }, []);
 
   const getUnpaginatedRowCount = React.useCallback(() => {

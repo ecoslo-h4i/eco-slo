@@ -43,7 +43,7 @@ export default function PaginationControls<T extends Record<string, unknown>>({ 
       </div>
       <div className="flex gap-4 items-center">
         <button
-          className="px-3 py-1 bg-button border border-border text-text-dark rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
+          className="px-3 py-1 bg-button border border-border text-text-dark rounded-xl hover:bg-button/80 disabled:opacity-60 disabled:cursor-not-allowed"
           disabled={!table.hasPreviousPage()}
           onClick={table.previousPage}
         >
@@ -53,7 +53,7 @@ export default function PaginationControls<T extends Record<string, unknown>>({ 
           Page <span>{table.getPageIndex() + 1}</span> of <span>{table.getPageCount()}</span>
         </p>
         <button
-          className="px-3 py-1 bg-button border border-border text-text-dark rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
+          className="px-3 py-1 bg-button border border-border text-text-dark rounded-xl hover:bg-button/80 disabled:opacity-60 disabled:cursor-not-allowed"
           disabled={!table.hasNextPage()}
           onClick={table.nextPage}
         >
