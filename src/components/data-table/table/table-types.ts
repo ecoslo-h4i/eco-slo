@@ -49,6 +49,16 @@ export type Table<T extends Record<string, unknown>> = {
   getSearchQuery: () => string;
   setSearchQuery: (value: string) => void;
   setSearchColumns: (columnIds: string[]) => void;
+  getUnpaginatedRowCount: () => number;
+  getPageCount: () => number;
+  getPageSize: () => number;
+  setPageSize: (size: number) => void;
+  getPageIndex: () => number;
+  setPageIndex: (index: number) => void;
+  hasNextPage: () => boolean;
+  hasPreviousPage: () => boolean;
+  nextPage: () => void;
+  previousPage: () => void;
 };
 
 export const useTable = <T extends Record<string, unknown>>(
@@ -56,6 +66,7 @@ export const useTable = <T extends Record<string, unknown>>(
   columnDefs: ColumnDef<T>[],
   initialHiddenColumns: string[] = [],
   initialSearchColumns: string[] = [],
+  initialPageSize: number = 10,
 ): Table<T> => {
   /*
    * Initalize Table State
@@ -97,6 +108,9 @@ export const useTable = <T extends Record<string, unknown>>(
       }),
     [data, searchColumns],
   );
+
+  const [pageIndex, setPageIndex] = React.useState<number>(0);
+  const [pageSize, setPageSize] = React.useState<number>(initialPageSize);
 
   /*
    * Table functionallity
@@ -146,14 +160,19 @@ export const useTable = <T extends Record<string, unknown>>(
     });
   }, [filteredRows, sorting, columnDefs]);
 
+  const paginatedRows = React.useMemo(() => {
+    const startIndex = pageIndex * pageSize;
+    return sortedRows.slice(startIndex, startIndex + pageSize);
+  }, [sortedRows, pageIndex, pageSize]);
+
   const rowModels: RowModel<T>[] = React.useMemo(() => {
-    return sortedRows.map((row) => ({
+    return paginatedRows.map((row) => ({
       cells: visibleColumns.map((column) => ({
         column,
         value: row[column.id],
       })),
     }));
-  }, [sortedRows, visibleColumns]);
+  }, [paginatedRows, visibleColumns]);
   //endregion
 
   const getCell = React.useCallback((column: ColumnDef<T>, value: CellValue<T>) => {
@@ -202,6 +221,49 @@ export const useTable = <T extends Record<string, unknown>>(
     setSearchColumnsState(columnIds);
   }, []);
 
+  const getUnpaginatedRowCount = React.useCallback(() => {
+    return sortedRows.length;
+  }, [sortedRows]);
+
+  const getPageCount = React.useCallback(() => {
+    return Math.ceil(sortedRows.length / pageSize);
+  }, [sortedRows, pageSize]);
+
+  const getPageSize = React.useCallback(() => {
+    return pageSize;
+  }, [pageSize]);
+
+  const setPageSizeSafe = React.useCallback((size: number) => {
+    if (size > 0) setPageSize(size);
+  }, []);
+
+  const getPageIndex = React.useCallback(() => {
+    return pageIndex;
+  }, [pageIndex]);
+
+  const setPageIndexSafe = React.useCallback(
+    (index: number) => {
+      if (index >= 0 && index < getPageCount()) setPageIndex(index);
+    },
+    [getPageCount, setPageIndex],
+  );
+
+  const hasNextPage = React.useCallback(() => {
+    return pageIndex < getPageCount() - 1;
+  }, [pageIndex, getPageCount]);
+
+  const hasPreviousPage = React.useCallback(() => {
+    return pageIndex > 0;
+  }, [pageIndex]);
+
+  const nextPage = React.useCallback(() => {
+    setPageIndex((prev) => (hasNextPage() ? prev + 1 : prev));
+  }, [hasNextPage]);
+
+  const previousPage = React.useCallback(() => {
+    setPageIndex((prev) => (hasPreviousPage() ? prev - 1 : prev));
+  }, [hasPreviousPage]);
+
   const table: Table<T> = React.useMemo(() => {
     const nextTable = {} as Table<T>;
 
@@ -225,6 +287,16 @@ export const useTable = <T extends Record<string, unknown>>(
       getSearchQuery,
       setSearchQuery,
       setSearchColumns,
+      getUnpaginatedRowCount,
+      getPageCount,
+      getPageSize,
+      setPageSize: setPageSizeSafe,
+      getPageIndex,
+      setPageIndex: setPageIndexSafe,
+      hasNextPage,
+      hasPreviousPage,
+      nextPage,
+      previousPage,
     } satisfies Table<T>);
 
     return nextTable;
@@ -243,6 +315,16 @@ export const useTable = <T extends Record<string, unknown>>(
     getSearchQuery,
     setSearchQuery,
     setSearchColumns,
+    getUnpaginatedRowCount,
+    getPageCount,
+    getPageSize,
+    setPageSizeSafe,
+    getPageIndex,
+    setPageIndexSafe,
+    hasNextPage,
+    hasPreviousPage,
+    nextPage,
+    previousPage,
   ]);
 
   return table;

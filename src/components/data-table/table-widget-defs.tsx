@@ -2,6 +2,7 @@ import { ColumnDef } from "./table/column-def";
 import HeadControls from "./head-controls";
 import { Database } from "@/database/database.types";
 import Badge from "../badge";
+import { CircleAlert, CircleCheck, CircleMinus, Clock } from "lucide-react";
 
 export type TreeSchema = Database["public"]["Tables"]["trees"]["Row"];
 
@@ -73,6 +74,15 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
             : String(value).toLowerCase() == "fair"
               ? "warning"
               : "destructive"
+        }
+        icon={
+          String(value).toLowerCase() == "good" ? (
+            <CircleCheck className="w-4 h-4" />
+          ) : String(value).toLowerCase() == "fair" ? (
+            <CircleMinus className="w-4 h-4" />
+          ) : (
+            <CircleAlert className="w-4 h-4" />
+          )
         }
         className="capitalize"
       >
@@ -165,7 +175,17 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
     id: "weekly_watering_status",
     name: "Weekly Watering Status",
     cell: (value) => (
-      <Badge variant={String(value).toLowerCase() == "completed" ? "default" : "muted"} className="capitalize">
+      <Badge
+        variant={String(value).toLowerCase() == "completed" ? "default" : "muted"}
+        icon={
+          String(value).toLowerCase() == "completed" ? (
+            <CircleCheck className="w-4 h-4" />
+          ) : (
+            <Clock className="w-4 h-4" />
+          )
+        }
+        className="capitalize"
+      >
         {value}
       </Badge>
     ),
@@ -181,7 +201,17 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
     id: "yearly_mulching_status",
     name: "Yearly Mulching Status",
     cell: (value) => (
-      <Badge variant={String(value).toLowerCase() == "completed" ? "default" : "muted"} className="capitalize">
+      <Badge
+        variant={String(value).toLowerCase() == "completed" ? "default" : "muted"}
+        icon={
+          String(value).toLowerCase() == "completed" ? (
+            <CircleCheck className="w-4 h-4" />
+          ) : (
+            <Clock className="w-4 h-4" />
+          )
+        }
+        className="capitalize"
+      >
         {value}
       </Badge>
     ),

@@ -37,7 +37,7 @@ function TreePageTable({
       tableClassName="bg-table-row-light text-text-dark"
       footer={true}
       footerClassName="bg-table-header h-16"
-      footerContent={<PaginationControls />}
+      footerContent={<PaginationControls table={table} />}
     >
       <TableHeader className="bg-table-header">
         <TableRow>

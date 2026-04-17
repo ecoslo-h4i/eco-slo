@@ -258,7 +258,9 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
                   dropDown={CONDITION_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
                   delayFunction={(status: string) =>
-                    tableRef.current?.setColumnFilter("status", () => (status === "All" ? [] : [status.toLowerCase()]))
+                    tableRef.current?.setColumnFilter("condition", () =>
+                      status === "All" ? [] : [status.toLowerCase()],
+                    )
                   }
                 />
                 <ControlFilterDropdown
