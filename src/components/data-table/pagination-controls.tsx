@@ -1,14 +1,21 @@
+import React from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../dropdown-menu";
 import { Table } from "./table/table-types";
+import { ChevronDown } from "lucide-react";
 
 export default function PaginationControls<T extends Record<string, unknown>>({ table }: { table: Table<T> }) {
+  const [isOpen, setIsOpen] = React.useState(false);
+
   return (
     <div className="w-full h-full flex justify-between items-center px-6">
       <div className="flex gap-2 items-center">
         <p className="text-text-dark font-medium">Rows per page:</p>
-        <DropdownMenu>
-          <DropdownMenuTrigger className="w-12 px-2 py-1 bg-button-light border border-border text-text-dark rounded-xl hover:bg-button-light/80 transition-colors duration-50">
-            {table.getPageSize()}
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+          <DropdownMenuTrigger className="w-20 px-3 py-1 flex justify-between items-center bg-button-light border border-border text-text-dark rounded-xl hover:bg-button-light/80 transition-colors duration-50">
+            <span>{table.getPageSize()}</span>
+            <ChevronDown
+              className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isOpen && "rotate-180"}`}
+            />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             <DropdownMenuItem className="font-medium" onClick={() => table.setPageSize(5)}>

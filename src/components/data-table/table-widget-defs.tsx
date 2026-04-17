@@ -48,24 +48,26 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
     name: "EcoSLO #",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => <p className="w-24 font-bold">#{value}</p>,
-    cellId: (value) => String(value),
     comparator: (a, b) => Number(a) - Number(b),
     canSearch: true,
   },
   {
     id: "status",
     name: "Status",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
       <Badge variant={String(value).toLowerCase() == "active" ? "default" : "muted"} className="capitalize">
         {value}
       </Badge>
     ),
     cellId: (value) => String(value).toLowerCase(),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
     canSearch: true,
   },
   {
     id: "condition",
     name: "Condition",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
       <Badge
         variant={
@@ -90,25 +92,31 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
       </Badge>
     ),
     cellId: (value) => String(value).toLowerCase(),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
     canSearch: true,
   },
   {
     id: "species_name",
     name: "Species",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => <p className="max-w-48 truncate">{value}</p>,
-    cellId: (value) => String(value).toLowerCase(),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
     canSearch: true,
   },
   {
     id: "common_name",
     name: "Common Name",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => <p className="max-w-48 truncate">{value}</p>,
+    comparator: (a, b) => String(a).localeCompare(String(b)),
     canSearch: true,
   },
   {
     id: "funder",
     name: "Funder",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => <p className="max-w-48 truncate text-text-muted">{value}</p>,
+    comparator: (a, b) => String(a).localeCompare(String(b)),
     canSearch: true,
   },
   {
@@ -126,24 +134,31 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
   {
     id: "address",
     name: "Address",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => <p className="max-w-48 truncate">{value}</p>,
+    comparator: (a, b) => String(a).localeCompare(String(b)),
     canSearch: true,
   },
   {
     id: "latitude",
     name: "Latitude",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canSort={false} />,
     cell: (value) => <p className="max-w-24 truncate text-text-muted">{value}</p>,
+    comparator: (a, b) => Number(a) - Number(b),
     canSearch: true,
   },
   {
     id: "longitude",
     name: "Longitude",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canSort={false} />,
     cell: (value) => <p className="max-w-24 truncate text-text-muted">{value}</p>,
+    comparator: (a, b) => Number(a) - Number(b),
     canSearch: true,
   },
   {
     id: "is_public",
     name: "Is Public",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
       <Badge variant={value ? "default" : "muted"} className="capitalize">
         {value ? "True" : "False"}
@@ -154,6 +169,10 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
         return value ? "public" : "private";
       }
       return String(value).toLowerCase();
+    },
+    comparator: (a, b) => {
+      if (typeof a === "boolean" && typeof b === "boolean") return Number(b) - Number(a);
+      return String(a).localeCompare(String(b));
     },
     canSearch: true,
   },
@@ -168,12 +187,19 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
   {
     id: "next_watering_date",
     name: "Next Watering Date",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => formatISODate(value),
+    comparator: (a, b) => {
+      const dateA = new Date(String(a));
+      const dateB = new Date(String(b));
+      return dateA.getTime() - dateB.getTime();
+    },
     canSearch: true,
   },
   {
     id: "weekly_watering_status",
     name: "Weekly Watering Status",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
       <Badge
         variant={String(value).toLowerCase() == "completed" ? "default" : "muted"}
@@ -189,17 +215,25 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
         {value}
       </Badge>
     ),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
     canSearch: true,
   },
   {
     id: "next_mulching_date",
     name: "Next Mulching Date",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => formatISODate(value),
+    comparator: (a, b) => {
+      const dateA = new Date(String(a));
+      const dateB = new Date(String(b));
+      return dateA.getTime() - dateB.getTime();
+    },
     canSearch: true,
   },
   {
     id: "yearly_mulching_status",
     name: "Yearly Mulching Status",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
       <Badge
         variant={String(value).toLowerCase() == "completed" ? "default" : "muted"}
@@ -215,24 +249,27 @@ export const treeColumns: ColumnDef<TreeSchema, keyof TreeSchema>[] = [
         {value}
       </Badge>
     ),
-    cellId: (value) => String(value).toLowerCase(),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
     canSearch: true,
   },
   {
     id: "notes",
     name: "Notes",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canSort={false} />,
     cell: (value) => <p className="max-w-64 truncate">{value}</p>,
     canSearch: true,
   },
   {
     id: "admin_notes",
     name: "Admin Notes",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canSort={false} />,
     cell: (value) => <p className="max-w-64 truncate">{value}</p>,
     canSearch: true,
   },
   {
     id: "survey_logs",
     name: "Survey Logs",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canSort={false} />,
     cell: (value) => <p className="max-w-64 truncate">{value}</p>,
     canSearch: true,
   },

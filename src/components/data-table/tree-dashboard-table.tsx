@@ -20,7 +20,33 @@ function TreeDashboardTable({
   data: TreeSchema[];
   cols: ColumnDef<TreeSchema>[];
 }) {
-  const table = useTable<TreeSchema>(data, cols);
+  const table = useTable<TreeSchema>(data, cols, [], [], 5);
+  const columns = table.getColumns();
+  const rowModels = table.getRowModels();
+  const placeholderRowCount = Math.max(table.getPageSize() - rowModels.length, 0);
+
+  const renderPlaceholderRows = React.useCallback(
+    (count: number, startIndex: number) => {
+      return Array.from({ length: count }).map((_, i) => {
+        const rowIndex = startIndex + i;
+
+        return (
+          <TableRow
+            key={`placeholder-${startIndex}-${i}`}
+            aria-hidden="true"
+            className={`${rowIndex % 2 === 0 ? "bg-table-row-light" : "bg-table-row-dark"}`}
+          >
+            {columns.map((col, j) => (
+              <TableCell key={j} className="px-4 h-12" position={col.cellPosition} columnWidth={col.columnWidth}>
+                <span className="invisible">.</span>
+              </TableCell>
+            ))}
+          </TableRow>
+        );
+      });
+    },
+    [columns],
+  );
 
   return (
     <Table className={className} tableClassName="bg-table-row-light text-text-dark">
@@ -33,34 +59,43 @@ function TreeDashboardTable({
           ))}
         </TableRow>
       </TableHeader>
-      <TableBody className="font-medium">
+      <TableBody className="divide-y divide-border font-medium">
         {data.length == 0 ? (
-          <TableRow>
-            <TableCell className="h-24" columnSpan={cols.length}>
-              <p className="w-full text-center">Loading trees...</p>
-            </TableCell>
-          </TableRow>
-        ) : table.getRowModels().length ? (
-          table.getRowModels().map((model, i) => (
-            <TableRow key={i} className={`${i % 2 === 0 ? "bg-table-row-light" : "bg-table-row-dark"}`}>
-              {model.cells.map(({ column, value }, j) => (
-                <TableCell
-                  key={j}
-                  className="px-4 h-12"
-                  position={column.cellPosition}
-                  columnWidth={column.columnWidth}
-                >
-                  {table.getCell(column, value)}
-                </TableCell>
-              ))}
+          <>
+            <TableRow>
+              <TableCell className="h-12" columnSpan={cols.length}>
+                <p className="sticky left-1/2 -translate-x-1/2 w-max">Loading trees...</p>
+              </TableCell>
             </TableRow>
-          ))
+            {renderPlaceholderRows(Math.max(placeholderRowCount - 1, 0), 1)}
+          </>
+        ) : rowModels.length ? (
+          <>
+            {rowModels.map((model, i) => (
+              <TableRow key={i} className={`${i % 2 === 0 ? "bg-table-row-light" : "bg-table-row-dark"}`}>
+                {model.cells.map(({ column, value }, j) => (
+                  <TableCell
+                    key={j}
+                    className="px-4 h-12"
+                    position={column.cellPosition}
+                    columnWidth={column.columnWidth}
+                  >
+                    {table.getCell(column, value)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+            {renderPlaceholderRows(placeholderRowCount, rowModels.length)}
+          </>
         ) : (
-          <TableRow>
-            <TableCell className="h-24" columnSpan={cols.length}>
-              <p className="w-full text-center">No results.</p>
-            </TableCell>
-          </TableRow>
+          <>
+            <TableRow>
+              <TableCell className="h-12" columnSpan={cols.length}>
+                <p className="sticky left-1/2 -translate-x-1/2 w-max">No results.</p>
+              </TableCell>
+            </TableRow>
+            {renderPlaceholderRows(Math.max(placeholderRowCount - 1, 0), 1)}
+          </>
         )}
       </TableBody>
     </Table>
