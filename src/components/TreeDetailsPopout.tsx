@@ -1,26 +1,6 @@
 "use client";
 import { useState } from "react";
-
-export type TreeSchema = {
-  address: string;
-  adopter_email: string;
-  adopter_name: string;
-  adopter_phone: string;
-  common_name: string;
-  created_at: string;
-  date_planted: string;
-  ecoslo_num: number;
-  funder: string;
-  id: number;
-  is_public: boolean;
-  latitude: number;
-  longitude: number;
-  next_mulching_date: string | null;
-  notes: string | null;
-  species_name: string;
-  status: string;
-  weekly_watering_status: string | null;
-};
+import { TreeSchema } from "./data-table/table-widget-defs";
 
 type treeDetailsPopoutProps = {
   tree?: TreeSchema;
@@ -48,9 +28,9 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
     { title: "Coordinates:", info: tree.latitude + ", " + tree.longitude },
   ];
   const treeKeeperInfo = [
-    { title: "Name:", info: tree.adopter_name },
-    { title: "Phone:", info: tree.adopter_phone },
-    { title: "Email:", info: tree.adopter_phone },
+    { title: "Name:", info: tree.tree_keeper.name },
+    { title: "Phone:", info: tree.tree_keeper.phone },
+    { title: "Email:", info: tree.tree_keeper.email },
   ];
   const maintenance = [
     { title: "Weekly Watering:", info: tree.weekly_watering_status },

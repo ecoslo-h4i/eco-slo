@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "lint:fix": "next lint --fix",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "test": "echo 'Install jest (or another unit test suite) to use this command.'",
     "prepare": "husky"
@@ -19,6 +19,7 @@
     "env": "^0.0.2",
     "fuse.js": "^7.3.0",
     "leaflet": "^1.9.4",
+    "lucide-react": "^1.8.0",
     "mongoose": "^8",
     "next": "^16.2.1",
     "react": "^18",

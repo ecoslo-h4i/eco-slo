@@ -246,9 +246,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
                   options={CONTROL_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
                   delayFunction={(status: string) =>
-                    tableRef.current?.setColumnFilter("status", (prev) =>
-                      status === "All" ? [] : [status.toLowerCase()],
-                    )
+                    tableRef.current?.setColumnFilter("status", () => (status === "All" ? [] : [status.toLowerCase()]))
                   }
                   activeBackgroundHex="#78855b"
                   activeTextHex="#FFFFFF"
@@ -260,7 +258,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
                   dropDown={CONDITION_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
                   delayFunction={(status: string) =>
-                    tableRef.current?.setColumnFilter("status", (prev) =>
+                    tableRef.current?.setColumnFilter("condition", () =>
                       status === "All" ? [] : [status.toLowerCase()],
                     )
                   }
@@ -270,7 +268,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
                   dropDown={VISIBILITY_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
                   delayFunction={(status: string) =>
-                    tableRef.current?.setColumnFilter("is_public", (prev) =>
+                    tableRef.current?.setColumnFilter("is_public", () =>
                       status === "All" ? [] : [status.toLowerCase()],
                     )
                   }

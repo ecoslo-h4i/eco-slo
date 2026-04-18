@@ -13,11 +13,11 @@ export default function TableHead({
 }) {
   return (
     <th
-      className={`px-2 py-1 h-12
+      className={`h-12
         ${columnWidth || ""}
         ${position === "center" ? "text-center" : position === "right" ? "text-right" : "text-left"}
         ${className || ""}`}
-      style={{ boxShadow: "inset 0 -1px 0 0 var(--color-secondary)" }}
+      style={{ boxShadow: "inset 0 -1px 0 0 var(--color-border)" }}
     >
       {children}
     </th>
