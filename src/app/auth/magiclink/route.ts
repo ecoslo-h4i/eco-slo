@@ -1,5 +1,7 @@
-import { createServerLevelClient } from "@/lib/supabase/server";
+import { EmailTemplate } from "@/components/MagicLinkEmailTemplate";
+import { createServiceRoleClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
 
 interface MagicLinkRequest {
   email: string;
@@ -8,6 +10,8 @@ interface MagicLinkRequest {
 export function GET() {
   return NextResponse.json({ message: "Method Not Allowed. Use POST with a JSON body." }, { status: 405 });
 }
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,17 +22,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Missing email" }, { status: 400 });
     }
 
-    const client = await createServerLevelClient();
+    const client = await createServiceRoleClient();
     const redirectTo = new URL("/auth/callback", request.url).toString();
 
-    const { error } = await client.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: false, emailRedirectTo: redirectTo },
+    const { data, error } = await client.auth.admin.generateLink({
+      type: "magiclink",
+      email: email,
+      options: {
+        redirectTo: redirectTo,
+      },
     });
 
     if (error) {
       return NextResponse.json({ message: error.message }, { status: 401 });
     }
+
+    const { data: resendData, error: resendError } = await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: [email],
+      subject: "EcoSLO Sign In",
+      react: EmailTemplate({ redirectTo: data.properties.action_link }),
+    });
+
+    if (resendError) {
+      return NextResponse.json({ message: resendError.message }, { status: 401 });
+    }
+
     return NextResponse.json({ message: `Sending email to ${email}` }, { status: 200 });
   } catch (error) {
     if (error instanceof Error) {
