@@ -173,12 +173,6 @@ export default function ControlPanel(props: ControlPanelProps) {
         activeTextHex="white"
         activeFilter={activeFilter}
       />
-      <button
-        onClick={props.onCenter}
-        className="h-10 px-4 rounded-full bg-[#6F7C58] text-white text-sm font-medium hover:bg-[#5F6B4C]"
-      >
-        Center Map
-      </button>
     </div>
   );
 }

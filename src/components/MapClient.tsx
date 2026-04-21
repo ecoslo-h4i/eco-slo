@@ -192,6 +192,12 @@ export default function MapClient() {
             +
           </button>
           <button
+            onClick={handleCenter}
+            className="h-10 px-4 rounded-full bg-[#6F7C58] text-white text-sm font-medium hover:bg-[#5F6B4C]"
+          >
+            Center Map
+          </button>
+          <button
             type="button"
             className="grid h-[58px] w-[58px] place-items-center rounded-full bg-[#A8B97C] text-4xl leading-none text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] hover:cursor-pointer"
             onClick={zoomOut}
