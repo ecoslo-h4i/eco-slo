@@ -59,7 +59,7 @@ export type Database = {
           task_message: string;
         };
         Insert: {
-          assignees?: number[];
+          assignees: number[];
           created_at?: string;
           crons_expression?: string;
           id?: number;
@@ -89,7 +89,7 @@ export type Database = {
           tree: number | null;
         };
         Insert: {
-          body?: Json;
+          body: Json;
           created_at?: string;
           id?: number;
           task?: number | null;
@@ -153,7 +153,15 @@ export type Database = {
           surveys_needed?: number;
           title?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "tasks_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       templates: {
         Row: {
@@ -166,7 +174,7 @@ export type Database = {
           task_message: string;
         };
         Insert: {
-          assignees?: number[];
+          assignees: number[];
           created_at?: string;
           crons_expression?: string;
           id?: number;

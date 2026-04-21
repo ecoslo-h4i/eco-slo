@@ -4,19 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { dashboardTreeColumns, TreeSchema } from "./data-table/table-widget-defs";
 import TreeDashboardTable from "./data-table/tree-dashboard-table";
-
-type AdminTreesResponse = {
-  message?: TreeSchema[] | string;
-  error?: string;
-};
-
-export async function getAdminTrees(): Promise<TreeSchema[]> {
-  const response = await fetch("/api/admin/trees");
-  const payload = (await response.json()) as AdminTreesResponse;
-
-  if (!response.ok) throw new Error(payload.error ?? String(payload.message ?? "Failed to load trees"));
-  return Array.isArray(payload.message) ? payload.message : [];
-}
+import { getAdminTrees } from "@/lib/get-admin-trees";
 
 function TreeDashboardWidget({ className }: { className?: string }) {
   const [trees, setTrees] = useState<TreeSchema[]>([]);
