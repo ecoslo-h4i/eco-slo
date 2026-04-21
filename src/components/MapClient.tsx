@@ -178,34 +178,37 @@ export default function MapClient() {
   return (
     <main className="flex-1 w-full min-h-0">
       <div className="relative w-full h-full">
-        <div className="absolute left-30 top-4 w-[450px] h-[130px] bg-white rounded-lg shadow-lg overflow-y-auto z-[999]">
+        <div className="absolute left-30 top-6 w-[500px] h-[150px] bg-white rounded-xl shadow-lg p-2 overflow-y-auto z-[999]">
           <MapControlPanel trees={locations} onFilter={setFilteredLocations} onCenter={handleCenter} />
         </div>
         <div ref={mapContainerRef} className="h-full w-full" />
 
-        <div className="absolute top-4 left-10 z-[1000] flex flex-col gap-3">
-          <button
-            type="button"
-            className="grid h-[58px] w-[58px] place-items-center rounded-full bg-[#A8B97C] text-4xl leading-none text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] hover:cursor-pointer"
-            onClick={zoomIn}
-          >
-            +
-          </button>
-          <button
-            onClick={handleCenter}
-            className="h-10 px-4 rounded-full bg-[#6F7C58] text-white text-sm font-medium hover:bg-[#5F6B4C]"
-          >
-            Center Map
-          </button>
-          <button
-            type="button"
-            className="grid h-[58px] w-[58px] place-items-center rounded-full bg-[#A8B97C] text-4xl leading-none text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] hover:cursor-pointer"
-            onClick={zoomOut}
-          >
-            -
-          </button>
+        <div className="absolute top-6 left-5 z-[1000] flex items-start">
+          <div className="w-[64px] overflow-hidden rounded-[24px] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.14)]">
+            <button
+              type="button"
+              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-[#F3EFE8] hover:cursor-pointer"
+              onClick={zoomIn}
+            >
+              +
+            </button>
+            <div className="mx-4 h-px  bg-[#E3DED3]" />
+            <button
+              onClick={handleCenter}
+              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-[#F3EFE8] hover:cursor-pointer"
+            >
+              •
+            </button>
+            <div className="mx-4 h-px bg-[#E3DED3]" />
+            <button
+              type="button"
+              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-[#F3EFE8] hover:cursor-pointer"
+              onClick={zoomOut}
+            >
+              -
+            </button>
+          </div>
         </div>
-
         <MapPopout tree={selectedTree} onClose={() => setSelectedTree(null)} />
       </div>
     </main>

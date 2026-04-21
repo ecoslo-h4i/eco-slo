@@ -162,7 +162,7 @@ export default function ControlPanel(props: ControlPanelProps) {
   };
 
   return (
-    <div className="w-full h-full p-6 flex flex-col gap-6">
+    <div className="w-full h-full p-2 flex flex-col gap-4">
       <ControlSearch searchDelay={300} searchFunction={handleSearch} />
       <ControlStatusPills
         text=""
