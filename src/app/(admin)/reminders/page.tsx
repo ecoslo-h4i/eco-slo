@@ -1,4 +1,5 @@
 import RemindersList from "@/components/reminders/RemindersList";
+import ReminderView from "@/components/reminders/ReminderView";
 import Image from "next/image";
 
 export default function Reminders() {
@@ -15,7 +16,9 @@ export default function Reminders() {
         <div className="min-h-0 basis-1/3">
           <RemindersList />
         </div>
-        <div className="min-h-0 basis-2/3"></div>
+        <div className="min-h-0 basis-2/3">
+          <ReminderView />
+        </div>
       </div>
     </main>
   );

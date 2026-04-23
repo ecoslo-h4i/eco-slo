@@ -1,7 +1,6 @@
 import { formatCronSummary } from "@/lib/cron_utils";
 import { useEffect, useState } from "react";
 import { Clock, Dot } from "lucide-react";
-import { parse } from "path";
 
 interface ReminderCardProps {
   name: string;
@@ -26,7 +25,7 @@ export default function ReminderCard(props: ReminderCardProps) {
     };
 
     parseCronExpression();
-  }, [props.crons_expression]);
+  }, []);
 
   return (
     <div
