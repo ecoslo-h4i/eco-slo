@@ -18,9 +18,7 @@ export default function Table({
   children,
 }: TableProps) {
   return (
-    <div
-      className={`min-h-0 min-w-0 max-w-full border border-border rounded-xl overflow-hidden flex flex-col ${className || ""}`}
-    >
+    <div className={`min-h-0 min-w-0 max-w-full border border-border overflow-hidden flex flex-col ${className || ""}`}>
       <div className="min-h-0 min-w-0 max-w-full overflow-auto">
         <table className={`border-collapse w-max min-w-full ${tableClassName || ""}`}>{children}</table>
       </div>

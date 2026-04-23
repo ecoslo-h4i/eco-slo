@@ -49,7 +49,7 @@ function TreeDashboardTable({
   );
 
   return (
-    <Table className={className} tableClassName="bg-table-row-light text-text-dark">
+    <Table className={className} tableClassName="bg-table-row-light text-text-dark rounded-xl shadow-sm">
       <TableHeader className="bg-table-header">
         <TableRow>
           {table.getColumns().map((col, i) => (

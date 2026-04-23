@@ -60,7 +60,7 @@ function TreePageTable({
 
   return (
     <Table
-      className={className}
+      className={`${className} rounded-xl shadow-sm`}
       tableClassName="bg-table-row-light text-text-dark"
       footer={true}
       footerClassName="bg-table-header h-16"

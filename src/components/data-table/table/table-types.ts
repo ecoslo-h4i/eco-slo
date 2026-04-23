@@ -55,6 +55,7 @@ export type Table<T extends Record<string, unknown>> = {
   getCell: (column: ColumnDef<T>, value: CellValue<T>, row: T) => React.ReactNode;
   getColumnSorting: () => SortingState;
   setColumnSorting: (columnId: string, desc: boolean) => void;
+  getColumnVisibility: (columnId: string) => boolean;
   setColumnVisibility: (columnId: string, update: (prev: boolean) => boolean) => void;
   getColumnFilterValue: (columnId: string) => string[];
   setColumnFilter: (columnId: string, update: (prev: string[]) => string[]) => void;
@@ -211,6 +212,13 @@ export const useTable = <T extends Record<string, unknown>>(
     setSorting({ id: columnId, desc });
   }, []);
 
+  const getColumnVisibility = React.useCallback(
+    (columnId: string) => {
+      return columnVisibility[columnId] ?? true;
+    },
+    [columnVisibility],
+  );
+
   const setColumnVisibilityValue = React.useCallback((columnId: string, update: (prev: boolean) => boolean) => {
     setColumnVisibility((prev) => ({ ...prev, [columnId]: update(prev[columnId] ?? true) }));
   }, []);
@@ -304,6 +312,7 @@ export const useTable = <T extends Record<string, unknown>>(
       getCell,
       getColumnSorting,
       setColumnSorting,
+      getColumnVisibility,
       setColumnVisibility: setColumnVisibilityValue,
       getColumnFilterValue,
       setColumnFilter,
@@ -332,6 +341,7 @@ export const useTable = <T extends Record<string, unknown>>(
     getCell,
     getColumnSorting,
     setColumnSorting,
+    getColumnVisibility,
     setColumnVisibilityValue,
     getColumnFilterValue,
     setColumnFilter,

@@ -42,7 +42,7 @@ function TreePageTableWidget({
   }, []);
 
   return (
-    <div className={`min-w-0 flex flex-col overflow-hidden ${className || ""}`}>
+    <div className={`min-w-0 flex flex-col ${className || ""}`}>
       <div className="flex-1 min-h-0 min-w-0 flex flex-col">
         {error ? (
           <div className="w-full h-full flex justify-center items-center text-red-500">{error}</div>
