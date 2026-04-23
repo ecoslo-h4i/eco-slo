@@ -1,4 +1,4 @@
-import ActiveReminders from "@/components/reminders/ActiveReminders";
+import RemindersList from "@/components/reminders/RemindersList";
 import Image from "next/image";
 
 export default function Reminders() {
@@ -13,7 +13,7 @@ export default function Reminders() {
       </header>
       <div className="mt-10 flex min-h-0 flex-1 flex-row gap-8">
         <div className="min-h-0 basis-1/3">
-          <ActiveReminders />
+          <RemindersList />
         </div>
         <div className="min-h-0 basis-2/3"></div>
       </div>
