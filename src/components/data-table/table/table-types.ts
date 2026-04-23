@@ -265,9 +265,18 @@ export const useTable = <T extends Record<string, unknown>>(
     return pageSize;
   }, [pageSize]);
 
-  const setPageSizeSafe = React.useCallback((size: number) => {
-    if (size > 0) setPageSize(size);
-  }, []);
+  const setPageSizeSafe = React.useCallback(
+    (size: number) => {
+      if (size <= 0) return;
+
+      const nextPageCount = Math.ceil(sortedRows.length / size);
+      const maxPageIndex = Math.max(0, nextPageCount - 1);
+
+      setPageSize(size);
+      setPageIndex((prev) => Math.min(prev, maxPageIndex));
+    },
+    [sortedRows.length, setPageSize, setPageIndex],
+  );
 
   const getPageIndex = React.useCallback(() => {
     return pageIndex;

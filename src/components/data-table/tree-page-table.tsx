@@ -29,7 +29,6 @@ function TreePageTable({
 
   const columns = table.getColumns();
   const rowModels = table.getRowModels();
-  const placeholderRowCount = Math.max(table.getPageSize() - rowModels.length, 0);
 
   const renderPlaceholderRows = React.useCallback(
     (count: number, startIndex: number) => {
@@ -83,7 +82,7 @@ function TreePageTable({
                 <p className="sticky left-1/2 -translate-x-1/2 w-max">Loading trees...</p>
               </TableCell>
             </TableRow>
-            {renderPlaceholderRows(Math.max(placeholderRowCount - 1, 0), 1)}
+            {renderPlaceholderRows(4, 1)}
           </>
         ) : rowModels.length ? (
           <>
@@ -106,7 +105,6 @@ function TreePageTable({
                 ))}
               </TableRow>
             ))}
-            {renderPlaceholderRows(placeholderRowCount, rowModels.length)}
           </>
         ) : (
           <>
@@ -115,7 +113,7 @@ function TreePageTable({
                 <p className="sticky left-1/2 -translate-x-1/2 w-max">No results.</p>
               </TableCell>
             </TableRow>
-            {renderPlaceholderRows(Math.max(placeholderRowCount - 1, 0), 1)}
+            {renderPlaceholderRows(4, 1)}
           </>
         )}
       </TableBody>

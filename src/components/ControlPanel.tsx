@@ -149,7 +149,6 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   const [isOpen, setIsOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  //const longestItem = props.dropDown.reduce((a, b) => (a.length > b.length ? a : b), "");
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -192,51 +191,6 @@ function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-    // <div className="flex flex-col gap-1.5 relative select-none w-fit">
-    //   <h2 className="text-lg font-medium text-black">{props.text}</h2>
-
-    //   <div
-    //     className="h-11 rounded-full cursor-pointer bg-[#FFFCF5] outline-1 outline-black overflow-hidden"
-    //     onMouseDown={() => setIsOpen(!isOpen)}
-    //   >
-    //     <div className="relative h-full px-4">
-    //       <div
-    //         className="invisible h-0 flex items-center gap-6 text-lg font-medium whitespace-nowrap"
-    //         aria-hidden="true"
-    //       >
-    //         {longestItem}
-    //         <div className="w-4" />
-    //       </div>
-
-    //       <div className="absolute inset-0 px-4 flex items-center justify-between gap-2.5 text-base font-medium">
-    //         <span className="truncate">{props.dropDown[activeIndex]}</span>
-    //         <Image
-    //           src="/icons/dropdown.svg"
-    //           width={18}
-    //           height={18}
-    //           alt=""
-    //           className={`shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-    //         />
-    //       </div>
-    //     </div>
-    //   </div>
-
-    //   {isOpen && (
-    //     <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-xl z-200 shadow-md outline-1 outline-black/10 overflow-hidden">
-    //       {props.dropDown.map((item, index) => (
-    //         <div
-    //           key={index}
-    //           className={`px-4 py-2.5 cursor-pointer text-lg font-medium hover:bg-[#F1E6D9] transition-colors whitespace-nowrap ${
-    //             index === activeIndex ? "bg-[#F1E6D9]" : ""
-    //           }`}
-    //           onClick={() => handleSelect(index)}
-    //         >
-    //           {item}
-    //         </div>
-    //       ))}
-    //     </div>
-    //   )}
-    // </div>
   );
 }
 

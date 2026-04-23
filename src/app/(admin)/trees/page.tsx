@@ -24,7 +24,7 @@ export default function Trees() {
           <h1 className="text-5xl font-[Constantia] font-semibold leading-none">Trees</h1>
           <div className="flex gap-4 items-center">
             <button
-              className="flex items-center gap-x-2 px-4 py-2 bg-transparent border border-border text-text-dark rounded-full hover:bg-black/5 transition-colors duration-100"
+              className="flex items-center gap-x-2 px-4 py-2 text-text-dark bg-button-light border border-border shadow-xs rounded-full hover:bg-button-light/60 transition-colors duration-100"
               onClick={() => {
                 downloadTreeCSV(
                   dataToCSV(
