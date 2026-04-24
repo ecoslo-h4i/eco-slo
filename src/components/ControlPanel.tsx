@@ -9,9 +9,10 @@ import { dataToCSV, downloadTreeCSV } from "@/app/(admin)/trees/utils/csv";
 interface ControlSearchProps {
   searchDelay: number;
   searchFunction: (status: string) => void;
+  placeholder: string;
 }
 
-function ControlSearch(props: ControlSearchProps) {
+export function ControlSearch(props: ControlSearchProps) {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -34,7 +35,7 @@ function ControlSearch(props: ControlSearchProps) {
       <input
         type="text"
         id="query"
-        placeholder="Search by Tree # or Species..."
+        placeholder={props.placeholder}
         value={query}
         onChange={handleChange}
         className="w-full px-4 py-3.5 text-lg text-black placeholder:text-black outline-none bg-transparent"
@@ -52,7 +53,7 @@ interface ControlButtonInterface {
   function: () => void;
 }
 
-function ControlButton(props: ControlButtonInterface) {
+export function ControlButton(props: ControlButtonInterface) {
   const [hovering, setHovering] = useState(false);
 
   return (
@@ -84,7 +85,7 @@ interface ControlStatusPillsInterface {
   activeTextHex: string;
 }
 
-function ControlStatusPills(props: ControlStatusPillsInterface) {
+export function ControlStatusPills(props: ControlStatusPillsInterface) {
   const [activeIndex, setActiveIndex] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -137,7 +138,7 @@ interface ControlFilterDropdownInterface {
   delayFunction: (filter: string) => void;
 }
 
-function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
+export function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -236,6 +237,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
                   const trimmedQuery = query.trimStart();
                   tableRef.current?.setSearchQuery(trimmedQuery);
                 }}
+                placeholder={"Search by Tree # or Species..."}
               />
             </div>
 

@@ -14,6 +14,8 @@ export type TreekeeperSchema = {
 
 export type TreeSchema = Database["public"]["Tables"]["trees"]["Row"] & TreekeeperSchema;
 
+export type TaskSchema = Database["public"]["Tables"]["tasks"]["Row"];
+
 export type DashboardTreeSchema = TreeSchema & {
   last_updated?: string;
 };

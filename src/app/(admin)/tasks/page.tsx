@@ -1,0 +1,248 @@
+"use client";
+
+import { ControlFilterDropdown, ControlSearch, ControlStatusPills } from "@/components/ControlPanel";
+import { TaskSchema } from "@/components/data-table/table-widget-defs";
+import { useState } from "react";
+
+export default function Tasks() {
+  //TODO: integrate backend instead of using mock data
+  const tasks: TaskSchema[] = [
+    {
+      id: 1,
+      assignees: [0, 0],
+      completion_date: "2022-02-23 18:10:15+00",
+      title: "Weekly Watering Reminder",
+      message: "It's time for you to water the trees!",
+      created_at: "2022-02-23 19:10:15+00",
+      surveys_needed: 0,
+      created_by: 0,
+      is_complete: false,
+    },
+    {
+      id: 2,
+      assignees: [0, 0],
+      completion_date: "2022-02-23 19:11:15+01",
+      title: "Weekly Watering Reminder",
+      message: "It's time for you to water the trees!",
+      created_at: "2022-02-24 19:10:15+00",
+      surveys_needed: 0,
+      created_by: 0,
+      is_complete: true,
+    },
+    {
+      id: 3,
+      assignees: [0, 0],
+      completion_date: "2022-02-23 19:12:15+02",
+      title: "Weekly Watering Reminder",
+      message: "It's time for you to water the trees!",
+      created_at: "2022-02-25 19:10:15+00",
+      surveys_needed: 0,
+      created_by: 0,
+      is_complete: false,
+    },
+    {
+      id: 4,
+      assignees: [0, 0],
+      completion_date: "2022-02-23 19:13:15+03",
+      title: "Weekly Watering Reminder",
+      message: "It's time for you to water the trees!",
+      created_at: "2022-02-26 19:10:15+00",
+      surveys_needed: 0,
+      created_by: 0,
+      is_complete: false,
+    },
+    {
+      id: 5,
+      assignees: [0, 0],
+      completion_date: "2022-02-23 19:14:15+04",
+      title: "Weekly Watering Reminder",
+      message: "It's time for you to water the trees!",
+      created_at: "2022-02-27 19:10:15+00",
+      surveys_needed: 0,
+      created_by: 0,
+      is_complete: true,
+    },
+    {
+      id: 6,
+      assignees: [0, 0],
+      completion_date: "2022-02-23 19:15:15+05",
+      title: "Weekly Watering Reminder",
+      message: "It's time for you to water the trees!",
+      created_at: "2022-02-28 19:10:15+00",
+      surveys_needed: 0,
+      created_by: 0,
+      is_complete: false,
+    },
+    {
+      id: 7,
+      assignees: [0, 0],
+      completion_date: "2022-02-23 19:16:15+06",
+      title: "Weekly Watering Reminder",
+      message: "It's time for you to water the trees!",
+      created_at: "2022-02-29 19:10:15+00",
+      surveys_needed: 0,
+      created_by: 0,
+      is_complete: false,
+    },
+    {
+      id: 8,
+      assignees: [0, 0],
+      completion_date: "2022-02-23 19:17:15+07",
+      title: "Weekly Watering Reminder",
+      message: "It's time for you to water the trees!",
+      created_at: "2022-02-30 19:10:15+00",
+      surveys_needed: 0,
+      created_by: 0,
+      is_complete: false,
+    },
+    {
+      id: 9,
+      assignees: [0, 0],
+      completion_date: "2022-02-23 19:18:15+08",
+      title: "Weekly Watering Reminder",
+      message: "It's time for you to water the trees!",
+      created_at: "2022-02-31 19:10:15+00",
+      surveys_needed: 0,
+      created_by: 0,
+      is_complete: false,
+    },
+    {
+      id: 10,
+      assignees: [0, 0],
+      completion_date: "2022-02-23 19:19:15+09",
+      title: "Weekly Watering Reminder",
+      message: "It's time for you to water the trees!",
+      created_at: "2022-02-32 19:10:15+00",
+      surveys_needed: 0,
+      created_by: 0,
+      is_complete: false,
+    },
+  ];
+
+  const [status, setStatus] = useState("All");
+  const [surveys, setSurveys] = useState("All Tasks");
+
+  return (
+    <main className="flex-1 min-w-0 bg-[#f6f2ec]">
+      <div className="flex flex-col ml-[20px] mt-[15px] mr-[20px] gap-[20px]">
+        <header className="flex items-center justify-between pt-5">
+          <h1 className="flex text-[36px] font-[Constantia] font-bold">Tasks</h1>
+        </header>
+        <div className="rounded-xl border-[1px] border-[#d8d3ca] drop-shadow-sm bg-[#ebe7de] w-auto h-auto">
+          {/* //TODO: implement search */}
+          <TasksControlPanel
+            setStatusFunction={setStatus}
+            setSurveyFunction={setSurveys}
+            searchFunction={() => console.log("placeholder")}
+          ></TasksControlPanel>
+        </div>
+        <div className="flex flex-col rounded-xl border-[1px] border-[#d8d3ca] drop-shadow-sm bg-[#ebe7de] w-auto h-[570px] p-[15px] gap-[10px] overflow-y-scroll no-scrollbar">
+          {filter(tasks, status, surveys).map((task) => {
+            return <TaskCard key={String(task.id)} task={task} />;
+          })}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+interface TaskControlPanelProps {
+  setStatusFunction: (status: string) => void;
+  setSurveyFunction: (survey: string) => void;
+  searchFunction: (query: string) => void;
+}
+
+//TODO: integrate filterability
+function TasksControlPanel(props: TaskControlPanelProps) {
+  const CONTROL_STATUS_OPTIONS = ["All", "Done"];
+  const ASSIGNEE_STATUS_OPTIONS = ["All Assignees"];
+  const SURVEY_OPTIONS = ["All Tasks", "Surveys Needed", "Surveys Complete"];
+  const QUERY_DELAY = 0;
+
+  return (
+    <div className="w-full">
+      <div className="flex w-full min-h-43 flex-col justify-center rounded-[40px] bg-inherit px-10 py-8">
+        <div className="flex justify-between items-center w-full gap-10">
+          <div className="flex flex-col gap-4 w-full">
+            <div className="w-256">
+              <ControlSearch
+                searchDelay={QUERY_DELAY}
+                searchFunction={(query: string) => {
+                  const trimmedQuery = query.trimStart();
+                  props.searchFunction(trimmedQuery);
+                }}
+                placeholder={"Search tasks, messages, or assignees..."}
+              />
+            </div>
+
+            <div className="flex gap-6 items-start">
+              <div className="pr-16">
+                <ControlStatusPills
+                  text="Status"
+                  options={CONTROL_STATUS_OPTIONS}
+                  delay={QUERY_DELAY}
+                  delayFunction={(status: string) => props.setStatusFunction(status)}
+                  activeBackgroundHex="#78855b"
+                  activeTextHex="#FFFFFF"
+                />
+              </div>
+              <div className="flex gap-16">
+                <ControlFilterDropdown
+                  text="Assignee"
+                  dropDown={ASSIGNEE_STATUS_OPTIONS}
+                  delay={QUERY_DELAY}
+                  delayFunction={() =>
+                    //TODO: once backend is implemented, implement assignee filter logic
+                    console.log("PlaceHolder")
+                  }
+                />
+                <ControlFilterDropdown
+                  text="Surveys"
+                  dropDown={SURVEY_OPTIONS}
+                  delay={QUERY_DELAY}
+                  delayFunction={(status: string) => props.setSurveyFunction(status)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TaskCard(props: { task: TaskSchema }) {
+  const task = props.task;
+  return (
+    <div className="flex flex-col rounded-xl bg-[#ffffff] w-auto h-fit p-[16px]">
+      <div className="flex flex-col gap-[10px] mb-[15px]">
+        <p className="text-black text-[16px] font-[Constantia] font-semibold">{task.title}</p>
+        <p className="text-[#6b6661] text-[16px] font-[Constantia]">{task.message}</p>
+      </div>
+      <hr className="border-[.5px] border-[#e8e6e0]"></hr>
+      <div className="flex flex-row gap-[8px]">
+        <div className="flex flex-row gap-[5px]">
+          <p className="font-semibold">{task.assignees?.length} </p>
+          <p className="text-[#6b6661]">assignees</p>
+        </div>
+        <div className="flex flex-row">
+          <p className="font-semibold">{task.is_complete ? task.surveys_needed : 0}</p>
+          <p className="text-[#6b6661]">/{task.surveys_needed}</p>
+        </div>
+        <div className="flex flex-row">
+          <p className="text-[#6b6661]">Due {task.completion_date?.substring(0, 11)}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function filter(tasks: TaskSchema[], status: string, surveys: string) {
+  tasks = tasks.filter((task) => {
+    return (
+      (status == "All" || task.is_complete) &&
+      (surveys == "All Tasks" || Number(surveys == "Surveys Needed") ^ Number(task.is_complete))
+    );
+  });
+  return tasks;
+}
