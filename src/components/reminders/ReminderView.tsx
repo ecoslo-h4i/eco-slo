@@ -5,33 +5,24 @@ import ReminderNestedMultiSelectDropdown, { type NestedMultiSelectGroup } from "
 import ReminderTextInput from "./ReminderTextInput";
 import ReminderTimePicker from "./ReminderTimePicker";
 import { Calendar } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import ReminderLongTextInput from "./ReminderLongTextInput";
 import ReminderToggleArea from "./ReminderToggleArea";
 
 type MemberEnum = Enums<"MemberType">;
 type Member = Tables<"members">;
+type Reminder = Tables<"reminders">;
 const MEMBER_TYPES = ["Admin", "Tree Keeper"] as const satisfies readonly MemberEnum[];
 
 const WEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
 
-export default function ReminderView() {
+interface ReminderViewProps {
+  members: Member[];
+  reminder?: Reminder;
+}
+
+export default function ReminderView({ members }: ReminderViewProps) {
   const [isActive, setIsActive] = useState(true);
-  const [members, setMembers] = useState<Member[]>([]);
-
-  useEffect(() => {
-    const fetchMembers = async () => {
-      const response = await fetch("/api/admin/members");
-
-      if (!response.ok) return;
-
-      const data = await response.json();
-      setMembers((data.message ?? []) as Member[]);
-    };
-
-    fetchMembers();
-  }, []);
-
   const assigneeOptions = useMemo<NestedMultiSelectGroup[]>(
     () =>
       MEMBER_TYPES.map((memberType) => ({
