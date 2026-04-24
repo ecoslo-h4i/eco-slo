@@ -64,6 +64,12 @@ export default function Reminders() {
     setReminderViewMode("view");
   };
 
+  const handleReminderDeleted = (deletedReminderId: number) => {
+    setReminders((currentReminders) => currentReminders.filter((reminder) => reminder.id !== deletedReminderId));
+    setSelectedReminderId(null);
+    setReminderViewMode("create");
+  };
+
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background px-8 py-10">
       <header className="flex flex-row items-center justify-between pt-5">
@@ -92,6 +98,7 @@ export default function Reminders() {
             members={members}
             mode={reminderViewMode}
             onCancel={handleCreateReminder}
+            onDeleted={handleReminderDeleted}
             onEdit={handleEditReminder}
             onSaved={handleReminderSaved}
             reminder={selectedReminder}

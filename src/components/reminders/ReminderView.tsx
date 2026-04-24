@@ -4,7 +4,7 @@ import ReminderDropdown from "./ReminderDropdown";
 import ReminderNestedMultiSelectDropdown, { type NestedMultiSelectGroup } from "./ReminderNestedMultiSelectDropdown";
 import ReminderTextInput from "./ReminderTextInput";
 import ReminderTimePicker from "./ReminderTimePicker";
-import { Calendar } from "lucide-react";
+import { Calendar, SquarePen, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import ReminderLongTextInput from "./ReminderLongTextInput";
 import ReminderToggleArea from "./ReminderToggleArea";
@@ -31,6 +31,7 @@ interface ReminderViewProps {
   members: Member[];
   mode: ReminderViewMode;
   onCancel?: () => void;
+  onDeleted?: (reminderId: number) => void;
   onEdit?: () => void;
   onSaved?: (reminder: Reminder) => void;
   reminder?: Reminder;
@@ -54,13 +55,16 @@ export default function ReminderView({
   members,
   mode,
   onCancel,
+  onDeleted,
   onEdit,
   onSaved,
   reminder,
 }: ReminderViewProps) {
   const [form, setForm] = useState<ReminderFormState>(() => getReminderFormState(reminder, members));
   const [submitError, setSubmitError] = useState("");
+  const [deleteError, setDeleteError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const isCreateMode = mode === "create";
   const isEditMode = mode === "edit";
   const isViewMode = mode === "view";
@@ -75,6 +79,7 @@ export default function ReminderView({
   const updateForm = <K extends keyof ReminderFormState>(key: K, value: ReminderFormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
     setSubmitError("");
+    setDeleteError("");
   };
 
   const handleSubmit = async () => {
@@ -89,6 +94,25 @@ export default function ReminderView({
       setSubmitError(error instanceof Error ? error.message : "Unable to save reminder.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!reminder) {
+      setDeleteError("Select a reminder before deleting.");
+      return;
+    }
+
+    setDeleteError("");
+    setIsDeleting(true);
+
+    try {
+      await deleteReminder(reminder.id);
+      onDeleted?.(reminder.id);
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : "Unable to delete reminder.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -115,16 +139,29 @@ export default function ReminderView({
           <h1 className="font-[Constantia] text-xl font-bold">{headerTitle}</h1>
           <span className="font-avenir text-m font-normal text-text-muted">{headerSubtitle}</span>
         </div>
-        {isViewMode && (
-          <button
-            className="h-10 rounded-full bg-primary px-5 font-avenir text-text-light transition-colors duration-200 hover:cursor-pointer hover:bg-primary-light"
-            onClick={onEdit}
-          >
-            Edit
-          </button>
-        )}
+        <div className="flex flex-row items-center gap-4">
+          {(isViewMode || isEditMode) && (
+            <button
+              className="flex items-center justify-center h-9 w-9 rounded-full font-avenir text-text-light transition-colors duration-200 hover:cursor-pointer hover:bg-border disabled:cursor-default disabled:opacity-60"
+              disabled={isDeleting}
+              onClick={handleDelete}
+              type="button"
+            >
+              <Trash2 size={24} color="#b45f5f" />
+            </button>
+          )}
+          {isViewMode && (
+            <button
+              className="flex items-center justify-center h-9 w-9 rounded-full font-avenir text-text-light transition-colors duration-200 hover:cursor-pointer hover:bg-border"
+              onClick={onEdit}
+            >
+              <SquarePen size={24} color="#6b6662" />
+            </button>
+          )}
+        </div>
       </div>
       <hr className="border-0 border-t border-text-muted w-full"></hr>
+      {deleteError && <span className="font-avenir text-sm text-red-600">{deleteError}</span>}
       {isCreateMode && (
         <div className="text-text-dark">
           <ReminderTextInput
@@ -360,6 +397,18 @@ async function updateReminder(reminder: Reminder | undefined, form: ReminderForm
   }
 
   return data.data as Reminder;
+}
+
+async function deleteReminder(reminderId: number): Promise<void> {
+  const response = await fetch(`/api/admin/reminders/${reminderId}`, {
+    method: "DELETE",
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.message ?? data?.error?.message ?? "Unable to delete reminder.");
+  }
 }
 
 function cronDayToWeekDay(dayOfWeek: number) {
