@@ -236,6 +236,92 @@ function parseStepToken(token: string): { base: string; step: number } | null {
   return base && rawStep && isInteger(rawStep) ? { base, step: Number(rawStep) } : null;
 }
 
+function getFieldValueForDate(field: CronFieldName, date: Date): number {
+  switch (field) {
+    case "minute":
+      return date.getMinutes();
+    case "hour":
+      return date.getHours();
+    case "dayOfMonth":
+      return date.getDate();
+    case "month":
+      return date.getMonth() + 1;
+    case "dayOfWeek":
+      return date.getDay();
+  }
+}
+
+function expandCronToken(field: CronFieldName, token: string): number[] | null {
+  const { min, max, names } = FIELD_CONFIG[field];
+
+  if (token === "*") {
+    return Array.from({ length: max - min + 1 }, (_, index) => min + index);
+  }
+
+  if (token.includes(",")) {
+    return [...new Set(token.split(",").flatMap((part) => expandCronToken(field, part) ?? []))].sort((a, b) => a - b);
+  }
+
+  const stepToken = parseStepToken(token);
+  if (stepToken) {
+    const baseValues = expandCronToken(field, stepToken.base);
+    if (!baseValues?.length) return null;
+    const start = token.startsWith("*/") ? min : Math.min(...baseValues);
+    return baseValues.filter((value) => value >= start && (value - start) % stepToken.step === 0);
+  }
+
+  if (token.includes("-")) {
+    const [rawStart, rawEnd] = token.split("-");
+    const start = parseCronValue(rawStart, names);
+    const end = parseCronValue(rawEnd, names);
+
+    if (start === null || end === null) return null;
+    if (field === "dayOfWeek") {
+      const normalizedStart = normalizeDayValue(start);
+      const normalizedEnd = normalizeDayValue(end);
+      if (normalizedStart === null || normalizedEnd === null) return null;
+      if (normalizedStart <= normalizedEnd) {
+        return Array.from({ length: normalizedEnd - normalizedStart + 1 }, (_, index) => normalizedStart + index);
+      }
+      return [
+        ...Array.from({ length: 7 - normalizedStart }, (_, index) => normalizedStart + index),
+        ...Array.from({ length: normalizedEnd + 1 }, (_, index) => index),
+      ];
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  }
+
+  const parsedValue = parseCronValue(token, names);
+  if (parsedValue === null) return null;
+  const normalizedValue = field === "dayOfWeek" ? normalizeDayValue(parsedValue) : parsedValue;
+  return normalizedValue === null ? null : [normalizedValue];
+}
+
+function matchesCronField(field: CronFieldName, token: string, value: number): boolean {
+  const allowedValues = expandCronToken(field, token);
+  return !!allowedValues?.includes(value);
+}
+
+function matchesCronDate(parts: CronParts, date: Date): boolean {
+  const minuteMatches = matchesCronField("minute", parts.minute, getFieldValueForDate("minute", date));
+  const hourMatches = matchesCronField("hour", parts.hour, getFieldValueForDate("hour", date));
+  const monthMatches = matchesCronField("month", parts.month, getFieldValueForDate("month", date));
+
+  if (!minuteMatches || !hourMatches || !monthMatches) return false;
+
+  const dayOfMonthMatches = matchesCronField("dayOfMonth", parts.dayOfMonth, getFieldValueForDate("dayOfMonth", date));
+  const dayOfWeekMatches = matchesCronField("dayOfWeek", parts.dayOfWeek, getFieldValueForDate("dayOfWeek", date));
+  const restrictsDayOfMonth = !isWildcard(parts.dayOfMonth);
+  const restrictsDayOfWeek = !isWildcard(parts.dayOfWeek);
+
+  if (restrictsDayOfMonth && restrictsDayOfWeek) {
+    return dayOfMonthMatches || dayOfWeekMatches;
+  }
+
+  return dayOfMonthMatches && dayOfWeekMatches;
+}
+
 function buildCronExpression(parts: CronParts): string {
   return [parts.minute, parts.hour, parts.dayOfMonth, parts.month, parts.dayOfWeek].join(" ");
 }
@@ -324,6 +410,24 @@ export function parseCronExpression(expression: string): CronParts {
 
   const [minute, hour, dayOfMonth, month, dayOfWeek] = normalizeCronExpression(expression).split(" ");
   return { minute, hour, dayOfMonth, month, dayOfWeek };
+}
+
+/** Returns the next local Date that matches a supported 5-field cron expression. */
+export function getNextCronOccurrence(expression: string, fromDate: Date = new Date()): Date {
+  const parts = parseCronExpression(expression);
+  const next = new Date(fromDate);
+
+  next.setSeconds(0, 0);
+  next.setMinutes(next.getMinutes() + 1);
+
+  const MAX_MINUTE_LOOKAHEAD = 60 * 24 * 366 * 5;
+
+  for (let i = 0; i < MAX_MINUTE_LOOKAHEAD; i += 1) {
+    if (matchesCronDate(parts, next)) return new Date(next);
+    next.setMinutes(next.getMinutes() + 1);
+  }
+
+  throw new Error(`Could not find next occurrence for cron expression within 5 years: "${expression}"`);
 }
 
 /** Builds a daily cron expression for a specific time. */
