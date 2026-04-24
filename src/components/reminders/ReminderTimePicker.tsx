@@ -1,6 +1,7 @@
 import { Clock } from "lucide-react";
 
 interface ReminderTimePickerProps {
+  disabled?: boolean;
   label: string;
   placeholder?: string;
   value?: string;
@@ -15,7 +16,8 @@ export default function ReminderTimePicker(props: ReminderTimePickerProps) {
       <div className="relative w-full">
         <input
           type="time"
-          className="w-full h-10 rounded-full bg-white px-4 pr-11 font-avenir text-m font-normal text-text-dark selection:bg-primary selection:text-text-light focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+          className="w-full h-10 rounded-full bg-white px-4 pr-11 font-avenir text-m font-normal text-text-dark selection:bg-primary selection:text-text-light focus:outline-none disabled:bg-table-header disabled:text-text-dark disabled:opacity-100 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+          disabled={props.disabled}
           value={props.value}
           defaultValue={props.defaultValue}
           placeholder={props.placeholder || ""}

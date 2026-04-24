@@ -17,6 +17,7 @@ export type NestedMultiSelectGroup = NestedMultiSelectOption & {
 export type NestedMultiSelectValue = Record<string, string[]>;
 
 interface ReminderNestedMultiSelectDropdownProps {
+  disabled?: boolean;
   label: string;
   options: NestedMultiSelectGroup[];
   placeholder?: string;
@@ -34,6 +35,7 @@ function getSelectedCount(value: NestedMultiSelectValue) {
 
 export default function ReminderNestedMultiSelectDropdown({
   defaultValue,
+  disabled = false,
   label,
   onChange,
   options,
@@ -60,6 +62,8 @@ export default function ReminderNestedMultiSelectDropdown({
   }, [placeholder, selectedParentOptions, selectedValue]);
 
   const updateSelectedValue = (nextValue: NestedMultiSelectValue) => {
+    if (disabled) return;
+
     setSelectedValue(nextValue);
     onChange?.(nextValue);
   };
@@ -98,14 +102,22 @@ export default function ReminderNestedMultiSelectDropdown({
     <div className="flex w-full flex-col gap-1">
       <span className="font-avenir text-m font-normal">{label}</span>
 
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger className="flex h-10 w-full flex-row items-center justify-between rounded-full bg-white px-4 font-avenir text-m focus:outline-none hover:cursor-pointer">
+      <DropdownMenu open={!disabled && isOpen} onOpenChange={disabled ? undefined : setIsOpen}>
+        <DropdownMenuTrigger
+          disabled={disabled}
+          className="flex h-10 w-full flex-row items-center justify-between rounded-full bg-white px-4 font-avenir text-m focus:outline-none hover:cursor-pointer disabled:cursor-default disabled:bg-table-header disabled:opacity-100"
+        >
           <span className={cn("truncate", getSelectedCount(selectedValue) > 0 ? "text-text-dark" : "text-text-muted")}>
             {triggerText}
           </span>
-          <ChevronDown
-            className={cn("h-4 w-4 shrink-0 text-text-muted transition-transform duration-200", isOpen && "rotate-180")}
-          />
+          {!disabled && (
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 shrink-0 text-text-muted transition-transform duration-200",
+                isOpen && "rotate-180",
+              )}
+            />
+          )}
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="start" className="w-72 p-2 font-avenir">
@@ -121,14 +133,16 @@ export default function ReminderNestedMultiSelectDropdown({
                   <div className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-table-header">
                     <input
                       type="checkbox"
+                      disabled={disabled}
                       checked={isGroupSelected}
                       onChange={() => toggleGroup(group)}
                       className="h-4 w-4 accent-primary"
                     />
                     <button
                       type="button"
+                      disabled={disabled}
                       onClick={() => toggleGroup(group)}
-                      className="min-w-0 flex-1 text-left font-medium text-text-dark"
+                      className="min-w-0 flex-1 text-left font-medium text-text-dark disabled:cursor-default"
                     >
                       <span className="block truncate">{group.label}</span>
                     </button>
@@ -138,13 +152,16 @@ export default function ReminderNestedMultiSelectDropdown({
                     <div className="ml-6 mt-1 flex flex-col gap-1 border-l border-border pl-3">
                       <button
                         type="button"
+                        disabled={disabled}
                         onClick={() => setOpenGroups((current) => ({ ...current, [group.value]: !isGroupOpen }))}
-                        className="flex items-center justify-between rounded-lg bg-white px-2 py-1.5 text-left text-xs font-medium text-text-muted transition-colors hover:bg-table-header"
+                        className="flex items-center justify-between rounded-lg bg-white px-2 py-1.5 text-left text-xs font-medium text-text-muted transition-colors hover:bg-table-header disabled:cursor-default disabled:bg-table-header disabled:hover:bg-table-header"
                       >
                         <span>{allNestedSelected ? "All selected" : `${selectedNestedValues.length} selected`}</span>
-                        <ChevronDown
-                          className={cn("h-4 w-4 transition-transform duration-200", isGroupOpen && "rotate-180")}
-                        />
+                        {!disabled && (
+                          <ChevronDown
+                            className={cn("h-4 w-4 transition-transform duration-200", isGroupOpen && "rotate-180")}
+                          />
+                        )}
                       </button>
                       {isGroupOpen &&
                         group.options.map((nestedOption) => (
@@ -154,6 +171,7 @@ export default function ReminderNestedMultiSelectDropdown({
                           >
                             <input
                               type="checkbox"
+                              disabled={disabled}
                               checked={selectedNestedValues.includes(nestedOption.value)}
                               onChange={() => toggleNestedOption(group, nestedOption)}
                               className="h-4 w-4 accent-primary"

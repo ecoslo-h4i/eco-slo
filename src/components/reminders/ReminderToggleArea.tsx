@@ -5,6 +5,7 @@ interface ReminderToggleProps {
   checkedDescription: string;
   uncheckedDescription: string;
   checked: boolean;
+  disabled?: boolean;
   onChange?: (checked: boolean) => void;
 }
 
@@ -16,7 +17,7 @@ export default function RemiderToggleArea(props: ReminderToggleProps) {
         <span className="text-text-muted">{props.checked ? props.checkedDescription : props.uncheckedDescription}</span>
       </div>
       <div className="mr-4">
-        <ToggleSwitch checked={props.checked} onChange={props.onChange} />
+        <ToggleSwitch checked={props.checked} disabled={props.disabled} onChange={props.onChange} />
       </div>
     </div>
   );

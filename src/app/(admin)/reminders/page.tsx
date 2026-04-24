@@ -42,6 +42,12 @@ export default function Reminders() {
 
   const handleSelectReminder = (reminderId: number) => {
     setSelectedReminderId(reminderId);
+    setReminderViewMode("view");
+  };
+
+  const handleEditReminder = () => {
+    if (selectedReminderId === null) return;
+
     setReminderViewMode("edit");
   };
 
@@ -73,6 +79,7 @@ export default function Reminders() {
             members={members}
             mode={reminderViewMode}
             onCancel={handleCreateReminder}
+            onEdit={handleEditReminder}
             reminder={selectedReminder}
           />
         </div>

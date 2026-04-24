@@ -28,6 +28,7 @@ interface ReminderViewProps {
   members: Member[];
   mode: ReminderViewMode;
   onCancel?: () => void;
+  onEdit?: () => void;
   reminder?: Reminder;
 }
 
@@ -37,18 +38,24 @@ type ReminderFormState = {
   assignees: NestedMultiSelectValue;
   dayOfWeek: string;
   isActive: boolean;
+  needsSurvey: boolean;
   message: string;
   name: string;
   time: string;
   type: string;
 };
 
-export default function ReminderView({ assigneeLabel, members, mode, onCancel, reminder }: ReminderViewProps) {
+export default function ReminderView({ assigneeLabel, members, mode, onCancel, onEdit, reminder }: ReminderViewProps) {
   const [form, setForm] = useState<ReminderFormState>(() => getReminderFormState(reminder, members));
   const isCreateMode = mode === "create";
   const isEditMode = mode === "edit";
-  const headerTitle = isEditMode ? reminder?.name || form.name : "Create New Reminder";
-  const headerSubtitle = isEditMode ? assigneeLabel || "No assignees" : "Set up a new automated message for volunteers";
+  const isViewMode = mode === "view";
+  const isExistingReminderMode = isEditMode || isViewMode;
+  const isReadOnly = isViewMode;
+  const headerTitle = isExistingReminderMode ? reminder?.name || form.name : "Create New Reminder";
+  const headerSubtitle = isExistingReminderMode
+    ? assigneeLabel || "No assignees"
+    : "Set up a new automated message for volunteers";
   const submitLabel = isEditMode ? "Save Changes" : "Create Reminder";
 
   const updateForm = <K extends keyof ReminderFormState>(key: K, value: ReminderFormState[K]) => {
@@ -73,14 +80,25 @@ export default function ReminderView({ assigneeLabel, members, mode, onCancel, r
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-6 overflow-auto no-scrollbar rounded-3xl border-1 border-border bg-table-row-dark px-6 py-8">
-      <div className="flex flex-col gap-2">
-        <h1 className="font-[Constantia] text-xl font-bold">{headerTitle}</h1>
-        <span className="font-avenir text-m font-normal text-text-muted">{headerSubtitle}</span>
+      <div className="flex flex-row items-center justify-between">
+        <div className="flex flex-col gap-2">
+          <h1 className="font-[Constantia] text-xl font-bold">{headerTitle}</h1>
+          <span className="font-avenir text-m font-normal text-text-muted">{headerSubtitle}</span>
+        </div>
+        {isViewMode && (
+          <button
+            className="h-10 rounded-full bg-primary px-5 font-avenir text-text-light transition-colors duration-200 hover:cursor-pointer hover:bg-primary-light"
+            onClick={onEdit}
+          >
+            Edit
+          </button>
+        )}
       </div>
       <hr className="border-0 border-t border-text-muted w-full"></hr>
       {isCreateMode && (
         <div className="text-text-dark">
           <ReminderTextInput
+            disabled={isReadOnly}
             label="Reminder Name *"
             placeholder="Reminder name"
             value={form.name}
@@ -89,17 +107,21 @@ export default function ReminderView({ assigneeLabel, members, mode, onCancel, r
         </div>
       )}
       <div className="flex flex-row gap-4">
-        <div className="flex basis-1/2  text-text-dark">
-          <ReminderDropdown
-            label="Type"
-            options={["Watering Reminder", "Other Reminder"]}
-            placeholder="Select a template..."
-            value={form.type}
-            onOptionClick={(value) => updateForm("type", value)}
-          />
-        </div>
-        <div className="flex basis-1/2 text-text-dark">
+        {!isReadOnly && (
+          <div className="flex basis-1/2  text-text-dark">
+            <ReminderDropdown
+              disabled={isReadOnly}
+              label="Type"
+              options={["Watering Reminder", "Other Reminder"]}
+              placeholder="Select a template..."
+              value={form.type}
+              onOptionClick={(value) => updateForm("type", value)}
+            />
+          </div>
+        )}
+        <div className="flex flex-grow text-text-dark">
           <ReminderNestedMultiSelectDropdown
+            disabled={isReadOnly}
             label="Assignees"
             options={assigneeOptions}
             placeholder="Select assignees"
@@ -113,6 +135,7 @@ export default function ReminderView({ assigneeLabel, members, mode, onCancel, r
         <div className="flex flex-row gap-4">
           <div className="flex basis-1/2 text-text-muted">
             <ReminderDropdown
+              disabled={isReadOnly}
               label="Day of Week"
               options={[...WEEK_DAYS]}
               placeholder="Select a day..."
@@ -122,6 +145,7 @@ export default function ReminderView({ assigneeLabel, members, mode, onCancel, r
           </div>
           <div className="flex basis-1/2 text-text-muted">
             <ReminderTimePicker
+              disabled={isReadOnly}
               label="Time"
               placeholder="Select a time"
               value={form.time}
@@ -138,6 +162,7 @@ export default function ReminderView({ assigneeLabel, members, mode, onCancel, r
         </div>
       </div>
       <ReminderLongTextInput
+        disabled={isReadOnly}
         label="Message Template"
         sublabel="This is the message that will be sent to volunteers. You can use variables like {name} and {tree} to personalize the message."
         placeholder="Write a message..."
@@ -145,24 +170,37 @@ export default function ReminderView({ assigneeLabel, members, mode, onCancel, r
         onChange={(event) => updateForm("message", event.target.value)}
       />
       <ReminderToggleArea
-        label="Activate Immediately"
-        checkedDescription="Start sending this reminder right away"
-        uncheckedDescription="The reminder will be saved but not sent until you activate it"
+        disabled={isReadOnly}
+        label="Active Status"
+        checkedDescription="This reminder is currently active"
+        uncheckedDescription="This reminder is currently inactive"
         checked={form.isActive}
         onChange={(value) => updateForm("isActive", value)}
       />
-      <hr className="border-0 border-t border-text-muted w-full"></hr>
-      <div className="flex flex-row gap-4">
-        <button className="basis-1/2 rounded-full bg-primary text-text-light h-10 hover:cursor-pointer transition-colors duration-250 hover:bg-primary-light">
-          {submitLabel}
-        </button>
-        <button
-          className="basis-1/2 rounded-full bg-button text-text-dark border-1 border-border h-10 transition-colors duration-250 hover:cursor-pointer hover:bg-button-muted"
-          onClick={onCancel}
-        >
-          Cancel
-        </button>
-      </div>
+      <ReminderToggleArea
+        disabled={isReadOnly}
+        label="Survey Status"
+        checkedDescription="This reminder requires a survey"
+        uncheckedDescription="This reminder does not require a survey"
+        checked={form.needsSurvey}
+        onChange={(value) => updateForm("needsSurvey", value)}
+      />
+      {!isViewMode && (
+        <>
+          <hr className="border-0 border-t border-text-muted w-full"></hr>
+          <div className="flex flex-row gap-4">
+            <button className="basis-1/2 rounded-full bg-primary text-text-light h-10 hover:cursor-pointer transition-colors duration-250 hover:bg-primary-light">
+              {submitLabel}
+            </button>
+            <button
+              className="basis-1/2 rounded-full bg-button text-text-dark border-1 border-border h-10 transition-colors duration-250 hover:cursor-pointer hover:bg-button-muted"
+              onClick={onCancel}
+            >
+              Cancel
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -191,6 +229,7 @@ function getReminderFormState(reminder: Reminder | undefined, members: Member[])
     assignees: getSelectedAssignees(reminder, members),
     dayOfWeek: schedule.dayOfWeek,
     isActive: reminder?.is_active ?? true,
+    needsSurvey: false,
     message: reminder?.task_message ?? DEFAULT_REMINDER_MESSAGE,
     name: reminder?.name ?? DEFAULT_REMINDER_NAME,
     time: schedule.time,

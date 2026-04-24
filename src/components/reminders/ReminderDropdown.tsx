@@ -5,6 +5,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface ReminderDropdownProps {
+  disabled?: boolean;
   label: string;
   options: string[];
   placeholder?: string;
@@ -19,6 +20,8 @@ export default function ReminderDropdown(props: ReminderDropdownProps) {
   const isPlaceholder = displayedOption === props.placeholder && !props.value;
 
   const handleOptionClick = (option: string) => {
+    if (props.disabled) return;
+
     props.onOptionClick?.(option);
     setCurrentOption(option);
   };
@@ -27,14 +30,19 @@ export default function ReminderDropdown(props: ReminderDropdownProps) {
     <div className="flex flex-col gap-1 w-full">
       <span className="font-avenir text-m font-normal">{props.label}</span>
 
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger className="flex flex-row items-center justify-between w-full h-10 rounded-full bg-white px-4 font-avenir text-m focus:outline-none hover:cursor-pointer">
+      <DropdownMenu open={!props.disabled && isOpen} onOpenChange={props.disabled ? undefined : setIsOpen}>
+        <DropdownMenuTrigger
+          disabled={props.disabled}
+          className="flex flex-row items-center justify-between w-full h-10 rounded-full bg-white px-4 font-avenir text-m focus:outline-none hover:cursor-pointer disabled:cursor-default disabled:bg-table-header disabled:opacity-100"
+        >
           <span className={cn("truncate", isPlaceholder ? "text-text-muted" : "text-text-dark")}>
             {displayedOption}
           </span>
-          <ChevronDown
-            className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isOpen && "rotate-180"}`}
-          />
+          {!props.disabled && (
+            <ChevronDown
+              className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isOpen && "rotate-180"}`}
+            />
+          )}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           {props.options.map((option) => (
