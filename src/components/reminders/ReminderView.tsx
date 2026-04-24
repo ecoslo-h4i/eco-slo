@@ -1,26 +1,51 @@
 "use client";
 import { Enums, Tables } from "@/database/database.types";
 import ReminderDropdown from "./ReminderDropdown";
+import ReminderNestedMultiSelectDropdown, { type NestedMultiSelectGroup } from "./ReminderNestedMultiSelectDropdown";
 import ReminderTextInput from "./ReminderTextInput";
 import ReminderTimePicker from "./ReminderTimePicker";
 import { Calendar } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReminderLongTextInput from "./ReminderLongTextInput";
-import ToggleSwitch from "../ToggleSwitch";
 import ReminderToggleArea from "./ReminderToggleArea";
 
-interface ReminderViewProps {
-  reminder?: Reminder;
-}
-
 type MemberEnum = Enums<"MemberType">;
-type Reminder = Tables<"reminders">;
+type Member = Tables<"members">;
 const MEMBER_TYPES = ["Admin", "Tree Keeper"] as const satisfies readonly MemberEnum[];
 
 const WEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
 
-export default function ReminderView(props: ReminderViewProps) {
+export default function ReminderView() {
   const [isActive, setIsActive] = useState(true);
+  const [members, setMembers] = useState<Member[]>([]);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      const response = await fetch("/api/admin/members");
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+      setMembers((data.message ?? []) as Member[]);
+    };
+
+    fetchMembers();
+  }, []);
+
+  const assigneeOptions = useMemo<NestedMultiSelectGroup[]>(
+    () =>
+      MEMBER_TYPES.map((memberType) => ({
+        label: `${memberType}s`,
+        value: memberType,
+        options: members
+          .filter((member) => member.role === memberType)
+          .map((member) => ({
+            label: `${member.firstname} ${member.lastname}`,
+            value: String(member.id),
+          })),
+      })),
+    [members],
+  );
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-6 overflow-auto no-scrollbar rounded-3xl border-1 border-border bg-table-row-dark px-6 py-8">
@@ -43,7 +68,11 @@ export default function ReminderView(props: ReminderViewProps) {
           />
         </div>
         <div className="flex basis-1/2 text-text-dark">
-          <ReminderDropdown label="Assignees" options={[...MEMBER_TYPES]} placeholder={MEMBER_TYPES[0]} />
+          <ReminderNestedMultiSelectDropdown
+            label="Assignees"
+            options={assigneeOptions}
+            placeholder="Select assignees"
+          />
         </div>
       </div>
       <div className="flex flex-col gap-2">

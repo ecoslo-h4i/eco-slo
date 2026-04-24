@@ -2,7 +2,6 @@
 import { ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../dropdown-menu";
 import { useState } from "react";
-import { set } from "mongoose";
 
 interface ReminderDropdownProps {
   label: string;
