@@ -51,6 +51,19 @@ export default function Reminders() {
     setReminderViewMode("edit");
   };
 
+  const handleReminderSaved = (savedReminder: Reminder) => {
+    setReminders((currentReminders) => {
+      const reminderExists = currentReminders.some((reminder) => reminder.id === savedReminder.id);
+      const nextReminders = reminderExists
+        ? currentReminders.map((reminder) => (reminder.id === savedReminder.id ? savedReminder : reminder))
+        : [savedReminder, ...currentReminders];
+
+      return nextReminders.sort((a, b) => Number(b.is_active) - Number(a.is_active));
+    });
+    setSelectedReminderId(savedReminder.id);
+    setReminderViewMode("view");
+  };
+
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background px-8 py-10">
       <header className="flex flex-row items-center justify-between pt-5">
@@ -80,6 +93,7 @@ export default function Reminders() {
             mode={reminderViewMode}
             onCancel={handleCreateReminder}
             onEdit={handleEditReminder}
+            onSaved={handleReminderSaved}
             reminder={selectedReminder}
           />
         </div>

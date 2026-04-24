@@ -1,5 +1,5 @@
 "use client";
-import { Enums, Tables } from "@/database/database.types";
+import { Enums, Tables, TablesInsert, TablesUpdate } from "@/database/database.types";
 import ReminderDropdown from "./ReminderDropdown";
 import ReminderNestedMultiSelectDropdown, { type NestedMultiSelectGroup } from "./ReminderNestedMultiSelectDropdown";
 import ReminderTextInput from "./ReminderTextInput";
@@ -14,6 +14,9 @@ import type { NestedMultiSelectValue } from "./ReminderNestedMultiSelectDropdown
 type MemberEnum = Enums<"MemberType">;
 type Member = Tables<"members">;
 type Reminder = Tables<"reminders">;
+type ReminderWithNeedsSurvey = Reminder & { needs_survey?: boolean | null };
+type ReminderInsertPayload = TablesInsert<"reminders"> & { needs_survey?: boolean };
+type ReminderUpdatePayload = TablesUpdate<"reminders"> & { needs_survey?: boolean };
 const MEMBER_TYPES = ["Admin", "Tree Keeper"] as const satisfies readonly MemberEnum[];
 
 const WEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
@@ -29,6 +32,7 @@ interface ReminderViewProps {
   mode: ReminderViewMode;
   onCancel?: () => void;
   onEdit?: () => void;
+  onSaved?: (reminder: Reminder) => void;
   reminder?: Reminder;
 }
 
@@ -45,8 +49,18 @@ type ReminderFormState = {
   type: string;
 };
 
-export default function ReminderView({ assigneeLabel, members, mode, onCancel, onEdit, reminder }: ReminderViewProps) {
+export default function ReminderView({
+  assigneeLabel,
+  members,
+  mode,
+  onCancel,
+  onEdit,
+  onSaved,
+  reminder,
+}: ReminderViewProps) {
   const [form, setForm] = useState<ReminderFormState>(() => getReminderFormState(reminder, members));
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isCreateMode = mode === "create";
   const isEditMode = mode === "edit";
   const isViewMode = mode === "view";
@@ -60,6 +74,22 @@ export default function ReminderView({ assigneeLabel, members, mode, onCancel, o
 
   const updateForm = <K extends keyof ReminderFormState>(key: K, value: ReminderFormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
+    setSubmitError("");
+  };
+
+  const handleSubmit = async () => {
+    setSubmitError("");
+    setIsSubmitting(true);
+
+    try {
+      const savedReminder = isEditMode ? await updateReminder(reminder, form) : await createReminder(form);
+
+      onSaved?.(savedReminder);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Unable to save reminder.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const assigneeOptions = useMemo<NestedMultiSelectGroup[]>(
@@ -189,8 +219,12 @@ export default function ReminderView({ assigneeLabel, members, mode, onCancel, o
         <>
           <hr className="border-0 border-t border-text-muted w-full"></hr>
           <div className="flex flex-row gap-4">
-            <button className="basis-1/2 rounded-full bg-primary text-text-light h-10 hover:cursor-pointer transition-colors duration-250 hover:bg-primary-light">
-              {submitLabel}
+            <button
+              className="basis-1/2 rounded-full bg-primary text-text-light h-10 hover:cursor-pointer transition-colors duration-250 hover:bg-primary-light disabled:cursor-default disabled:opacity-70"
+              disabled={isSubmitting}
+              onClick={handleSubmit}
+            >
+              {isSubmitting ? "Saving..." : submitLabel}
             </button>
             <button
               className="basis-1/2 rounded-full bg-button text-text-dark border-1 border-border h-10 transition-colors duration-250 hover:cursor-pointer hover:bg-button-muted"
@@ -199,6 +233,7 @@ export default function ReminderView({ assigneeLabel, members, mode, onCancel, o
               Cancel
             </button>
           </div>
+          {submitError && <span className="font-avenir text-sm text-red-600">{submitError}</span>}
         </>
       )}
     </div>
@@ -224,17 +259,107 @@ function getReminderSchedule(reminder?: Reminder) {
 
 function getReminderFormState(reminder: Reminder | undefined, members: Member[]): ReminderFormState {
   const schedule = getReminderSchedule(reminder);
+  const reminderWithNeedsSurvey = reminder as ReminderWithNeedsSurvey | undefined;
 
   return {
     assignees: getSelectedAssignees(reminder, members),
     dayOfWeek: schedule.dayOfWeek,
     isActive: reminder?.is_active ?? true,
-    needsSurvey: false,
+    needsSurvey: reminderWithNeedsSurvey?.needs_survey ?? false,
     message: reminder?.task_message ?? DEFAULT_REMINDER_MESSAGE,
     name: reminder?.name ?? DEFAULT_REMINDER_NAME,
     time: schedule.time,
     type: DEFAULT_REMINDER_TYPE,
   };
+}
+
+function getSelectedAssigneeIds(assignees: NestedMultiSelectValue) {
+  return Object.values(assignees).flat().map(Number).filter(Number.isInteger);
+}
+
+function getCronExpressionFromForm(form: ReminderFormState) {
+  const cronDay = weekDayToCronDay(form.dayOfWeek);
+
+  if (cronDay === null || !form.time) {
+    throw new Error("Select a day and time before saving.");
+  }
+
+  const [hour, minute] = form.time.split(":").map(Number);
+
+  if (!Number.isInteger(hour) || !Number.isInteger(minute)) {
+    throw new Error("Select a valid time before saving.");
+  }
+
+  return createWeeklyCronExpression({ hour, minute }, cronDay);
+}
+
+function getReminderPayload(form: ReminderFormState): ReminderInsertPayload {
+  if (!form.name.trim()) {
+    throw new Error("Enter a reminder name before saving.");
+  }
+
+  const assignees = getSelectedAssigneeIds(form.assignees);
+
+  return {
+    assignees,
+    crons_expression: getCronExpressionFromForm(form),
+    is_active: form.isActive,
+    is_group_task: assignees.length > 1,
+    needs_survey: form.needsSurvey,
+    name: form.name.trim(),
+    task_message: form.message,
+  };
+}
+
+async function createReminder(form: ReminderFormState): Promise<Reminder> {
+  const response = await fetch("/api/admin/reminders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(getReminderPayload(form)),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.message ?? data?.error?.message ?? "Unable to create reminder.");
+  }
+
+  const reminder = Array.isArray(data.data) ? data.data[0] : data.data;
+
+  if (!reminder) {
+    throw new Error("Reminder was created, but the response did not include it.");
+  }
+
+  return reminder as Reminder;
+}
+
+async function updateReminder(reminder: Reminder | undefined, form: ReminderFormState): Promise<Reminder> {
+  if (!reminder) {
+    throw new Error("Select a reminder before saving changes.");
+  }
+
+  const payload: ReminderUpdatePayload = getReminderPayload({
+    ...form,
+    name: reminder.name, // Enforce immutable name
+  });
+
+  const response = await fetch(`/api/admin/reminders/${reminder.id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.message ?? data?.error?.message ?? "Unable to save reminder changes.");
+  }
+
+  if (!data.data) {
+    throw new Error("Reminder was saved, but the response did not include it.");
+  }
+
+  return data.data as Reminder;
 }
 
 function cronDayToWeekDay(dayOfWeek: number) {
