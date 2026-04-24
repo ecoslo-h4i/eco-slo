@@ -8,11 +8,13 @@ import { useEffect, useMemo, useState } from "react";
 
 type Member = Tables<"members">;
 type Reminder = Tables<"reminders">;
+type ReminderViewMode = "create" | "edit" | "view";
 
 export default function Reminders() {
   const [members, setMembers] = useState<Member[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [selectedReminderId, setSelectedReminderId] = useState<number | null>(null);
+  const [reminderViewMode, setReminderViewMode] = useState<ReminderViewMode>("create");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,6 +33,17 @@ export default function Reminders() {
     () => reminders.find((reminder) => reminder.id === selectedReminderId),
     [reminders, selectedReminderId],
   );
+  const selectedAssigneeLabel = selectedReminder ? assigneeLabels[selectedReminder.id] : undefined;
+
+  const handleCreateReminder = () => {
+    setSelectedReminderId(null);
+    setReminderViewMode("create");
+  };
+
+  const handleSelectReminder = (reminderId: number) => {
+    setSelectedReminderId(reminderId);
+    setReminderViewMode("edit");
+  };
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background px-8 py-10">
@@ -38,7 +51,7 @@ export default function Reminders() {
         <h1 className="text-[56px] font-[Constantia] font-semibold leading-none">Automated Reminders</h1>
         <button
           className="h-10 w-40 bg-primary rounded-full text-white font-avenir flex flex-row items-center justify-center hover:bg-primary-light transition-colors duration-200 cursor-pointer"
-          onClick={() => setSelectedReminderId(null)}
+          onClick={handleCreateReminder}
         >
           <span>New Reminder</span>
           <Image src="/icons/plus.svg" alt="Plus Icon" width={20} height={20} className="ml-2" />
@@ -50,13 +63,16 @@ export default function Reminders() {
             reminders={reminders}
             assigneeLabels={assigneeLabels}
             selectedReminderId={selectedReminderId}
-            onSelectReminder={setSelectedReminderId}
+            onSelectReminder={handleSelectReminder}
           />
         </div>
         <div className="min-h-0 basis-2/3">
           <ReminderView
             key={`${selectedReminder?.id ?? "new"}-${members.length}`}
+            assigneeLabel={selectedAssigneeLabel}
             members={members}
+            mode={reminderViewMode}
+            onCancel={handleCreateReminder}
             reminder={selectedReminder}
           />
         </div>

@@ -19,15 +19,19 @@ const MEMBER_TYPES = ["Admin", "Tree Keeper"] as const satisfies readonly Member
 const WEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
 const DEFAULT_REMINDER_NAME = "";
 const DEFAULT_REMINDER_TYPE = "";
-const DEFAULT_REMINDER_DAY = "Monday";
-const DEFAULT_REMINDER_TIME = "08:00";
-const DEFAULT_REMINDER_MESSAGE =
-  "Hi {firstName}! Time for your weekly tree check-in. Please water your {treeCount} tree(s) and complete the quick status survey: {surveyLink}";
+const DEFAULT_REMINDER_DAY = "";
+const DEFAULT_REMINDER_TIME = "";
+const DEFAULT_REMINDER_MESSAGE = "";
 
 interface ReminderViewProps {
+  assigneeLabel?: string;
   members: Member[];
+  mode: ReminderViewMode;
+  onCancel?: () => void;
   reminder?: Reminder;
 }
+
+type ReminderViewMode = "create" | "edit" | "view";
 
 type ReminderFormState = {
   assignees: NestedMultiSelectValue;
@@ -39,8 +43,13 @@ type ReminderFormState = {
   type: string;
 };
 
-export default function ReminderView({ members, reminder }: ReminderViewProps) {
+export default function ReminderView({ assigneeLabel, members, mode, onCancel, reminder }: ReminderViewProps) {
   const [form, setForm] = useState<ReminderFormState>(() => getReminderFormState(reminder, members));
+  const isCreateMode = mode === "create";
+  const isEditMode = mode === "edit";
+  const headerTitle = isEditMode ? reminder?.name || form.name : "Create New Reminder";
+  const headerSubtitle = isEditMode ? assigneeLabel || "No assignees" : "Set up a new automated message for volunteers";
+  const submitLabel = isEditMode ? "Save Changes" : "Create Reminder";
 
   const updateForm = <K extends keyof ReminderFormState>(key: K, value: ReminderFormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -65,20 +74,20 @@ export default function ReminderView({ members, reminder }: ReminderViewProps) {
   return (
     <div className="flex h-full min-h-0 flex-col gap-6 overflow-auto no-scrollbar rounded-3xl border-1 border-border bg-table-row-dark px-6 py-8">
       <div className="flex flex-col gap-2">
-        <h1 className="font-[Constantia] text-xl font-bold">Create New Reminder</h1>
-        <span className="font-avenir text-m font-normal text-text-muted">
-          Set up a new automated message for volunteers
-        </span>
+        <h1 className="font-[Constantia] text-xl font-bold">{headerTitle}</h1>
+        <span className="font-avenir text-m font-normal text-text-muted">{headerSubtitle}</span>
       </div>
       <hr className="border-0 border-t border-text-muted w-full"></hr>
-      <div className="text-text-dark">
-        <ReminderTextInput
-          label="Reminder Name *"
-          placeholder="Weekly Watering Reminder"
-          value={form.name}
-          onChange={(event) => updateForm("name", event.target.value)}
-        />
-      </div>
+      {isCreateMode && (
+        <div className="text-text-dark">
+          <ReminderTextInput
+            label="Reminder Name *"
+            placeholder="Reminder name"
+            value={form.name}
+            onChange={(event) => updateForm("name", event.target.value)}
+          />
+        </div>
+      )}
       <div className="flex flex-row gap-4">
         <div className="flex basis-1/2  text-text-dark">
           <ReminderDropdown
@@ -106,6 +115,7 @@ export default function ReminderView({ members, reminder }: ReminderViewProps) {
             <ReminderDropdown
               label="Day of Week"
               options={[...WEEK_DAYS]}
+              placeholder="Select a day..."
               value={form.dayOfWeek}
               onOptionClick={(value) => updateForm("dayOfWeek", value)}
             />
@@ -113,6 +123,7 @@ export default function ReminderView({ members, reminder }: ReminderViewProps) {
           <div className="flex basis-1/2 text-text-muted">
             <ReminderTimePicker
               label="Time"
+              placeholder="Select a time"
               value={form.time}
               onChange={(event) => updateForm("time", event.target.value)}
             />
@@ -129,7 +140,7 @@ export default function ReminderView({ members, reminder }: ReminderViewProps) {
       <ReminderLongTextInput
         label="Message Template"
         sublabel="This is the message that will be sent to volunteers. You can use variables like {name} and {tree} to personalize the message."
-        placeholder="Reminder template goes here..."
+        placeholder="Write a message..."
         value={form.message}
         onChange={(event) => updateForm("message", event.target.value)}
       />
@@ -143,9 +154,12 @@ export default function ReminderView({ members, reminder }: ReminderViewProps) {
       <hr className="border-0 border-t border-text-muted w-full"></hr>
       <div className="flex flex-row gap-4">
         <button className="basis-1/2 rounded-full bg-primary text-text-light h-10 hover:cursor-pointer transition-colors duration-250 hover:bg-primary-light">
-          Create Reminder
+          {submitLabel}
         </button>
-        <button className="basis-1/2 rounded-full bg-button text-text-dark border-1 border-border h-10 transition-colors duration-250 hover:cursor-pointer hover:bg-button-muted">
+        <button
+          className="basis-1/2 rounded-full bg-button text-text-dark border-1 border-border h-10 transition-colors duration-250 hover:cursor-pointer hover:bg-button-muted"
+          onClick={onCancel}
+        >
           Cancel
         </button>
       </div>
@@ -191,10 +205,16 @@ function cronDayToWeekDay(dayOfWeek: number) {
 
 function weekDayToCronDay(dayOfWeek: string) {
   const weekDayIndex = WEEK_DAYS.findIndex((day) => day === dayOfWeek);
-  return weekDayIndex < 0 ? 1 : (weekDayIndex + 1) % 7;
+  return weekDayIndex < 0 ? null : (weekDayIndex + 1) % 7;
 }
 
 function getNextSendLabel(dayOfWeek: string, time: string) {
+  const cronDay = weekDayToCronDay(dayOfWeek);
+
+  if (cronDay === null || !time) {
+    return "Select a day and time";
+  }
+
   const [hour, minute] = time.split(":").map(Number);
 
   if (!Number.isInteger(hour) || !Number.isInteger(minute)) {
@@ -202,7 +222,7 @@ function getNextSendLabel(dayOfWeek: string, time: string) {
   }
 
   try {
-    const expression = createWeeklyCronExpression({ hour, minute }, weekDayToCronDay(dayOfWeek));
+    const expression = createWeeklyCronExpression({ hour, minute }, cronDay);
     return formatNextSendDate(getNextCronOccurrence(expression));
   } catch {
     return "Select a valid schedule";
