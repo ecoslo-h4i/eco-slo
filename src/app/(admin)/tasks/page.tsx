@@ -128,18 +128,27 @@ export default function Tasks() {
         <header className="flex items-center justify-between pt-5">
           <h1 className="flex text-[36px] font-[Constantia] font-bold">Tasks</h1>
         </header>
+
         <div className="rounded-xl border-[1px] border-[#d8d3ca] drop-shadow-sm bg-[#ebe7de] w-auto h-auto">
-          {/* //TODO: implement search */}
           <TasksControlPanel
             setStatusFunction={setStatus}
             setSurveyFunction={setSurveys}
             searchFunction={() => console.log("placeholder")}
-          ></TasksControlPanel>
+          />
         </div>
-        <div className="flex flex-col rounded-xl border-[1px] border-[#d8d3ca] drop-shadow-sm bg-[#ebe7de] w-auto h-[570px] p-[15px] gap-[10px] overflow-y-scroll no-scrollbar">
-          {filter(tasks, status, surveys).map((task) => {
-            return <TaskCard key={String(task.id)} task={task} />;
-          })}
+
+        <div className="flex flex-col rounded-xl border-[1px] border-[#d8d3ca] drop-shadow-sm bg-[#ebe7de] w-auto h-[570px] overflow-hidden">
+          <div className="flex-1 overflow-y-scroll no-scrollbar p-[15px]">
+            <div className="flex flex-col gap-[10px]">
+              {filter(tasks, status, surveys).map((task) => {
+                return <TaskCard key={String(task.id)} task={task} />;
+              })}
+            </div>
+          </div>
+
+          <div className="border-t border-[#ded9cf] border-t-[1.5px] px-[15px] py-[10px]  text-[#6b6661] text-[14px] bg-[#ebe7de] font-semibold">
+            Showing {filter(tasks, status, surveys).length} tasks
+          </div>
         </div>
       </div>
     </main>
