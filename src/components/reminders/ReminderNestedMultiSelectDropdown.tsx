@@ -22,6 +22,7 @@ interface ReminderNestedMultiSelectDropdownProps {
   options: NestedMultiSelectGroup[];
   placeholder?: string;
   defaultValue?: NestedMultiSelectValue;
+  value?: NestedMultiSelectValue;
   onChange?: (value: NestedMultiSelectValue) => void;
 }
 
@@ -40,10 +41,12 @@ export default function ReminderNestedMultiSelectDropdown({
   onChange,
   options,
   placeholder = "Select recipients",
+  value,
 }: ReminderNestedMultiSelectDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-  const [selectedValue, setSelectedValue] = useState<NestedMultiSelectValue>(() => defaultValue ?? {});
+  const [internalSelectedValue, setInternalSelectedValue] = useState<NestedMultiSelectValue>(() => defaultValue ?? {});
+  const selectedValue = value ?? internalSelectedValue;
 
   const selectedParentOptions = useMemo(
     () => options.filter((option) => selectedValue[option.value]?.length),
@@ -64,7 +67,7 @@ export default function ReminderNestedMultiSelectDropdown({
   const updateSelectedValue = (nextValue: NestedMultiSelectValue) => {
     if (disabled) return;
 
-    setSelectedValue(nextValue);
+    setInternalSelectedValue(nextValue);
     onChange?.(nextValue);
   };
 

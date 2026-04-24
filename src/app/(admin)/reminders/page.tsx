@@ -8,21 +8,28 @@ import { useEffect, useMemo, useState } from "react";
 
 type Member = Tables<"members">;
 type Reminder = Tables<"reminders">;
+type Template = Tables<"templates">;
 type ReminderViewMode = "create" | "edit" | "view";
 
 export default function Reminders() {
   const [members, setMembers] = useState<Member[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedReminderId, setSelectedReminderId] = useState<number | null>(null);
   const [reminderViewMode, setReminderViewMode] = useState<ReminderViewMode>("create");
 
   useEffect(() => {
     const fetchData = async () => {
-      const [membersData, remindersData] = await Promise.all([fetchMembers(), fetchReminders()]);
+      const [membersData, remindersData, templatesData] = await Promise.all([
+        fetchMembers(),
+        fetchReminders(),
+        fetchTemplates(),
+      ]);
 
       remindersData.sort((a, b) => Number(b.is_active) - Number(a.is_active));
       setMembers(membersData);
       setReminders(remindersData);
+      setTemplates(templatesData);
     };
 
     fetchData();
@@ -102,6 +109,7 @@ export default function Reminders() {
             onEdit={handleEditReminder}
             onSaved={handleReminderSaved}
             reminder={selectedReminder}
+            templates={templates}
           />
         </div>
       </div>
@@ -125,6 +133,15 @@ async function fetchReminders(): Promise<Reminder[]> {
 
   const data = await response.json();
   return (data.message ?? []) as Reminder[];
+}
+
+async function fetchTemplates(): Promise<Template[]> {
+  const response = await fetch("/api/admin/templates");
+
+  if (!response.ok) return [];
+
+  const data = await response.json();
+  return (data.message ?? []) as Template[];
 }
 
 function getAssigneeLabels(reminders: Reminder[], members: Member[]) {

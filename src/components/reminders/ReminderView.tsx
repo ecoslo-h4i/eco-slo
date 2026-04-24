@@ -14,6 +14,7 @@ import type { NestedMultiSelectValue } from "./ReminderNestedMultiSelectDropdown
 type MemberEnum = Enums<"MemberType">;
 type Member = Tables<"members">;
 type Reminder = Tables<"reminders">;
+type Template = Tables<"templates">;
 type ReminderWithNeedsSurvey = Reminder & { needs_survey?: boolean | null };
 type ReminderInsertPayload = TablesInsert<"reminders"> & { needs_survey?: boolean };
 type ReminderUpdatePayload = TablesUpdate<"reminders"> & { needs_survey?: boolean };
@@ -35,6 +36,7 @@ interface ReminderViewProps {
   onEdit?: () => void;
   onSaved?: (reminder: Reminder) => void;
   reminder?: Reminder;
+  templates: Template[];
 }
 
 type ReminderViewMode = "create" | "edit" | "view";
@@ -59,6 +61,7 @@ export default function ReminderView({
   onEdit,
   onSaved,
   reminder,
+  templates,
 }: ReminderViewProps) {
   const [form, setForm] = useState<ReminderFormState>(() => getReminderFormState(reminder, members));
   const [submitError, setSubmitError] = useState("");
@@ -78,6 +81,23 @@ export default function ReminderView({
 
   const updateForm = <K extends keyof ReminderFormState>(key: K, value: ReminderFormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
+    setSubmitError("");
+    setDeleteError("");
+  };
+
+  const handleTemplateSelect = (templateName: string) => {
+    const selectedTemplate = templates.find((template) => template.name === templateName);
+
+    if (!selectedTemplate) {
+      updateForm("type", templateName);
+      return;
+    }
+
+    setForm((current) => ({
+      ...current,
+      ...getTemplateFormValues(selectedTemplate, members),
+      type: selectedTemplate.name,
+    }));
     setSubmitError("");
     setDeleteError("");
   };
@@ -130,6 +150,7 @@ export default function ReminderView({
       })),
     [members],
   );
+  const templateOptions = useMemo(() => templates.map((template) => template.name), [templates]);
   const nextSendLabel = useMemo(() => getNextSendLabel(form.dayOfWeek, form.time), [form.dayOfWeek, form.time]);
 
   return (
@@ -179,10 +200,10 @@ export default function ReminderView({
             <ReminderDropdown
               disabled={isReadOnly}
               label="Type"
-              options={["Watering Reminder", "Other Reminder"]}
+              options={templateOptions}
               placeholder="Select a template..."
               value={form.type}
-              onOptionClick={(value) => updateForm("type", value)}
+              onOptionClick={handleTemplateSelect}
             />
           </div>
         )}
@@ -192,7 +213,7 @@ export default function ReminderView({
             label="Assignees"
             options={assigneeOptions}
             placeholder="Select assignees"
-            defaultValue={form.assignees}
+            value={form.assignees}
             onChange={(value) => updateForm("assignees", value)}
           />
         </div>
@@ -278,12 +299,16 @@ export default function ReminderView({
 }
 
 function getReminderSchedule(reminder?: Reminder) {
-  if (!reminder?.crons_expression) {
+  return getScheduleFromCronExpression(reminder?.crons_expression);
+}
+
+function getScheduleFromCronExpression(cronsExpression?: string) {
+  if (!cronsExpression) {
     return { dayOfWeek: DEFAULT_REMINDER_DAY, time: DEFAULT_REMINDER_TIME };
   }
 
   try {
-    const values = cronExpressionToFormValues(reminder.crons_expression);
+    const values = cronExpressionToFormValues(cronsExpression);
 
     return {
       dayOfWeek: cronDayToWeekDay(values.dayOfWeek),
@@ -292,6 +317,17 @@ function getReminderSchedule(reminder?: Reminder) {
   } catch {
     return { dayOfWeek: DEFAULT_REMINDER_DAY, time: DEFAULT_REMINDER_TIME };
   }
+}
+
+function getTemplateFormValues(template: Template, members: Member[]): Partial<ReminderFormState> {
+  const schedule = getScheduleFromCronExpression(template.crons_expression);
+
+  return {
+    assignees: getAssigneesFromMemberIds(template.assignees, members),
+    dayOfWeek: schedule.dayOfWeek,
+    message: template.task_message,
+    time: schedule.time,
+  };
 }
 
 function getReminderFormState(reminder: Reminder | undefined, members: Member[]): ReminderFormState {
@@ -308,6 +344,19 @@ function getReminderFormState(reminder: Reminder | undefined, members: Member[])
     time: schedule.time,
     type: DEFAULT_REMINDER_TYPE,
   };
+}
+
+function getAssigneesFromMemberIds(memberIds: number[], members: Member[]): NestedMultiSelectValue {
+  const selectedMemberIds = new Set(memberIds.map(String));
+
+  return Object.fromEntries(
+    MEMBER_TYPES.map((memberType) => [
+      memberType,
+      members
+        .filter((member) => member.role === memberType && selectedMemberIds.has(String(member.id)))
+        .map((member) => String(member.id)),
+    ]).filter(([, selectedIds]) => selectedIds.length > 0),
+  );
 }
 
 function getSelectedAssigneeIds(assignees: NestedMultiSelectValue) {
@@ -452,14 +501,5 @@ function formatNextSendDate(date: Date) {
 function getSelectedAssignees(reminder: Reminder | undefined, members: Member[]): NestedMultiSelectValue {
   if (!reminder) return {};
 
-  const memberIds = new Set(reminder.assignees.map(String));
-
-  return Object.fromEntries(
-    MEMBER_TYPES.map((memberType) => [
-      memberType,
-      members
-        .filter((member) => member.role === memberType && memberIds.has(String(member.id)))
-        .map((member) => String(member.id)),
-    ]).filter(([, selectedIds]) => selectedIds.length > 0),
-  );
+  return getAssigneesFromMemberIds(reminder.assignees, members);
 }
