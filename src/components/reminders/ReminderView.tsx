@@ -20,7 +20,6 @@ const WEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satu
 
 export default function ReminderView(props: ReminderViewProps) {
   const [isActive, setIsActive] = useState(true);
-  const [needsSurvey, setNeedsSurvey] = useState(true);
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-6 overflow-auto no-scrollbar rounded-3xl border-1 border-border bg-table-row-dark px-6 py-8">
@@ -77,6 +76,15 @@ export default function ReminderView(props: ReminderViewProps) {
         checked={isActive}
         onChange={setIsActive}
       />
+      <hr className="border-0 border-t border-text-muted w-full"></hr>
+      <div className="flex flex-row gap-4">
+        <button className="basis-1/2 rounded-full bg-primary text-text-light h-10 hover:cursor-pointer transition-colors duration-250 hover:bg-primary-light">
+          Create Reminder
+        </button>
+        <button className="basis-1/2 rounded-full bg-button text-text-dark border-1 border-border h-10 transition-colors duration-250 hover:cursor-pointer hover:bg-button-muted">
+          Cancel
+        </button>
+      </div>
     </div>
   );
 }
