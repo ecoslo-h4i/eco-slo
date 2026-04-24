@@ -2,6 +2,7 @@
 import { Enums, Tables } from "@/database/database.types";
 import ReminderDropdown from "./ReminderDropdown";
 import ReminderTextInput from "./ReminderTextInput";
+import ReminderTimePicker from "./ReminderTimePicker";
 import { Calendar } from "lucide-react";
 import { useState } from "react";
 import ReminderLongTextInput from "./ReminderLongTextInput";
@@ -52,7 +53,7 @@ export default function ReminderView(props: ReminderViewProps) {
             <ReminderDropdown label="Day of Week" options={[...WEEK_DAYS]} placeholder={WEEK_DAYS[0]} />
           </div>
           <div className="flex basis-1/2 text-text-muted">
-            <ReminderTextInput label="Time" placeholder="8:00 AM" />
+            <ReminderTimePicker label="Time" defaultValue="08:00" />
           </div>
         </div>
       </div>
