@@ -3,7 +3,7 @@ import NavbarButton from "./SideNavbarButton";
 
 export default function SideNavbar() {
   return (
-    <div className="flex h-full min-h-0 w-35 shrink-0 flex-col gap-15 bg-[#758656] pt-12">
+    <div className="flex h-full min-h-0 w-35 shrink-0 flex-col gap-15 bg-primary pt-12">
       <div className="flex flex-col items-center justify-center gap-5">
         <div className="w-24.5 h-24.5 flex items-center justify-center">
           <Image src="/icons/ecoslo-logo.png" width={98} height={98} alt="EcoSLO Logo" />

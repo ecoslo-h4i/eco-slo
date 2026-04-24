@@ -25,7 +25,7 @@ export default function TopNavbar() {
   };
 
   return (
-    <div className="flex flex-row bg-[#758656] h-29.5 w-full pl-5 pr-5 items-center">
+    <div className="flex flex-row bg-primary h-29.5 w-full pl-5 pr-5 items-center">
       <div className="w-24.5 h-24.5 flex items-center justify-space-between">
         <Image src="/icons/ecoslo-logo.png" width={98} height={98} alt="EcoSLO Logo" />
       </div>
