@@ -36,7 +36,10 @@ export default function Reminders() {
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background px-8 py-10">
       <header className="flex flex-row items-center justify-between pt-5">
         <h1 className="text-[56px] font-[Constantia] font-semibold leading-none">Automated Reminders</h1>
-        <button className="h-10 w-40 bg-primary rounded-full text-white font-avenir flex flex-row items-center justify-center hover:bg-primary-light transition-colors duration-200 cursor-pointer">
+        <button
+          className="h-10 w-40 bg-primary rounded-full text-white font-avenir flex flex-row items-center justify-center hover:bg-primary-light transition-colors duration-200 cursor-pointer"
+          onClick={() => setSelectedReminderId(null)}
+        >
           <span>New Reminder</span>
           <Image src="/icons/plus.svg" alt="Plus Icon" width={20} height={20} className="ml-2" />
         </button>
@@ -51,7 +54,11 @@ export default function Reminders() {
           />
         </div>
         <div className="min-h-0 basis-2/3">
-          <ReminderView members={members} reminder={selectedReminder} />
+          <ReminderView
+            key={`${selectedReminder?.id ?? "new"}-${members.length}`}
+            members={members}
+            reminder={selectedReminder}
+          />
         </div>
       </div>
     </main>

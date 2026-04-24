@@ -3,6 +3,7 @@ interface ReminderLongTextInputProps {
   sublabel?: string;
   placeholder?: string;
   initialValue?: string;
+  value?: string;
   onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
@@ -13,7 +14,8 @@ export default function ReminderTextInput(props: ReminderLongTextInputProps) {
       <span className="font-avenir text-sm text-text-muted">{props.sublabel}</span>
       <textarea
         className="w-full min-h-30 rounded-3xl bg-white p-4 font-avenir text-m font-normal focus:outline-none mt-2"
-        defaultValue={props.initialValue || ""}
+        defaultValue={props.value === undefined ? props.initialValue || "" : undefined}
+        value={props.value}
         placeholder={props.placeholder || ""}
         onChange={props.onChange}
         spellCheck="false"

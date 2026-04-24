@@ -2,17 +2,21 @@
 import { ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../dropdown-menu";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface ReminderDropdownProps {
   label: string;
   options: string[];
   placeholder?: string;
+  value?: string;
   onOptionClick?: (s: string) => void;
 }
 
 export default function ReminderDropdown(props: ReminderDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentOption, setCurrentOption] = useState(props.placeholder || "");
+  const [currentOption, setCurrentOption] = useState(props.placeholder ?? "");
+  const displayedOption = props.value || currentOption;
+  const isPlaceholder = displayedOption === props.placeholder && !props.value;
 
   const handleOptionClick = (option: string) => {
     props.onOptionClick?.(option);
@@ -25,7 +29,9 @@ export default function ReminderDropdown(props: ReminderDropdownProps) {
 
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger className="flex flex-row items-center justify-between w-full h-10 rounded-full bg-white px-4 font-avenir text-m focus:outline-none hover:cursor-pointer">
-          <span className="text-text-dark">{currentOption}</span>
+          <span className={cn("truncate", isPlaceholder ? "text-text-muted" : "text-text-dark")}>
+            {displayedOption}
+          </span>
           <ChevronDown
             className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isOpen && "rotate-180"}`}
           />
