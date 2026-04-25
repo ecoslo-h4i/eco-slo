@@ -194,8 +194,8 @@ export default function ReminderView({
           />
         </div>
       )}
-      <div className="flex flex-row gap-4">
-        {!isReadOnly && (
+      {!isViewMode && (
+        <div className="flex flex-row gap-4">
           <div className="flex basis-1/2  text-text-dark">
             <ReminderDropdown
               disabled={isReadOnly}
@@ -206,18 +206,18 @@ export default function ReminderView({
               onOptionClick={handleTemplateSelect}
             />
           </div>
-        )}
-        <div className="flex flex-grow text-text-dark">
-          <ReminderNestedMultiSelectDropdown
-            disabled={isReadOnly}
-            label="Assignees"
-            options={assigneeOptions}
-            placeholder="Select assignees"
-            value={form.assignees}
-            onChange={(value) => updateForm("assignees", value)}
-          />
+          <div className="flex flex-grow text-text-dark">
+            <ReminderNestedMultiSelectDropdown
+              disabled={isReadOnly}
+              label="Assignees"
+              options={assigneeOptions}
+              placeholder="Select assignees"
+              value={form.assignees}
+              onChange={(value) => updateForm("assignees", value)}
+            />
+          </div>
         </div>
-      </div>
+      )}
       <div className="flex flex-col gap-2">
         <span className="font-avenir text-m font-normal text-text-dark">Schedule</span>
         <div className="flex flex-row gap-4">
