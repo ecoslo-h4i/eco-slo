@@ -14,7 +14,11 @@ export default function Trees() {
   return (
     <main className="flex-1 min-w-0 bg-[#FBF7EE]" onClick={() => setCurrentTree(null)}>
       <div className="fixed top-3 -right-100 h-auto w-auto z-30 ">
-        <TreeDetailsPopout admin={true} tree={currentTree != null ? currentTree : undefined}></TreeDetailsPopout>
+        <TreeDetailsPopout
+          key={currentTree != null ? String(currentTree.id) : "closed"}
+          admin={true}
+          tree={currentTree != null ? currentTree : undefined}
+        />
       </div>
       <div className="px-6 py-10">
         {/* header */}
