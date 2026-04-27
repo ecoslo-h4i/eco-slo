@@ -55,6 +55,7 @@ export type Table<T extends Record<string, unknown>> = {
   getCell: (column: ColumnDef<T>, value: CellValue<T>, row: T) => React.ReactNode;
   getColumnSorting: () => SortingState;
   setColumnSorting: (columnId: string, desc: boolean) => void;
+  getColumnVisibility: (columnId: string) => boolean;
   setColumnVisibility: (columnId: string, update: (prev: boolean) => boolean) => void;
   getColumnFilterValue: (columnId: string) => string[];
   setColumnFilter: (columnId: string, update: (prev: string[]) => string[]) => void;
@@ -211,6 +212,13 @@ export const useTable = <T extends Record<string, unknown>>(
     setSorting({ id: columnId, desc });
   }, []);
 
+  const getColumnVisibility = React.useCallback(
+    (columnId: string) => {
+      return columnVisibility[columnId] ?? true;
+    },
+    [columnVisibility],
+  );
+
   const setColumnVisibilityValue = React.useCallback((columnId: string, update: (prev: boolean) => boolean) => {
     setColumnVisibility((prev) => ({ ...prev, [columnId]: update(prev[columnId] ?? true) }));
   }, []);
@@ -257,9 +265,18 @@ export const useTable = <T extends Record<string, unknown>>(
     return pageSize;
   }, [pageSize]);
 
-  const setPageSizeSafe = React.useCallback((size: number) => {
-    if (size > 0) setPageSize(size);
-  }, []);
+  const setPageSizeSafe = React.useCallback(
+    (size: number) => {
+      if (size <= 0) return;
+
+      const nextPageCount = Math.ceil(sortedRows.length / size);
+      const maxPageIndex = Math.max(0, nextPageCount - 1);
+
+      setPageSize(size);
+      setPageIndex((prev) => Math.min(prev, maxPageIndex));
+    },
+    [sortedRows.length, setPageSize, setPageIndex],
+  );
 
   const getPageIndex = React.useCallback(() => {
     return pageIndex;
@@ -304,6 +321,7 @@ export const useTable = <T extends Record<string, unknown>>(
       getCell,
       getColumnSorting,
       setColumnSorting,
+      getColumnVisibility,
       setColumnVisibility: setColumnVisibilityValue,
       getColumnFilterValue,
       setColumnFilter,
@@ -332,6 +350,7 @@ export const useTable = <T extends Record<string, unknown>>(
     getCell,
     getColumnSorting,
     setColumnSorting,
+    getColumnVisibility,
     setColumnVisibilityValue,
     getColumnFilterValue,
     setColumnFilter,
