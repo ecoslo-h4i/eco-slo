@@ -1,6 +1,5 @@
 "use client";
 import { ChangeEvent, type MutableRefObject, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 
 type Member = {
   id: number;
@@ -21,6 +20,16 @@ type Tree = {
   notes: string;
   is_public: boolean;
 };
+
+export enum Visibility {
+  Public = "Public",
+  Private = "Private",
+}
+
+export enum Status {
+  Active = "Active",
+  Graduated = "Graduated",
+}
 
 interface ControlSearchProps {
   searchDelay: number;
@@ -122,36 +131,54 @@ function ControlStatusPills(props: ControlStatusPillsInterface) {
 
 export default function ControlPanel(props: ControlPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState("All");
+  const [visibilityFilter, setVisibilityFilter] = useState<Visibility | null>(null);
+  const [statusFilter, setStatusFilter] = useState<Status | null>(null);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    applyFilters(activeFilter, query);
+    applyFilters(visibilityFilter, statusFilter, query);
   };
-  const handleFilter = (filter: string) => {
-    const newFilter = activeFilter === filter ? "All" : filter; // Toggle filter
-    setActiveFilter(newFilter);
-    applyFilters(newFilter, searchQuery);
+  const handleVisibilityFilter = (filter: Visibility) => {
+    const newFilter = visibilityFilter === filter ? null : filter; // Toggle filter
+    setVisibilityFilter(newFilter);
+    applyFilters(visibilityFilter, statusFilter, searchQuery);
   };
 
-  const applyFilters = (filter: string, query: string) => {
+  const handleStatusFilter = (filter: Status) => {
+    const newFilter = statusFilter === filter ? null : filter; // Toggle filter
+    setStatusFilter(newFilter);
+    applyFilters(visibilityFilter, statusFilter, searchQuery);
+  };
+
+  const handleClearFilters = () => {
+    setVisibilityFilter(null);
+    setStatusFilter(null);
+    applyFilters(null, null, searchQuery);
+  };
+
+  const applyFilters = (visibility: Visibility | null, status: Status | null, query: string) => {
     let filtered: Tree[] = props.trees;
 
-    switch (filter) {
-      case "All":
-        break;
-      case "Public":
-        filtered = filtered.filter((tree) => tree.is_public);
-        break;
-      case "Private":
-        filtered = filtered.filter((tree) => !tree.is_public);
-        break;
-      case "Active":
-        filtered = filtered.filter((tree) => tree.status === "Active");
-        break;
-      case "Graduated":
-        filtered = filtered.filter((tree) => tree.status === "Graduated");
-        break;
+    if (visibility !== null) {
+      switch (visibility) {
+        case Visibility.Public:
+          filtered = filtered.filter((tree) => tree.is_public);
+          break;
+        case Visibility.Private:
+          filtered = filtered.filter((tree) => !tree.is_public);
+          break;
+      }
+    }
+
+    if (status !== null) {
+      switch (status) {
+        case Status.Active:
+          filtered = filtered.filter((tree) => tree.status === Status.Active);
+          break;
+        case Status.Graduated:
+          filtered = filtered.filter((tree) => tree.status === Status.Graduated);
+          break;
+      }
     }
 
     if (query.trim()) {
@@ -164,15 +191,39 @@ export default function ControlPanel(props: ControlPanelProps) {
   return (
     <div className="w-full h-full p-2 flex flex-col gap-4">
       <ControlSearch searchDelay={300} searchFunction={handleSearch} />
-      <ControlStatusPills
-        text=""
-        options={["All", "Public", "Private", "Active", "Graduated"]}
-        delay={0}
-        delayFunction={handleFilter}
-        activeBackgroundHex="#6F7C58"
-        activeTextHex="white"
-        activeFilter={activeFilter}
-      />
+      <div className="flex flex-row flex-wrap items-center gap-2">
+        <ControlStatusPills
+          text=""
+          options={["All"]}
+          delay={0}
+          delayFunction={handleClearFilters}
+          activeBackgroundHex="#6F7C58"
+          activeTextHex="white"
+          activeFilter={!visibilityFilter && !statusFilter ? "All" : ""}
+        />
+        <ControlStatusPills
+          text=""
+          options={[Visibility.Public, Visibility.Private]}
+          delay={0}
+          delayFunction={(option: string) => {
+            handleVisibilityFilter(option as Visibility);
+          }}
+          activeBackgroundHex="#6F7C58"
+          activeTextHex="white"
+          activeFilter={visibilityFilter ?? ""}
+        />
+        <ControlStatusPills
+          text=""
+          options={[Status.Active, Status.Graduated]}
+          delay={0}
+          delayFunction={(option: string) => {
+            handleStatusFilter(option as Status);
+          }}
+          activeBackgroundHex="#6F7C58"
+          activeTextHex="white"
+          activeFilter={statusFilter ?? ""}
+        />
+      </div>
     </div>
   );
 }
