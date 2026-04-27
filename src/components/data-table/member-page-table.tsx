@@ -6,13 +6,13 @@ import TableRow from "./table/table-row";
 import TableHead from "./table/table-head";
 import TableBody from "./table/table-body";
 import TableCell from "./table/table-cell";
-import { TreeSchema } from "./table-widget-defs";
+import { MemberSchema } from "./table-widget-defs";
 import { ColumnDef } from "./table/column-def";
 import { Table as TableType, useTable } from "./table/table-types";
 import Table from "./table/table";
 import PaginationControls from "./pagination-controls";
 
-function TreePageTable({
+function MemberPageTable({
   className,
   data,
   cols,
@@ -20,12 +20,12 @@ function TreePageTable({
   onTableReady,
 }: {
   className?: string;
-  data: TreeSchema[];
-  cols: ColumnDef<TreeSchema>[];
-  onRowClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, tree: TreeSchema) => void;
-  onTableReady?: (table: TableType<TreeSchema>) => void;
+  data: MemberSchema[];
+  cols: ColumnDef<MemberSchema>[];
+  onRowClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, member: MemberSchema) => void;
+  onTableReady?: (table: TableType<MemberSchema>) => void;
 }) {
-  const table = useTable<TreeSchema>(data, cols, [], [], 5);
+  const table = useTable<MemberSchema>(data, cols, [], [], 5);
 
   const columns = table.getColumns();
   const rowModels = table.getRowModels();
@@ -63,7 +63,7 @@ function TreePageTable({
       tableClassName="bg-table-row-light text-text-dark"
       footer={true}
       footerClassName="bg-table-header h-16"
-      footerContent={<PaginationControls table={table} itemNamePlural="trees" />}
+      footerContent={<PaginationControls table={table} itemNamePlural="volunteers" />}
     >
       <TableHeader className="bg-table-header">
         <TableRow>
@@ -79,7 +79,7 @@ function TreePageTable({
           <>
             <TableRow>
               <TableCell className="h-16" columnSpan={cols.length}>
-                <p className="sticky left-1/2 -translate-x-1/2 w-max">Loading trees...</p>
+                <p className="sticky left-1/2 -translate-x-1/2 w-max">Loading volunteers...</p>
               </TableCell>
             </TableRow>
             {renderPlaceholderRows(4, 1)}
@@ -121,4 +121,4 @@ function TreePageTable({
   );
 }
 
-export default TreePageTable;
+export default MemberPageTable;

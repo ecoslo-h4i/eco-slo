@@ -7,18 +7,23 @@ import {
   DropdownMenuTrigger,
 } from "../dropdown-menu";
 import { Table } from "./table/table-types";
-import { TreeSchema } from "./table-widget-defs";
 import { ArrowUpDown, ChevronDown, ChevronUp, EyeOff } from "lucide-react";
 
-type HeadControlsProps = {
-  table: Table<TreeSchema>;
+type HeadControlsProps<T extends Record<string, unknown>> = {
+  table: Table<T>;
   columnId: string;
   title: string;
   canHide?: boolean;
   canSort?: boolean;
 };
 
-export default function HeadControls({ table, columnId, title, canHide = true, canSort = true }: HeadControlsProps) {
+export default function HeadControls<T extends Record<string, unknown>>({
+  table,
+  columnId,
+  title,
+  canHide = true,
+  canSort = true,
+}: HeadControlsProps<T>) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (

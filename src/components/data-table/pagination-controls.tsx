@@ -3,12 +3,18 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table } from "./table/table-types";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function PaginationControls<T extends Record<string, unknown>>({ table }: { table: Table<T> }) {
+export default function PaginationControls<T extends Record<string, unknown>>({
+  table,
+  itemNamePlural,
+}: {
+  table: Table<T>;
+  itemNamePlural: string;
+}) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
-    <div className="w-full h-full flex justify-between items-center px-6">
-      <div className="flex gap-2 items-center">
+    <div className="w-full h-full flex justify-between items-center px-4 lg:px-6 gap-x-2">
+      <div className="flex gap-2 items-center min-w-0">
         <p className="text-text-dark font-medium">
           Rows<span className="hidden lg:inline"> per page</span>:
         </p>
@@ -37,12 +43,12 @@ export default function PaginationControls<T extends Record<string, unknown>>({ 
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <p className="shrink-0 text-text-muted">
+        <p className="min-w-0 flex-1 text-text-muted truncate">
           <span className="hidden lg:inline">Showing </span>
           <span>{table.getPageIndex() * table.getPageSize() + 1}</span> to{" "}
           <span>{Math.min((table.getPageIndex() + 1) * table.getPageSize(), table.getUnpaginatedRowCount())}</span> of{" "}
           <span>{table.getUnpaginatedRowCount()}</span>
-          <span> trees</span>
+          <span> {itemNamePlural}</span>
         </p>
       </div>
       <div className="flex gap-2 lg:gap-4 items-center">
