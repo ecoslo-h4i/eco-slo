@@ -185,7 +185,7 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
       <Badge variant={value ? "default" : "muted"} className="capitalize">
-        {value ? "True" : "False"}
+        {value ? "Public" : "Private"}
       </Badge>
     ),
     cellId: (value) => {
