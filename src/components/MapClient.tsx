@@ -1,9 +1,10 @@
 "use client";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
-import L, { Icon } from "leaflet";
+import L, { Icon, map } from "leaflet";
 import { supabase } from "@/supabase-client";
 import MapPopout from "./MapPopout";
+import MapControlPanel from "./MapControlPanel";
 import { QueryData } from "@supabase/supabase-js";
 
 type Member = {
@@ -66,6 +67,7 @@ const selectedIcon = new Icon({
 
 export default function MapClient() {
   const [locations, setLocations] = useState<Tree[]>([]);
+  const [filteredLocations, setFilteredLocations] = useState<Tree[]>([]);
   const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -99,6 +101,10 @@ export default function MapClient() {
     }
     fetchLocations();
   }, []);
+
+  useEffect(() => {
+    setFilteredLocations(locations);
+  }, [locations]);
 
   useEffect(() => {
     const container = mapContainerRef.current;
@@ -142,7 +148,7 @@ export default function MapClient() {
 
     markersLayerRef.current.clearLayers();
 
-    for (const tree of locations) {
+    for (const tree of filteredLocations) {
       const isSelected = selectedTree?.id === tree.id;
 
       const marker = L.marker([tree.latitude, tree.longitude], {
@@ -155,7 +161,7 @@ export default function MapClient() {
 
       marker.addTo(markersLayerRef.current);
     }
-  }, [locations, selectedTree]);
+  }, [filteredLocations, selectedTree]);
 
   const zoomIn = () => {
     mapRef.current?.zoomIn();
@@ -165,28 +171,44 @@ export default function MapClient() {
     mapRef.current?.zoomOut();
   };
 
+  const handleCenter = () => {
+    mapRef.current?.setView(center, zoom);
+  };
+
   return (
     <main className="flex-1 w-full min-h-0">
       <div className="relative w-full h-full">
+        <div className="absolute left-30 top-6 w-[500px] h-[150px] bg-white rounded-xl shadow-lg p-2 overflow-y-auto z-[999]">
+          <MapControlPanel trees={locations} onFilter={setFilteredLocations} onCenter={handleCenter} />
+        </div>
         <div ref={mapContainerRef} className="h-full w-full" />
 
-        <div className="absolute top-4 left-4 z-[1000] flex flex-col gap-3">
-          <button
-            type="button"
-            className="grid h-[58px] w-[58px] place-items-center rounded-full bg-[#A8B97C] text-4xl leading-none text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] hover:cursor-pointer"
-            onClick={zoomIn}
-          >
-            +
-          </button>
-          <button
-            type="button"
-            className="grid h-[58px] w-[58px] place-items-center rounded-full bg-[#A8B97C] text-4xl leading-none text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] hover:cursor-pointer"
-            onClick={zoomOut}
-          >
-            -
-          </button>
+        <div className="absolute top-6 left-5 z-[1000] flex items-start">
+          <div className="w-[64px] overflow-hidden rounded-[24px] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.14)]">
+            <button
+              type="button"
+              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-[#F3EFE8] hover:cursor-pointer"
+              onClick={zoomIn}
+            >
+              +
+            </button>
+            <div className="mx-4 h-px  bg-[#E3DED3]" />
+            <button
+              onClick={handleCenter}
+              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-[#F3EFE8] hover:cursor-pointer"
+            >
+              •
+            </button>
+            <div className="mx-4 h-px bg-[#E3DED3]" />
+            <button
+              type="button"
+              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-[#F3EFE8] hover:cursor-pointer"
+              onClick={zoomOut}
+            >
+              -
+            </button>
+          </div>
         </div>
-
         <MapPopout tree={selectedTree} onClose={() => setSelectedTree(null)} />
       </div>
     </main>
