@@ -146,7 +146,7 @@ export default function Tasks() {
             </div>
           </div>
 
-          <div className="border-t border-[#ded9cf] border-t-[1.5px] px-[15px] py-[10px]  text-[#6b6661] text-[14px] bg-[#ebe7de] font-semibold">
+          <div className="border-t border-[#ded9cf] border-t-[1.5px] px-[15px] py-[10px] text-[#6b6661] text-[14px] bg-[#ebe7de] font-semibold">
             Showing {filter(tasks, status, surveys).length} tasks
           </div>
         </div>
@@ -166,38 +166,45 @@ function TasksControlPanel(props: TaskControlPanelProps) {
   const CONTROL_STATUS_OPTIONS = ["All", "Done"];
   const ASSIGNEE_STATUS_OPTIONS = ["All Assignees"];
   const SURVEY_OPTIONS = ["All Tasks", "Surveys Needed", "Surveys Complete"];
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusActiveIndex, setStatusActiveIndex] = useState(0);
+  const [assigneesActiveIndex, setAssigneesActiveIndex] = useState(0);
+  const [surveysActiveIndex, setSurveyActiveIndex] = useState(0);
   const QUERY_DELAY = 0;
 
   return (
     <div className="w-full">
-      <div className="flex w-full min-h-43 flex-col justify-center rounded-[40px] bg-inherit px-10 py-8">
-        <div className="flex justify-between items-center w-full gap-10">
+      <div className="flex w-full flex-col justify-center rounded-[24px] sm:rounded-[32px] bg-inherit px-4 sm:px-6 lg:px-10 py-6 sm:py-8 gap-6">
+        <ControlSearch
+          query={searchQuery}
+          onQueryChange={setSearchQuery}
+          searchDelay={QUERY_DELAY}
+          searchFunction={(query: string) => {
+            const trimmedQuery = query.trimStart();
+            props.searchFunction(trimmedQuery);
+          }}
+          placeholder={"Search tasks, messages, or assignees..."}
+        />
+        <div className="w-full">
           <div className="flex flex-col gap-4 w-full">
-            <div className="w-256">
-              <ControlSearch
-                searchDelay={QUERY_DELAY}
-                searchFunction={(query: string) => {
-                  const trimmedQuery = query.trimStart();
-                  props.searchFunction(trimmedQuery);
-                }}
-                placeholder={"Search tasks, messages, or assignees..."}
-              />
-            </div>
-
-            <div className="flex gap-6 items-start">
-              <div className="pr-16">
+            <div className="flex flex-col gap-4 w-full xl:flex-row xl:items-end">
+              <div className="w-full xl:w-auto">
                 <ControlStatusPills
+                  pillClassName="w-full sm:w-auto sm:min-w-[220px] lg:min-w-[256px]"
+                  activeIndex={statusActiveIndex}
+                  onActiveIndexChange={setStatusActiveIndex}
                   text="Status"
                   options={CONTROL_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
                   delayFunction={(status: string) => props.setStatusFunction(status)}
-                  activeBackgroundHex="#78855b"
-                  activeTextHex="#FFFFFF"
                 />
               </div>
-              <div className="flex gap-16">
+              <div className="flex flex-col gap-4 w-full sm:flex-row">
                 <ControlFilterDropdown
-                  text="Assignee"
+                  triggerClassName="w-full min-w-0 sm:w-[240px] lg:w-[456px]"
+                  label="Assignee"
+                  activeIndex={assigneesActiveIndex}
+                  onActiveIndexChange={setAssigneesActiveIndex}
                   dropDown={ASSIGNEE_STATUS_OPTIONS}
                   delay={QUERY_DELAY}
                   delayFunction={() =>
@@ -206,7 +213,10 @@ function TasksControlPanel(props: TaskControlPanelProps) {
                   }
                 />
                 <ControlFilterDropdown
-                  text="Surveys"
+                  triggerClassName="w-full min-w-0 sm:w-[240px] lg:w-[456px]"
+                  label="Surveys"
+                  activeIndex={surveysActiveIndex}
+                  onActiveIndexChange={setSurveyActiveIndex}
                   dropDown={SURVEY_OPTIONS}
                   delay={QUERY_DELAY}
                   delayFunction={(status: string) => props.setSurveyFunction(status)}
