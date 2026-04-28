@@ -51,6 +51,13 @@ type DropdownMenuItemProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   inset?: boolean;
 };
 
+type DropdownMenuCheckboxItemProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onChange"> & {
+  checked: boolean;
+  checkedIcon?: ReactNode;
+  inset?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+};
+
 const DropdownMenuContext = createContext<DropdownMenuContextValue | null>(null);
 
 function assignRef<T>(ref: Ref<T> | undefined, node: T | null) {
@@ -414,6 +421,67 @@ const DropdownMenuItem = forwardRef<HTMLButtonElement, DropdownMenuItemProps>(fu
   );
 });
 
+const DropdownMenuCheckboxItem = forwardRef<HTMLButtonElement, DropdownMenuCheckboxItemProps>(
+  function DropdownMenuCheckboxItem(
+    { checked, checkedIcon, className, inset, onCheckedChange, onClick, onKeyDown, disabled, children, ...props },
+    forwardedRef,
+  ) {
+    const { isKeyboardNavigation, setIsKeyboardNavigation } = useDropdownMenuContext("DropdownMenuCheckboxItem");
+    const handleItemClick = useCallback(
+      (event: ReactMouseEvent<HTMLButtonElement>) => {
+        onClick?.(event);
+
+        if (event.defaultPrevented || disabled) return;
+        setIsKeyboardNavigation(false);
+        onCheckedChange?.(!checked);
+      },
+      [checked, disabled, onCheckedChange, onClick, setIsKeyboardNavigation],
+    );
+    const handleItemKeyDown = useCallback(
+      (event: KeyboardEvent<HTMLButtonElement>) => {
+        onKeyDown?.(event);
+
+        if (event.defaultPrevented) return;
+        if (!["Enter", " "].includes(event.key)) return;
+
+        event.preventDefault();
+        setIsKeyboardNavigation(true);
+        event.currentTarget.click();
+      },
+      [onKeyDown, setIsKeyboardNavigation],
+    );
+
+    return (
+      <button
+        ref={forwardedRef}
+        type="button"
+        role="menuitemcheckbox"
+        aria-checked={checked}
+        data-disabled={disabled ? "true" : "false"}
+        data-dropdown-menu-item="true"
+        data-state={checked ? "checked" : "unchecked"}
+        disabled={disabled}
+        className={cn(
+          "relative flex w-full cursor-default select-none items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm outline-none transition-colors",
+          "hover:bg-primary hover:text-text-light disabled:pointer-events-none disabled:opacity-50",
+          isKeyboardNavigation && "focus:bg-primary focus:text-text-light",
+          inset && "pl-8",
+          className,
+        )}
+        onClick={handleItemClick}
+        onKeyDown={handleItemKeyDown}
+        onPointerMove={() => setIsKeyboardNavigation(false)}
+        {...props}
+      >
+        <span aria-hidden="true" className="flex h-4 w-4 shrink-0 items-center justify-center">
+          {checked ? checkedIcon : null}
+        </span>
+        <span className="flex-1">{children}</span>
+      </button>
+    );
+  },
+);
+
 const DropdownMenuSeparator = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function DropdownMenuSeparator(
   { className, ...props },
   forwardedRef,
@@ -425,6 +493,14 @@ DropdownMenu.displayName = "DropdownMenu";
 DropdownMenuTrigger.displayName = "DropdownMenuTrigger";
 DropdownMenuContent.displayName = "DropdownMenuContent";
 DropdownMenuItem.displayName = "DropdownMenuItem";
+DropdownMenuCheckboxItem.displayName = "DropdownMenuCheckboxItem";
 DropdownMenuSeparator.displayName = "DropdownMenuSeparator";
 
-export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator };
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuSeparator,
+};

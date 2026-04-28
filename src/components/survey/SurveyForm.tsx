@@ -77,7 +77,9 @@ export default function SurveyForm() {
   const validate = (): boolean => {
     const next: Record<string, string> = {};
     if (!taskId) next.task = "Select a task.";
+    else if (!Number.isFinite(Number(taskId)) || Number(taskId) <= 0) next.task = "Select a valid task.";
     if (!treeEcoslo) next.tree = "Select a tree.";
+    else if (!Number.isFinite(Number(treeEcoslo)) || Number(treeEcoslo) <= 0) next.tree = "Select a valid tree.";
     if (issue === "other" && !issueOther.trim()) {
       next.issueOther = 'Add a description when "Other" is selected.';
     }
@@ -113,7 +115,10 @@ export default function SurveyForm() {
         setSubmitMessage({ type: "err", text: result.message });
         return;
       }
-      setSubmitMessage({ type: "ok", text: "Submitted." });
+      setSubmitMessage({ type: "ok", text: "Survey saved." });
+      // Future: when tasks.surveys_needed exists, PATCH task here after successful insert.
+    } catch {
+      setSubmitMessage({ type: "err", text: "Could not submit. Check your connection and try again." });
     } finally {
       setSubmitting(false);
     }
