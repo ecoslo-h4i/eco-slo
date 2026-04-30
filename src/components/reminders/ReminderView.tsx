@@ -16,7 +16,7 @@ type Member = Tables<"members">;
 type Reminder = Tables<"reminders">;
 type Template = Tables<"templates">;
 type ReminderWithNeedsSurvey = Reminder & { needs_survey?: boolean | null };
-type ReminderInsertPayload = TablesInsert<"reminders"> & { needs_survey?: boolean };
+type ReminderInsertPayload = TablesInsert<"reminders"> & { needs_survey?: boolean }; // TODO: update database types for needs_survey
 type ReminderUpdatePayload = TablesUpdate<"reminders"> & { needs_survey?: boolean };
 const MEMBER_TYPES = ["Admin", "Tree Keeper"] as const satisfies readonly MemberEnum[];
 

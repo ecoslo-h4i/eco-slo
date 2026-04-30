@@ -86,7 +86,7 @@ export default function ReminderNestedMultiSelectDropdown({
   };
 
   const toggleNestedOption = (group: NestedMultiSelectGroup, nestedOption: NestedMultiSelectOption) => {
-    const currentNestedValues = selectedValue[group.value] ?? getAllNestedValues(group);
+    const currentNestedValues = selectedValue[group.value] ?? [];
     const nextNestedValues = currentNestedValues.includes(nestedOption.value)
       ? currentNestedValues.filter((value) => value !== nestedOption.value)
       : [...currentNestedValues, nestedOption.value];
@@ -150,43 +150,40 @@ export default function ReminderNestedMultiSelectDropdown({
                       <span className="block truncate">{group.label}</span>
                     </button>
                   </div>
-
-                  {isGroupSelected && (
-                    <div className="ml-6 mt-1 flex flex-col gap-1 border-l border-border pl-3">
-                      <button
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => setOpenGroups((current) => ({ ...current, [group.value]: !isGroupOpen }))}
-                        className="flex items-center justify-between rounded-lg bg-white px-2 py-1.5 text-left text-xs font-medium text-text-muted transition-colors hover:bg-table-header disabled:cursor-default disabled:bg-table-header disabled:hover:bg-table-header"
-                      >
-                        <span>{allNestedSelected ? "All selected" : `${selectedNestedValues.length} selected`}</span>
-                        {!disabled && (
-                          <ChevronDown
-                            className={cn("h-4 w-4 transition-transform duration-200", isGroupOpen && "rotate-180")}
-                          />
-                        )}
-                      </button>
-                      {isGroupOpen &&
-                        group.options.map((nestedOption) => (
-                          <label
-                            key={nestedOption.value}
-                            className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-text-dark transition-colors hover:bg-table-header"
-                          >
-                            <input
-                              type="checkbox"
-                              disabled={disabled}
-                              checked={selectedNestedValues.includes(nestedOption.value)}
-                              onChange={() => toggleNestedOption(group, nestedOption)}
-                              className="h-4 w-4 accent-primary"
-                            />
-                            <span className="min-w-0 flex-1 truncate">{nestedOption.label}</span>
-                          </label>
-                        ))}
-                      {isGroupOpen && group.options.length === 0 && (
-                        <span className="rounded-lg px-2 py-1.5 text-sm text-text-muted">No options available</span>
+                  <div className="ml-6 mt-1 flex flex-col gap-1 border-l border-border pl-3">
+                    <button
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => setOpenGroups((current) => ({ ...current, [group.value]: !isGroupOpen }))}
+                      className="flex items-center justify-between rounded-lg bg-white px-2 py-1.5 text-left text-xs font-medium text-text-muted transition-colors hover:cursor-pointer hover:bg-table-header disabled:cursor-default disabled:bg-table-header disabled:hover:bg-table-header"
+                    >
+                      <span>{allNestedSelected ? "All selected" : `${selectedNestedValues.length} selected`}</span>
+                      {!disabled && (
+                        <ChevronDown
+                          className={cn("h-4 w-4 transition-transform duration-200", isGroupOpen && "rotate-180")}
+                        />
                       )}
-                    </div>
-                  )}
+                    </button>
+                    {isGroupOpen &&
+                      group.options.map((nestedOption) => (
+                        <label
+                          key={nestedOption.value}
+                          className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-text-dark transition-colors hover:bg-table-header"
+                        >
+                          <input
+                            type="checkbox"
+                            disabled={disabled}
+                            checked={selectedNestedValues.includes(nestedOption.value)}
+                            onChange={() => toggleNestedOption(group, nestedOption)}
+                            className="h-4 w-4 accent-primary"
+                          />
+                          <span className="min-w-0 flex-1 truncate">{nestedOption.label}</span>
+                        </label>
+                      ))}
+                    {isGroupOpen && group.options.length === 0 && (
+                      <span className="rounded-lg px-2 py-1.5 text-sm text-text-muted">No options available</span>
+                    )}
+                  </div>
                 </div>
               );
             })}
