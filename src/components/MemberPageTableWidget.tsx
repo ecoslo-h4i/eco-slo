@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { MemberSchema, memberColumns } from "./data-table/table-widget-defs";
 import { Table } from "./data-table/table/table-types";
 import MemberPageTable from "./data-table/member-page-table";
+import { Database } from "@/database/database.types";
 
 type AdminMembersResponse = {
-  message?: MemberSchema[] | string;
+  message?: Database["public"]["Tables"]["members"]["Row"][] | string;
   error?: string;
 };
 
@@ -20,7 +21,10 @@ export async function getAdminMembers() {
 
   if (!Array.isArray(payload.message)) return [];
 
-  return payload.message;
+  return payload.message.map((member) => ({
+    ...member,
+    name: `${member.firstname} ${member.lastname}`,
+  }));
 }
 
 function TreePageTableWidget({

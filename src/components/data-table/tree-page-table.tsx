@@ -25,7 +25,7 @@ function TreePageTable({
   onRowClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, tree: TreeSchema) => void;
   onTableReady?: (table: TableType<TreeSchema>) => void;
 }) {
-  const table = useTable<TreeSchema>(data, cols, [], [], 5);
+  const table = useTable<TreeSchema>(data, cols, 5);
 
   const columns = table.getColumns();
   const rowModels = table.getRowModels();

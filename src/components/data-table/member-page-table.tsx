@@ -25,7 +25,7 @@ function MemberPageTable({
   onRowClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, member: MemberSchema) => void;
   onTableReady?: (table: TableType<MemberSchema>) => void;
 }) {
-  const table = useTable<MemberSchema>(data, cols, [], [], 5);
+  const table = useTable<MemberSchema>(data, cols, 5, [], [], ["name"]);
 
   const columns = table.getColumns();
   const rowModels = table.getRowModels();

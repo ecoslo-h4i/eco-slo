@@ -1,7 +1,7 @@
 import React from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../dropdown-menu";
 import { Table } from "./table/table-types";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 export default function PaginationControls<T extends Record<string, unknown>>({
   table,
@@ -51,26 +51,38 @@ export default function PaginationControls<T extends Record<string, unknown>>({
           <span> {itemNamePlural}</span>
         </p>
       </div>
-      <div className="flex gap-2 lg:gap-4 items-center">
+      <div className="flex gap-1 items-center">
         <button
-          className="px-2 py-2 lg:px-3 lg:py-1 bg-button border border-border text-text-dark rounded-xl hover:bg-button/80 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="hidden lg:block px-2 py-2 bg-button border border-border text-text-dark rounded-xl hover:bg-button/80 disabled:opacity-60 disabled:cursor-not-allowed"
+          disabled={!table.hasPreviousPage()}
+          onClick={table.firstPage}
+        >
+          <ChevronsLeft className="w-4 h-4" />
+        </button>
+        <button
+          className="px-2 py-2 bg-button border border-border text-text-dark rounded-xl hover:bg-button/80 disabled:opacity-60 disabled:cursor-not-allowed"
           disabled={!table.hasPreviousPage()}
           onClick={table.previousPage}
         >
-          <ChevronLeft className="w-4 h-4 lg:hidden" />
-          <span className="hidden lg:inline">Previous</span>
+          <ChevronLeft className="w-4 h-4" />
         </button>
-        <p className="shrink-0 text-text-dark">
+        <p className="mx-1 shrink-0 text-text-dark">
           <span className="hidden lg:inline">Page </span>
           <span>{table.getPageIndex() + 1}</span> of <span>{table.getPageCount()}</span>
         </p>
         <button
-          className="px-2 py-2 lg:px-3 lg:py-1 bg-button border border-border text-text-dark rounded-xl hover:bg-button/80 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="px-2 py-2 bg-button border border-border text-text-dark rounded-xl hover:bg-button/80 disabled:opacity-60 disabled:cursor-not-allowed"
           disabled={!table.hasNextPage()}
           onClick={table.nextPage}
         >
-          <span className="hidden lg:inline">Next</span>
-          <ChevronRight className="w-4 h-4 lg:hidden" />
+          <ChevronRight className="w-4 h-4" />
+        </button>
+        <button
+          className="hidden lg:block px-2 py-2 bg-button border border-border text-text-dark rounded-xl hover:bg-button/80 disabled:opacity-60 disabled:cursor-not-allowed"
+          disabled={!table.hasNextPage()}
+          onClick={table.lastPage}
+        >
+          <ChevronsRight className="w-4 h-4" />
         </button>
       </div>
     </div>

@@ -18,7 +18,7 @@ export type DashboardTreeSchema = TreeSchema & {
   last_updated?: string;
 };
 
-export type MemberSchema = Database["public"]["Tables"]["members"]["Row"];
+export type MemberSchema = Database["public"]["Tables"]["members"]["Row"] & { name: string };
 
 export const dashboardTreeColumns: ColumnDef<DashboardTreeSchema>[] = [
   {
@@ -335,7 +335,7 @@ export const memberColumns: ColumnDef<MemberSchema>[] = [
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canHide={false} />,
     cell: (value) => String(value),
     comparator: (a, b) => String(a).localeCompare(String(b)),
-    canSearch: true,
+    canSearch: false,
     canHide: false,
   },
   {
@@ -345,7 +345,7 @@ export const memberColumns: ColumnDef<MemberSchema>[] = [
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canHide={false} />,
     cell: (value) => String(value),
     comparator: (a, b) => String(a).localeCompare(String(b)),
-    canSearch: true,
+    canSearch: false,
     canHide: false,
   },
   {
