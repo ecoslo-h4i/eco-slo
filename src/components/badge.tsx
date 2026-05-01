@@ -26,7 +26,7 @@ export default function Badge({
 
   return (
     <div
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-semibold ${badgeVariantClasses[variant]} ${className || ""}`}
+      className={`${badgeVariantClasses[variant]} ${className || ""} inline-flex items-center gap-1 px-2 py-1 text-sm font-semibold rounded-full`}
     >
       {iconOnLeft ? icon : null}
       {children}

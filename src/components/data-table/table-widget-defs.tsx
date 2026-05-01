@@ -2,7 +2,7 @@ import { ColumnDef } from "./table/column-def";
 import HeadControls from "./head-controls";
 import { Database } from "@/database/database.types";
 import Badge from "../badge";
-import { CircleAlert, CircleCheck, CircleMinus, Clock } from "lucide-react";
+import { CircleAlert, CircleCheck, CircleMinus, Clock, TreeDeciduous, UserRoundCog } from "lucide-react";
 
 export type TreekeeperSchema = {
   tree_keeper: {
@@ -17,6 +17,8 @@ export type TreeSchema = Database["public"]["Tables"]["trees"]["Row"] & Treekeep
 export type DashboardTreeSchema = TreeSchema & {
   last_updated?: string;
 };
+
+export type MemberSchema = Database["public"]["Tables"]["members"]["Row"] & { name: string };
 
 export const dashboardTreeColumns: ColumnDef<DashboardTreeSchema>[] = [
   {
@@ -322,6 +324,107 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canSort={false} />,
     cell: (value) => <p className="max-w-64 truncate">{String(value)}</p>,
     canSearch: true,
+  },
+];
+
+export const memberColumns: ColumnDef<MemberSchema>[] = [
+  {
+    id: "first_name",
+    accessorKey: "firstname",
+    name: "First Name",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canHide={false} />,
+    cell: (value) => String(value),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
+    canSearch: false,
+    canHide: false,
+  },
+  {
+    id: "last_name",
+    accessorKey: "lastname",
+    name: "Last Name",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canHide={false} />,
+    cell: (value) => String(value),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
+    canSearch: false,
+    canHide: false,
+  },
+  {
+    id: "email",
+    accessorKey: "email",
+    name: "Email",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canHide={false} />,
+    cell: (value) => <p className="truncate">{String(value)}</p>,
+    comparator: (a, b) => String(a).localeCompare(String(b)),
+    canSearch: true,
+    canHide: false,
+  },
+  {
+    id: "phone",
+    accessorKey: "phone",
+    name: "Phone",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canHide={false} />,
+    cell: (value) => formatPhoneNumber(value),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
+    canSearch: true,
+    canHide: false,
+  },
+  {
+    id: "role",
+    accessorKey: "role",
+    name: "Role",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canHide={false} />,
+    cell: (value) =>
+      String(value).toLowerCase() === "admin" ? (
+        <Badge variant="muted" icon={<UserRoundCog className="w-4 h-4" />} className="capitalize">
+          {String(value)}
+        </Badge>
+      ) : (
+        <Badge variant="default" className="capitalize">
+          {String(value)}
+        </Badge>
+      ),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
+    cellId: (value) => String(value).toLowerCase(),
+    canSearch: true,
+    canHide: false,
+  },
+  {
+    id: "joined_date",
+    accessorKey: "joined",
+    name: "Joined Date",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canHide={false} />,
+    cell: (value) => formatISODate(value),
+    comparator: (a, b) => {
+      const dateA = new Date(String(a));
+      const dateB = new Date(String(b));
+      return dateA.getTime() - dateB.getTime();
+    },
+    canSearch: true,
+    canHide: false,
+  },
+  {
+    id: "trees_assigned",
+    accessorKey: "trees_assigned",
+    name: "Trees Assigned",
+    cell: (value) => {
+      const treeIds =
+        Array.isArray(value) && value.every((treeId): treeId is number => typeof treeId === "number") ? value : [];
+
+      return (
+        <Badge className="rounded-sm" variant="muted">
+          {treeIds.length > 0 ? (
+            <span className="flex justify-between gap-x-2 max-w-48">
+              <span className="truncate">{treeIds.map((id) => `#${id}`).join(", ")}</span>
+              {treeIds.length >= 5 && <span className="font-extrabold">{treeIds.length}</span>}
+            </span>
+          ) : (
+            "No Trees"
+          )}
+        </Badge>
+      );
+    },
+    canSearch: false,
+    canHide: false,
   },
 ];
 

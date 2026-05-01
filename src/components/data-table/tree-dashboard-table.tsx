@@ -20,7 +20,7 @@ function TreeDashboardTable({
   data: DashboardTreeSchema[];
   cols: ColumnDef<DashboardTreeSchema>[];
 }) {
-  const table = useTable<DashboardTreeSchema>(data, cols, [], [], 5);
+  const table = useTable<DashboardTreeSchema>(data, cols, 5);
   const columns = table.getColumns();
   const rowModels = table.getRowModels();
   const placeholderRowCount = Math.max(table.getPageSize() - rowModels.length, 0);

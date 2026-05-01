@@ -19,9 +19,10 @@ interface ControlSearchProps {
   onQueryChange: (query: string) => void;
   searchDelay: number;
   searchFunction: (query: string) => void;
+  placeholder?: string;
 }
 
-function ControlSearch(props: ControlSearchProps) {
+export function ControlSearch(props: ControlSearchProps) {
   useEffect(() => {
     const handler = setTimeout(() => {
       props.searchFunction(props.query);
@@ -43,7 +44,7 @@ function ControlSearch(props: ControlSearchProps) {
       <input
         type="text"
         id="query"
-        placeholder="Search for tree fields..."
+        placeholder={props.placeholder || "Search..."}
         value={props.query}
         onChange={handleChange}
         className="flex-1 text-text-dark font-medium placeholder:text-text-muted outline-none"
@@ -85,15 +86,18 @@ function ControlButton(props: ControlButtonInterface) {
 }
 
 interface ControlStatusPillsInterface {
-  text: string;
+  buttonClassName?: string;
+  text?: string;
   options: string[];
   activeIndex: number;
   onActiveIndexChange: (index: number) => void;
   delay: number; // Delay in ms before calling delayFunction
   delayFunction: (status: string) => void;
+  containerClassName?: string;
+  className?: string;
 }
 
-function ControlStatusPills(props: ControlStatusPillsInterface) {
+export function ControlStatusPills(props: ControlStatusPillsInterface) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -117,13 +121,13 @@ function ControlStatusPills(props: ControlStatusPillsInterface) {
   };
 
   return (
-    <div className="flex flex-col gap-2 select-none">
-      <h2 className="text-text-muted font-semibold">{props.text}</h2>
-      <div className="flex gap-2">
+    <div className={`flex flex-col gap-2 select-none ${props.className}`}>
+      {props.text && <h2 className="text-text-muted font-semibold">{props.text}</h2>}
+      <div className={`flex gap-2 ${props.containerClassName}`}>
         {props.options.map((option, index) => (
           <button
             key={index}
-            className={`rounded-2xl cursor-pointer flex items-center justify-center px-2 min-w-16 lg:min-w-30 py-1 transition-colors
+            className={`${props.buttonClassName} rounded-2xl cursor-pointer flex items-center justify-center px-2 py-1 transition-colors
               ${index === props.activeIndex ? "bg-primary text-text-light hover:bg-primary/90" : "bg-button text-text-dark border border-border hover:bg-button/50"}`}
             onClick={() => handleSelect(index)}
           >
@@ -305,6 +309,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
   return (
     <div className="w-full flex flex-col gap-4 rounded-xl bg-card border border-border shadow-sm p-6 lg:p-8">
       <ControlSearch
+        placeholder="Search for tree fields..."
         query={searchQuery}
         onQueryChange={setSearchQuery}
         searchDelay={QUERY_DELAY}
@@ -317,6 +322,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
       <div className="flex justify-between items-start">
         <div className="flex gap-4 items-start justify-start flex-wrap">
           <ControlStatusPills
+            buttonClassName="min-w-16 lg:min-w-30"
             text="Status"
             options={CONTROL_STATUS_OPTIONS}
             activeIndex={statusActiveIndex}

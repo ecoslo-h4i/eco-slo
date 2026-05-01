@@ -73,14 +73,17 @@ export type Table<T extends Record<string, unknown>> = {
   hasPreviousPage: () => boolean;
   nextPage: () => void;
   previousPage: () => void;
+  firstPage: () => void;
+  lastPage: () => void;
 };
 
 export const useTable = <T extends Record<string, unknown>>(
   data: T[],
   columnDefs: ColumnDef<T>[],
+  initialPageSize: number = 10,
   initialHiddenColumns: string[] = [],
   initialSearchColumns: string[] = [],
-  initialPageSize: number = 10,
+  additionalSearchKeys: FieldPath<T>[] = [],
 ): Table<T> => {
   /*
    * Initalize Table State
@@ -124,9 +127,9 @@ export const useTable = <T extends Record<string, unknown>>(
         includeScore: true,
         threshold: FUSE_MATCH_THRESHOLD,
         ignoreLocation: true,
-        keys: searchAccessorKeys,
+        keys: [...searchAccessorKeys, ...additionalSearchKeys],
       }),
-    [data, searchAccessorKeys],
+    [data, searchAccessorKeys, additionalSearchKeys],
   );
 
   const [pageIndex, setPageIndex] = React.useState<number>(0);
@@ -187,6 +190,13 @@ export const useTable = <T extends Record<string, unknown>>(
     const startIndex = pageIndex * pageSize;
     return sortedRows.slice(startIndex, startIndex + pageSize);
   }, [sortedRows, pageIndex, pageSize]);
+
+  React.useEffect(() => {
+    const nextPageCount = Math.ceil(sortedRows.length / pageSize);
+    const maxPageIndex = Math.max(0, nextPageCount - 1);
+
+    setPageIndex((prev) => Math.min(prev, maxPageIndex));
+  }, [sortedRows.length, pageSize]);
 
   const rowModels: RowModel<T>[] = React.useMemo(() => {
     return paginatedRows.map((row) => ({
@@ -305,6 +315,14 @@ export const useTable = <T extends Record<string, unknown>>(
     setPageIndex((prev) => (hasPreviousPage() ? prev - 1 : prev));
   }, [hasPreviousPage]);
 
+  const firstPage = React.useCallback(() => {
+    setPageIndex(0);
+  }, [setPageIndex]);
+
+  const lastPage = React.useCallback(() => {
+    setPageIndex(getPageCount() - 1);
+  }, [getPageCount, setPageIndex]);
+
   const table: Table<T> = React.useMemo(() => {
     const nextTable = {} as Table<T>;
 
@@ -339,6 +357,8 @@ export const useTable = <T extends Record<string, unknown>>(
       hasPreviousPage,
       nextPage,
       previousPage,
+      firstPage,
+      lastPage,
     } satisfies Table<T>);
 
     return nextTable;
@@ -368,6 +388,8 @@ export const useTable = <T extends Record<string, unknown>>(
     hasPreviousPage,
     nextPage,
     previousPage,
+    firstPage,
+    lastPage,
   ]);
 
   return table;
