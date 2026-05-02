@@ -1,16 +1,15 @@
 import React from "react";
-import { TreeSchema } from "../table-widget-defs";
 
-export default function TableRow({
+export default function TableRow<T extends Record<string, unknown>>({
   className,
   onClick,
   children,
   data,
 }: {
   className?: string;
-  onClick?: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, tree: TreeSchema) => void;
+  onClick?: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, tree: T) => void;
   children?: React.ReactNode;
-  data?: TreeSchema;
+  data?: T;
 }) {
   return (
     <tr
