@@ -1,40 +1,15 @@
 "use client";
+import { TreeSchema } from "@/components/data-table/table-widget-defs";
+import { Tables } from "@/database/database.types";
 import { supabase } from "@/supabase-client";
 import { useEffect, useState } from "react";
-
-export type TreeSchema = {
-  address: string;
-  adopter_email: string;
-  adopter_name: string;
-  adopter_phone: string;
-  common_name: string;
-  created_at: string;
-  date_planted: string;
-  ecoslo_num: number;
-  funder: string;
-  id: number;
-  is_public: boolean;
-  latitude: number;
-  longitude: number;
-  next_mulching_date: string | null;
-  notes: string | null;
-  species_name: string;
-  status: string;
-  weekly_watering_status: string | null;
-};
 
 type treeDetailsPopoutProps = {
   tree?: TreeSchema;
   admin: boolean;
 };
 
-type Member = {
-  id: number;
-  firstname: string;
-  lastname: string;
-  phone: string | null;
-  email: string | null;
-};
+type Member = Tables<"members">;
 
 type SurveyRow = {
   id: number;
