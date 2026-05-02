@@ -44,8 +44,8 @@ export type ColumnDef<T extends Record<string, unknown>, P extends FieldPath<T> 
   name: string;
   head?: (table: Table<T>, name: string, columnId: string) => React.ReactNode;
   cell?: (value: FieldPathValue<T, P>, row: T) => React.ReactNode;
-  cellId?: (value: FieldPathValue<T, P>) => string;
-  comparator?: (a: FieldPathValue<T, P>, b: FieldPathValue<T, P>) => number;
+  cellId?: (value: FieldPathValue<T, P>) => string; //used for filtering
+  comparator?: (a: FieldPathValue<T, P>, b: FieldPathValue<T, P>) => number; //used for sorting
   headPosition?: "left" | "center" | "right";
   cellPosition?: "left" | "center" | "right";
   columnWidth?: string;

@@ -9,6 +9,8 @@
   --color-card: #ece7df;
 
   --color-primary: #6b7456;
+  --color-primary-light: #758656;
+  --color-primary-extra-light: #899078;
   /*--color-primary-muted: #e1e0d2; depricated use -primary/15
   --color-primary-border: #d5d7c3;  depricated use -primary/20 */
   --color-icon-primary-muted: #d4d6cd;
@@ -34,6 +36,10 @@
   --color-table-header: #e4dfd7;
   --color-table-row-light: #f5f3ef;
   --color-table-row-dark: #ece7df;
+
+  --color-inactive-pill: #d4cec3;
+  --color-active-pill: #d8d4ca;
+  --color-pill-border: #c2c1b3;
 
   --color-foreground: #ffffff;
 

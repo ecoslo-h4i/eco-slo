@@ -56,6 +56,7 @@ export type Database = {
           is_active: boolean;
           is_group_task: boolean;
           name: string;
+          needs_survey: boolean;
           task_message: string;
         };
         Insert: {
@@ -66,6 +67,7 @@ export type Database = {
           is_active?: boolean;
           is_group_task?: boolean;
           name?: string;
+          needs_survey?: boolean;
           task_message?: string;
         };
         Update: {
@@ -76,6 +78,7 @@ export type Database = {
           is_active?: boolean;
           is_group_task?: boolean;
           name?: string;
+          needs_survey?: boolean;
           task_message?: string;
         };
         Relationships: [];
