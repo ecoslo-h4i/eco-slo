@@ -312,7 +312,6 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
         placeholder="Search for tree fields..."
         query={searchQuery}
         onQueryChange={setSearchQuery}
-        placeholder="Search by ECOSLO #, species, address, adopter..."
         searchDelay={QUERY_DELAY}
         searchFunction={(query: string) => {
           const trimmedQuery = query.trimStart();

@@ -40,7 +40,7 @@ export function TasksControlPanel(props: TasksControlPanelProps) {
             <div className="flex flex-col gap-4 w-full xl:flex-row xl:items-end">
               <div className="w-full xl:w-auto">
                 <ControlStatusPills
-                  pillClassName="w-full min-w-0 xl:w-[340px]"
+                  buttonClassName="w-full min-w-0 xl:w-[340px]"
                   activeIndex={statusActiveIndex}
                   onActiveIndexChange={setStatusActiveIndex}
                   text="Status"
