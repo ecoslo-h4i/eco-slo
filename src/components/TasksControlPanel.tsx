@@ -10,7 +10,7 @@ interface TasksControlPanelProps {
 }
 
 export function TasksControlPanel(props: TasksControlPanelProps) {
-  const CONTROL_STATUS_OPTIONS = ["All", "Done"];
+  const CONTROL_STATUS_OPTIONS = ["All", "Done", "Incomplete"];
   const ASSIGNEE_STATUS_OPTIONS = ["All Assignees"];
   const SURVEY_OPTIONS = ["All Tasks", "Surveys Needed", "Surveys Complete"];
 
@@ -40,7 +40,7 @@ export function TasksControlPanel(props: TasksControlPanelProps) {
             <div className="flex flex-col gap-4 w-full xl:flex-row xl:items-end">
               <div className="w-full xl:w-auto">
                 <ControlStatusPills
-                  buttonClassName="w-full min-w-0 xl:w-[340px]"
+                  buttonClassName="w-full min-w-0 xl:w-[250px]"
                   activeIndex={statusActiveIndex}
                   onActiveIndexChange={setStatusActiveIndex}
                   text="Status"

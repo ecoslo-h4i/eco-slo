@@ -23,7 +23,7 @@ export default function Tasks() {
       id: 2,
       assignees: [0, 0],
       completion_date: "2022-02-23 19:11:15+01",
-      title: "Weekly Watering Reminder",
+      title: "Weekly Watering Reminder true",
       message: "It's time for you to water the trees!",
       created_at: "2022-02-24 19:10:15+00",
       surveys_needed: 0,
@@ -56,7 +56,7 @@ export default function Tasks() {
       id: 5,
       assignees: [0, 0],
       completion_date: "2022-02-23 19:14:15+04",
-      title: "Weekly Watering Reminder",
+      title: "Weekly Watering Reminder true",
       message: "It's time for you to water the trees!",
       created_at: "2022-02-27 19:10:15+00",
       surveys_needed: 0,
@@ -161,7 +161,7 @@ export default function Tasks() {
 function filterTasks(tasks: TaskSchema[], status: string, surveys: string) {
   return tasks.filter((task) => {
     return (
-      (status === "All" || task.is_complete) &&
+      (status === "All" || Number(task.is_complete) ^ Number(status === "Incomplete")) &&
       (surveys === "All Tasks" || Number(surveys === "Surveys Needed") ^ Number(task.is_complete))
     );
   });
