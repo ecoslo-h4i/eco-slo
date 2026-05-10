@@ -1,5 +1,6 @@
 "use client";
 
+import Fuse from "fuse.js";
 import { useEffect, useState } from "react";
 import { TaskSchema } from "@/components/data-table/table-widget-defs";
 import { TaskCard } from "@/components/TaskCard";
@@ -53,6 +54,7 @@ export default function Tasks() {
 
   const [status, setStatus] = useState("All");
   const [surveys, setSurveys] = useState("All Tasks");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [tasks, setTasks] = useState<TaskSchemaWithNames[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +81,7 @@ export default function Tasks() {
   }, []);
 
   const allAssignees = ["All", ...new Set(tasks.map((task) => task.names).flat())];
-  const filteredTasks = filterTasks(tasks, status, surveys, assignees);
+  const filteredTasks = filterTasks(tasks, status, surveys, assignees, searchQuery);
 
   return (
     <main className="flex-1 min-w-0 bg-[#f6f2ec]">
@@ -95,7 +97,7 @@ export default function Tasks() {
             <TasksControlPanel
               setStatusFunction={setStatus}
               setSurveyFunction={setSurveys}
-              searchFunction={() => console.log("placeholder")}
+              searchFunction={setSearchQuery}
               assignees={allAssignees}
               setAssigneesFunction={setAssignees}
               selectedAssignees={assignees}
@@ -121,10 +123,16 @@ export default function Tasks() {
   );
 }
 
-function filterTasks(tasks: TaskSchemaWithNames[], status: string, surveys: string, assignees: string[]) {
+function filterTasks(
+  tasks: TaskSchemaWithNames[],
+  status: string,
+  surveys: string,
+  assignees: string[],
+  searchQuery: string,
+) {
   const selectedAssignees = new Set(assignees.filter((assignee) => assignee !== "All"));
 
-  return tasks.filter((task) => {
+  const filteredByControls = tasks.filter((task) => {
     const isComplete = Boolean(task.is_complete);
 
     const matchesStatus =
@@ -139,4 +147,28 @@ function filterTasks(tasks: TaskSchemaWithNames[], status: string, surveys: stri
 
     return matchesStatus && matchesSurvey && matchesAssignees;
   });
+
+  if (!searchQuery) {
+    return filteredByControls;
+  }
+  const fuse = new Fuse(filteredByControls, {
+    keys: [
+      {
+        name: "title",
+        weight: 0.4,
+      },
+      {
+        name: "message",
+        weight: 0.35,
+      },
+      {
+        name: "names",
+        weight: 0.25,
+      },
+    ],
+    threshold: 0.3,
+    ignoreLocation: true,
+  });
+
+  return fuse.search(searchQuery).map((result) => result.item);
 }
