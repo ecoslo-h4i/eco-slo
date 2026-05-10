@@ -13,9 +13,9 @@ const buttons: NavbarButtonProps[] = [
 
 export default function SideNavbar() {
   return (
-    <div className="sticky top-0 flex h-dvh w-[clamp(6.5rem,10vw,8.75rem)] min-w-[6.5rem] shrink-0 flex-col gap-[clamp(0.75rem,2.5dvh,1.5rem)] overflow-hidden bg-primary px-[clamp(0.5rem,1.4vw,1.25rem)] py-[clamp(0.75rem,2.5dvh,1.5rem)]">
-      <div className="flex flex-col items-center justify-center gap-[clamp(0.625rem,2dvh,1.25rem)]">
-        <div className="flex aspect-square w-[clamp(3.5rem,12dvh,6.125rem)] max-w-full items-center justify-center">
+    <div className="flex flex-col min-h-screen w-35 bg-primary py-6 px-5 gap-6">
+      <div className="flex flex-col items-center justify-center gap-5">
+        <div className="w-24.5 h-24.5 flex items-center justify-center">
           <Image
             src="/icons/ecoslo-logo.png"
             width={98}
@@ -26,12 +26,12 @@ export default function SideNavbar() {
         </div>
         <a
           href="/login"
-          className="flex h-[clamp(1.75rem,5dvh,2.4375rem)] w-full max-w-28 cursor-pointer text-center items-center justify-center rounded-full bg-white px-[clamp(0.75rem,2dvh,1rem)] py-0 font-avenir text-[clamp(0.75rem,1.8dvh,0.875rem)] font-normal text-black transition-colors duration-200 hover:bg-gray-200"
+          className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
         >
           <span>Log out</span>
         </a>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-evenly gap-[clamp(0.25rem,1.5dvh,1rem)]">
+      <div className="flex flex-grow flex-col items-center gap-4">
         {buttons.map((button) => (
           <NavbarButton key={button.label} {...button} />
         ))}
