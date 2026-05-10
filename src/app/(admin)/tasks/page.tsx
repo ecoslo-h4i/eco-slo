@@ -11,6 +11,10 @@ type AdminTasksResponse = {
   error?: string;
 };
 
+interface TaskSchemaWithNames extends TaskSchema {
+  names: string[];
+}
+
 export async function getTasks() {
   const response = await fetch("/api/admin/tasks");
   const payload = (await response.json()) as AdminTasksResponse;
@@ -20,8 +24,28 @@ export async function getTasks() {
   }
 
   if (!Array.isArray(payload.message)) return [];
+  const result: TaskSchemaWithNames[] = await Promise.all(payload.message.map(async (row) => reMapAssignees(row)));
+  return result;
+}
 
-  return payload.message;
+async function reMapAssignees(row: Database["public"]["Tables"]["tasks"]["Row"]) {
+  if (row.assignees) {
+    const requests = row.assignees.map(async (assignee) => {
+      const response = await fetch("api/admin/members/" + assignee)
+        .then((response) => response.json())
+        .then((response) => response.data.firstname + " " + response.data.lastname);
+      return response;
+    });
+    const result = await Promise.all(requests);
+    return {
+      ...row,
+      names: result,
+    };
+  }
+  return {
+    ...row,
+    names: [],
+  };
 }
 
 export default function Tasks() {
@@ -30,8 +54,9 @@ export default function Tasks() {
   const [status, setStatus] = useState("All");
   const [surveys, setSurveys] = useState("All Tasks");
 
-  const [realTasks, setRealTasks] = useState<TaskSchema[]>([]);
+  const [tasks, setTasks] = useState<TaskSchemaWithNames[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [assignees, setAssignees] = useState<string[]>([]);
   useEffect(() => {
     let mounted = true;
 
@@ -39,7 +64,7 @@ export default function Tasks() {
       try {
         const data = await getTasks();
         if (mounted) {
-          setRealTasks(data);
+          setTasks(data);
           setError(null);
         }
       } catch (err) {
@@ -53,7 +78,9 @@ export default function Tasks() {
     };
   }, []);
 
-  const filteredTasks = filterTasks(realTasks, status, surveys);
+  const allAssignees = ["All", ...new Set(tasks.map((task) => task.names).flat())];
+  const filteredTasks = filterTasks(tasks, status, surveys, assignees);
+
   return (
     <main className="flex-1 min-w-0 bg-[#f6f2ec]">
       {error ? (
@@ -69,6 +96,9 @@ export default function Tasks() {
               setStatusFunction={setStatus}
               setSurveyFunction={setSurveys}
               searchFunction={() => console.log("placeholder")}
+              assignees={allAssignees}
+              setAssigneesFunction={setAssignees}
+              selectedAssignees={assignees}
             />
           </div>
 
@@ -91,11 +121,22 @@ export default function Tasks() {
   );
 }
 
-function filterTasks(tasks: TaskSchema[], status: string, surveys: string) {
+function filterTasks(tasks: TaskSchemaWithNames[], status: string, surveys: string, assignees: string[]) {
+  const selectedAssignees = new Set(assignees.filter((assignee) => assignee !== "All"));
+
   return tasks.filter((task) => {
-    return (
-      (status === "All" || Number(task.is_complete) ^ Number(status === "Incomplete")) &&
-      (surveys === "All Tasks" || Number(surveys === "Surveys Needed") ^ Number(task.is_complete))
-    );
+    const isComplete = Boolean(task.is_complete);
+
+    const matchesStatus =
+      status === "All" || (status === "Done" && isComplete) || (status === "Incomplete" && !isComplete);
+
+    const matchesSurvey =
+      surveys === "All Tasks" ||
+      (surveys === "Surveys Needed" && !isComplete) ||
+      (surveys === "Surveys Complete" && isComplete);
+
+    const matchesAssignees = selectedAssignees.size === 0 || task.names.some((name) => selectedAssignees.has(name));
+
+    return matchesStatus && matchesSurvey && matchesAssignees;
   });
 }
