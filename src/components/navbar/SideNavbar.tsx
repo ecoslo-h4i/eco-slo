@@ -82,7 +82,7 @@ export default function SideNavbar() {
   const overflowButtons = useMemo(() => buttons.slice(visibleButtonCount), [visibleButtonCount]);
 
   return (
-    <div className="flex h-screen w-35 flex-col gap-6 bg-primary px-5 py-6 sticky top-0">
+    <div className="sticky top-0 z-60 flex h-screen w-35 flex-col gap-6 bg-primary px-5 py-6">
       <div className="flex flex-col items-center justify-center gap-5">
         <div className="w-24.5 h-24.5 flex items-center justify-center">
           <Image
@@ -107,7 +107,7 @@ export default function SideNavbar() {
         {overflowButtons.length > 0 && (
           <div ref={moreMenuRef} className="relative">
             {isMoreOpen && (
-              <div className="fixed bottom-6 left-35 z-50 ml-3 flex max-h-[calc(100dvh-48px)] flex-col gap-4 overflow-y-auto rounded-2xl border border-white/20 bg-primary p-3">
+              <div className="fixed bottom-6 left-35 z-60 ml-3 flex max-h-[calc(100dvh-48px)] flex-col gap-4 overflow-y-auto rounded-2xl border border-white/20 bg-primary p-3">
                 {overflowButtons.map((button) => (
                   <NavbarButton key={button.label} {...button} />
                 ))}
