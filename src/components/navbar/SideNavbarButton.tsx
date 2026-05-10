@@ -1,14 +1,16 @@
 export interface NavbarButtonProps {
   icon: string;
   label: string;
-  link: string;
+  link?: string;
+  onClick?: () => void;
 }
 
-export default function SideNavbarButton({ icon, label, link }: NavbarButtonProps) {
+export default function SideNavbarButton({ icon, label, link, onClick }: NavbarButtonProps) {
   return (
     <a
       href={link}
       className="flex flex-col items-center justify-center gap-2 w-24 h-22 p-2 rounded-2xl hover:bg-primary-extra-light/50 transition-colors duration-200 cursor-pointer"
+      onClick={onClick}
     >
       <div className="w-[45px] h-[45px] p-[3px] flex flex-col items-center justify-center ">
         <img src={icon} alt={label} className="w-full h-full aspect-square" />
