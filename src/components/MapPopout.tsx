@@ -207,33 +207,36 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
                 <h2 className="text-[24px] font-semibold">Report an Issue</h2>
                 <p className="mt-1 text-sm text-slate-600">Tell us what&apos;s wrong with this tree.</p>
               </div>
-              <button
-                type="button"
-                onClick={closeReportModal}
-                aria-label="Close report form"
-                className="flex h-6 w-6 items-center justify-center text-[12px] leading-none text-black/70 cursor-pointer font-semibold transition-all duration-200 hover:text-black/60"
-              >
-                ✕
-              </button>
               <div className="space-y-4">
-                <label className="block">
-                  <span className="text-sm font-semibold">Message</span>
-                  <textarea
-                    value={message}
-                    onChange={(event) => setMessage(event.target.value)}
-                    rows={5}
-                    className="mt-2 w-full resize-none rounded-2xl border border-slate-300 bg-slate-50 p-4 text-sm shadow-sm outline-none transition focus:border-[#758656] focus:ring-2 focus:ring-[#758656]/20"
-                    placeholder="Let us know what's wrong with this tree"
-                  />
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-semibold" htmlFor="report-message">
+                    Message
+                  </label>
+                  <button
+                    type="button"
+                    onClick={closeReportModal}
+                    aria-label="Close report form"
+                    className="flex h-6 w-6 items-center justify-center text-[16px] leading-none text-black/70 cursor-pointer font-semibold transition-all duration-200 hover:text-black/60"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <textarea
+                  id="report-message"
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  rows={5}
+                  className="mt-2 w-full resize-none rounded-2xl border border-slate-300 bg-slate-50 p-4 text-sm shadow-sm outline-none transition focus:border-[#758656] focus:ring-2 focus:ring-[#758656]/20"
+                  placeholder="Let us know what's wrong with this tree"
+                />
                 <div className="grid gap-4 md:grid-cols-2">
                   <label className="block">
-                    <span className="text-sm font-semibold">Your Name</span>
+                    <span className="text-sm font-semibold">Your Name (optional)</span>
                     <input
                       type="text"
                       value={reporterName}
                       onChange={(event) => setReporterName(event.target.value)}
-                      className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 p-4 text-sm shadow-sm outline-none transition focus:border-[#758656] focus:ring-2 focus:ring-[#758656]/20"
+                      className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 p-3 text-sm shadow-sm outline-none transition focus:border-[#758656] focus:ring-2 focus:ring-[#758656]/20 cursor-text"
                       placeholder="Enter your name"
                     />
                   </label>
@@ -264,14 +267,14 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
                   <button
                     type="button"
                     onClick={closeReportModal}
-                    className="rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
+                    className="rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    className="rounded-full bg-[#758656] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#6c7d4c] disabled:cursor-not-allowed disabled:bg-slate-300"
+                    className="rounded-full bg-[#758656] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#6c7d4c] disabled:cursor-not-allowed disabled:bg-slate-300 cursor-pointer"
                   >
                     {isSubmitting ? "Submitting..." : "Submit"}
                   </button>
