@@ -2,11 +2,13 @@
 import { TreeSchema } from "@/components/data-table/table-widget-defs";
 import { Tables } from "@/database/database.types";
 import { supabase } from "@/supabase-client";
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type treeDetailsPopoutProps = {
   tree?: TreeSchema;
   admin: boolean;
+  onClose?: () => void;
 };
 
 type Member = Tables<"members">;
@@ -178,7 +180,20 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
       className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/40 p-6"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex w-[620px] max-h-[88vh] max-w-full flex-col items-center overflow-hidden rounded-2xl bg-[#f4ede2] p-[32px] pb-[0px] drop-shadow-xl">
+      <div className="relative flex w-[620px] max-h-[88vh] max-w-full flex-col items-center overflow-hidden rounded-2xl bg-[#f4ede2] p-[32px] pb-[0px] drop-shadow-xl">
+        {props.onClose ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              props.onClose?.();
+            }}
+            className="absolute top-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-black/20 bg-white/90 text-neutral-700 shadow-sm transition hover:bg-white hover:text-neutral-900"
+            aria-label="Close tree details"
+          >
+            <X className="h-4 w-4" strokeWidth={2} />
+          </button>
+        ) : null}
         {/* Header */}
         <div className="flex flex-col items-center">
           <h1 className="text-[32px] font-serif">#{source.ecoslo_num} Tree Details</h1>

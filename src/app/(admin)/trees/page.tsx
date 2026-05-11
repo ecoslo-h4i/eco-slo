@@ -20,6 +20,7 @@ export default function Trees() {
           key={currentTree != null ? String(currentTree.id) : "closed"}
           admin={true}
           tree={currentTree != null ? currentTree : undefined}
+          onClose={() => setCurrentTree(null)}
         />
       </div>
       <div className="flex flex-col gap-y-8 px-6 py-10">
