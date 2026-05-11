@@ -174,7 +174,10 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
     { title: "Yearly Mulching Status:", info: display(source.yearly_mulching_status) },
   ];
   return (
-    <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/40 p-6">
+    <div
+      className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/40 p-6"
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="flex w-[620px] max-h-[88vh] max-w-full flex-col items-center overflow-hidden rounded-2xl bg-[#f4ede2] p-[32px] pb-[0px] drop-shadow-xl">
         {/* Header */}
         <div className="flex flex-col items-center">
@@ -232,6 +235,10 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
                       <p>Other: {display(body.issueOther)}</p>
                       <p>Image Link: {display(body.imageLink)}</p>
                       <p>Admin Contact: {display(body.adminContact)}</p>
+                      <div className="mt-1 max-h-40 overflow-y-auto whitespace-pre-wrap break-words">
+                        <p className="font-semibold text-black/80">Survey notes</p>
+                        <p>{display(body.notes)}</p>
+                      </div>
                     </div>
                   );
                 })}

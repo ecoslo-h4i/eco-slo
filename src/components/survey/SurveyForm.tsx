@@ -9,10 +9,12 @@ import {
 } from "@/types/survey";
 import { useCallback, useEffect, useState } from "react";
 import AdminContactSection from "./AdminContactSection";
+import FormSection from "./FormSection";
 import ImageLinkSection from "./ImageLinkSection";
 import IssueSection from "./IssueSection";
 import TaskSelectSection from "./TaskSelectSection";
 import TreeSelectSection from "./TreeSelectSection";
+import { surveyFieldClass, surveyLabelClass } from "./formStyles";
 
 const DEFAULT_ISSUE: SurveyIssueValue = "watering";
 
@@ -37,6 +39,7 @@ export default function SurveyForm() {
   const [issue, setIssueState] = useState<SurveyIssueValue>(DEFAULT_ISSUE);
   const [issueOther, setIssueOther] = useState("");
   const [imageLink, setImageLink] = useState("");
+  const [notes, setNotes] = useState("");
   const [adminContact, setAdminContact] = useState(false);
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -100,6 +103,7 @@ export default function SurveyForm() {
       issueOther,
       imageLink,
       adminContact,
+      notes,
     });
 
     const payload = {
@@ -170,6 +174,23 @@ export default function SurveyForm() {
       />
 
       <ImageLinkSection value={imageLink} onChange={setImageLink} disabled={submitting} error={fieldErrors.imageLink} />
+
+      <FormSection title="Notes" titleId="survey-heading-notes">
+        <div>
+          <label htmlFor="survey-notes" className={surveyLabelClass}>
+            Additional information (optional)
+          </label>
+          <textarea
+            id="survey-notes"
+            rows={6}
+            className={`${surveyFieldClass} min-h-[140px] resize-y`}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            disabled={submitting}
+            placeholder="Anything else we should know…"
+          />
+        </div>
+      </FormSection>
 
       <AdminContactSection value={adminContact} onChange={setAdminContact} disabled={submitting} />
 
