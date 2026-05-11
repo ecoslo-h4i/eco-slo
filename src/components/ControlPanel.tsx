@@ -62,7 +62,7 @@ interface ControlButtonInterface {
   function: () => void;
 }
 
-function ControlButton(props: ControlButtonInterface) {
+export function ControlButton(props: ControlButtonInterface) {
   const [hovering, setHovering] = useState(false);
 
   return (
@@ -149,7 +149,7 @@ interface ControlFilterDropdownInterface {
   delayFunction: (filter: string) => void;
 }
 
-function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
+export function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   const [isOpen, setIsOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
