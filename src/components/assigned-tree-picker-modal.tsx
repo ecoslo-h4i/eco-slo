@@ -11,7 +11,7 @@ export type AssignableTree = {
   species_name?: string | null;
 };
 
-type VolunteerAssignedTreePickerModalProps = {
+type AssignedTreePickerModalProps = {
   assignedTreeEcosloNumbers: number[];
   isLoading: boolean;
   onOpenChange: (open: boolean) => void;
@@ -27,14 +27,14 @@ function getTreeDisplayName(tree: AssignableTree) {
   return `${speciesName} | ${commonName}`;
 }
 
-export default function VolunteerAssignedTreePickerModal({
+export default function AssignedTreePickerModal({
   assignedTreeEcosloNumbers,
   isLoading,
   onOpenChange,
   onSelectTree,
   open,
   trees,
-}: VolunteerAssignedTreePickerModalProps) {
+}: AssignedTreePickerModalProps) {
   const assignedTreeSet = useMemo(() => new Set(assignedTreeEcosloNumbers), [assignedTreeEcosloNumbers]);
 
   return (
@@ -45,7 +45,7 @@ export default function VolunteerAssignedTreePickerModal({
         showCloseButton={false}
         widthClassName="w-full max-w-xl"
       >
-        <VolunteerAssignedTreePickerModalBody
+        <AssignedTreePickerModalBody
           assignedTreeSet={assignedTreeSet}
           isLoading={isLoading}
           onOpenChange={onOpenChange}
@@ -57,7 +57,7 @@ export default function VolunteerAssignedTreePickerModal({
   );
 }
 
-type VolunteerAssignedTreePickerModalBodyProps = {
+type AssignedTreePickerModalBodyProps = {
   assignedTreeSet: Set<number>;
   isLoading: boolean;
   onOpenChange: (open: boolean) => void;
@@ -65,13 +65,13 @@ type VolunteerAssignedTreePickerModalBodyProps = {
   trees: AssignableTree[];
 };
 
-function VolunteerAssignedTreePickerModalBody({
+function AssignedTreePickerModalBody({
   assignedTreeSet,
   isLoading,
   onOpenChange,
   onSelectTree,
   trees,
-}: VolunteerAssignedTreePickerModalBodyProps) {
+}: AssignedTreePickerModalBodyProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const fuse = useMemo(
     () =>
