@@ -27,13 +27,13 @@ export async function getAdminMembers() {
   }));
 }
 
-function TreePageTableWidget({
+function MemberPageTableWidget({
   className,
   onRowClick,
   onTableReady,
 }: {
   className?: string;
-  onRowClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, tree: MemberSchema) => void;
+  onRowClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, member: MemberSchema) => void;
   onTableReady?: (table: Table<MemberSchema>) => void;
 }) {
   const [members, setMembers] = useState<MemberSchema[]>([]);
@@ -81,4 +81,4 @@ function TreePageTableWidget({
   );
 }
 
-export default TreePageTableWidget;
+export default MemberPageTableWidget;
