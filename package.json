@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@react-email/render": "^2.0.7",
-    "@supabase-js/source": "github:supabase/supabase-js",
-    "@supabase/supabase-js": "^2.89.0",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.105.4",
     "dotenv": "^17.2.3",
     "env": "^0.0.2",
     "fuse.js": "^7.3.0",

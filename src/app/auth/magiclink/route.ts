@@ -38,9 +38,10 @@ export async function POST(request: NextRequest) {
     }
 
     const { data: resendData, error: resendError } = await resend.emails.send({
+      // TODO: replace "from" line with ECOSLO's email once we get their domain
       from: "onboarding@resend.dev",
       to: [email],
-      subject: "EcoSLO Sign In",
+      subject: "ECOSLO Sign In",
       react: EmailTemplate({ redirectTo: data.properties.action_link }),
     });
 
