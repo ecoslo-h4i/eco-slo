@@ -1,22 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { ControlFilterDropdown, ControlSearch, ControlStatusPills } from "@/components/ControlPanel";
+import { Check, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
 
 interface TasksControlPanelProps {
   setStatusFunction: (status: string) => void;
   setSurveyFunction: (survey: string) => void;
+  setAssigneesFunction: (assignees: string[]) => void;
   searchFunction: (query: string) => void;
+  assignees: string[];
+  selectedAssignees: string[];
 }
 
 export function TasksControlPanel(props: TasksControlPanelProps) {
-  const CONTROL_STATUS_OPTIONS = ["All", "Done"];
-  const ASSIGNEE_STATUS_OPTIONS = ["All Assignees"];
+  const CONTROL_STATUS_OPTIONS = ["All", "Done", "Incomplete"];
+  const ASSIGNEE_STATUS_OPTIONS = props.assignees;
   const SURVEY_OPTIONS = ["All Tasks", "Surveys Needed", "Surveys Complete"];
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusActiveIndex, setStatusActiveIndex] = useState(0);
-  const [assigneesActiveIndex, setAssigneesActiveIndex] = useState(0);
   const [surveysActiveIndex, setSurveyActiveIndex] = useState(0);
 
   const QUERY_DELAY = 0;
@@ -40,7 +51,7 @@ export function TasksControlPanel(props: TasksControlPanelProps) {
             <div className="flex flex-col gap-4 w-full xl:flex-row xl:items-end">
               <div className="w-full xl:w-auto">
                 <ControlStatusPills
-                  buttonClassName="w-full min-w-0 xl:w-[340px]"
+                  buttonClassName="w-full min-w-0 xl:w-[250px]"
                   activeIndex={statusActiveIndex}
                   onActiveIndexChange={setStatusActiveIndex}
                   text="Status"
@@ -51,16 +62,15 @@ export function TasksControlPanel(props: TasksControlPanelProps) {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 w-full min-w-0">
-                <ControlFilterDropdown
-                  triggerClassName="w-full min-w-0 sm:flex-1 xl:w-[320px]"
-                  label="Assignee"
-                  activeIndex={assigneesActiveIndex}
-                  onActiveIndexChange={setAssigneesActiveIndex}
-                  dropDown={ASSIGNEE_STATUS_OPTIONS}
-                  delay={QUERY_DELAY}
-                  delayFunction={() => console.log("PlaceHolder")}
+                <Select
+                  className="w-full min-w-0 sm:flex-1 xl:w-[320px]"
+                  triggerClassName="w-full min-w-0"
+                  label="Assignees"
+                  options={ASSIGNEE_STATUS_OPTIONS}
+                  selectedItems={props.selectedAssignees}
+                  onSelectedItemsChange={props.setAssigneesFunction}
+                  checkedIcon={<Check className="h-4 w-4" />}
                 />
-
                 <ControlFilterDropdown
                   triggerClassName="w-full min-w-0 sm:flex-1 xl:w-[320px]"
                   label="Surveys"
@@ -75,6 +85,97 @@ export function TasksControlPanel(props: TasksControlPanelProps) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+interface SelectProps {
+  className?: string;
+  triggerClassName?: string;
+  label: string;
+  checkedIcon?: ReactNode;
+  options: string[];
+  selectedItems: string[];
+  onSelectedItemsChange: (items: string[]) => void;
+}
+
+function Select(props: SelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const options = props.options.filter((option, index, list) => option !== "All" && list.indexOf(option) === index);
+  const selectedItems = props.selectedItems.filter((item) => options.includes(item));
+  const selectedSet = new Set(selectedItems);
+
+  const toggleItem = (item: string) => {
+    const nextItems = selectedSet.has(item)
+      ? selectedItems.filter((selected) => selected !== item)
+      : [...selectedItems, item];
+
+    props.onSelectedItemsChange(nextItems);
+  };
+
+  const clearSelection = () => {
+    props.onSelectedItemsChange([]);
+  };
+
+  const triggerText =
+    selectedItems.length === 0
+      ? "All"
+      : selectedItems.length <= 2
+        ? selectedItems.join(", ")
+        : `${selectedItems.length} selected`;
+
+  return (
+    <div className={`flex flex-col gap-2 select-none ${props.className ?? ""}`}>
+      <h2 className="text-text-muted font-semibold">{props.label}</h2>
+
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger
+          className={`px-4 py-1.5 flex justify-between items-center bg-button-light border border-border text-text-dark rounded-full hover:bg-button-light/80 transition-colors duration-50 ${
+            props.triggerClassName ?? "w-32 lg:w-64"
+          }`}
+        >
+          <span className="font-medium truncate">{triggerText}</span>
+
+          <ChevronDown
+            className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          />
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent
+          align="start"
+          className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-72 overflow-y-auto"
+        >
+          <DropdownMenuCheckboxItem
+            className="font-medium"
+            checked={selectedItems.length === 0}
+            checkedIcon={props.checkedIcon}
+            onSelect={(event) => event.preventDefault()}
+            onCheckedChange={clearSelection}
+          >
+            All
+          </DropdownMenuCheckboxItem>
+
+          <DropdownMenuSeparator />
+
+          {options.length === 0 ? (
+            <DropdownMenuItem disabled>No assignees</DropdownMenuItem>
+          ) : (
+            options.map((option) => (
+              <DropdownMenuCheckboxItem
+                key={option}
+                className="font-medium"
+                checked={selectedSet.has(option)}
+                checkedIcon={props.checkedIcon}
+                onSelect={(event) => event.preventDefault()}
+                onCheckedChange={() => toggleItem(option)}
+              >
+                {option}
+              </DropdownMenuCheckboxItem>
+            ))
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
