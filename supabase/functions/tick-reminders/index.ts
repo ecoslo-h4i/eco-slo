@@ -1,5 +1,5 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { computeNextRunAt } from "../_shared/cron.js";
+import { getNextCronOccurrence } from "../_shared/cron.ts";
 
 Deno.serve(async () => {
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
@@ -19,7 +19,7 @@ Deno.serve(async () => {
   let failed = 0;
   for (const r of due ?? []) {
     try {
-      const nextRunAt = computeNextRunAt(r.crons_expression); // PST-aware
+      const nextRunAt = getNextCronOccurrence(r.crons_expression); // PST-aware
       const { error: rpcError } = await supabase.rpc("fire_reminder", {
         p_reminder_id: r.id,
         p_next_run_at: nextRunAt.toISOString(),
