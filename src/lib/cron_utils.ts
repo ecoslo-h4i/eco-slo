@@ -48,6 +48,65 @@ const MONTH_NAMES = [
 ] as const;
 const DEFAULT_TIME: CronTimeInput = { hour: 8, minute: 0 };
 
+/**
+ * All cron evaluation is anchored to Pacific time so that schedules behave
+ * identically regardless of where this code runs (browser in any timezone,
+ * Vercel server in UTC, Supabase Edge Function in UTC, local dev in PST/PDT).
+ */
+const PACIFIC_TZ = "America/Los_Angeles";
+
+// Cached at module scope; constructing a DateTimeFormat is non-trivial.
+const PACIFIC_PARTS_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  timeZone: PACIFIC_TZ,
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  weekday: "short",
+  hourCycle: "h23",
+});
+
+const WEEKDAY_INDEX: Record<string, number> = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
+
+type PacificFields = {
+  minute: number;
+  hour: number;
+  dayOfMonth: number;
+  month: number;
+  dayOfWeek: number;
+};
+
+/**
+ * Returns the wall-clock fields of `date` as they appear in Pacific time.
+ * Handles DST automatically via the IANA database. Use this instead of
+ * `Date.prototype.getHours()` etc., which return values based on the
+ * runtime's local timezone.
+ */
+function getPacificFields(date: Date): PacificFields {
+  const parts = PACIFIC_PARTS_FORMATTER.formatToParts(date);
+  const get = (type: string): string => {
+    const part = parts.find((p) => p.type === type);
+    if (!part) throw new Error(`Missing Intl part: ${type}`);
+    return part.value;
+  };
+  return {
+    minute: parseInt(get("minute"), 10),
+    hour: parseInt(get("hour"), 10),
+    dayOfMonth: parseInt(get("day"), 10),
+    month: parseInt(get("month"), 10),
+    dayOfWeek: WEEKDAY_INDEX[get("weekday")],
+  };
+}
+
 type ParsedDayToken =
   | { type: "single"; value: number }
   | { type: "list"; values: number[] }
@@ -236,21 +295,6 @@ function parseStepToken(token: string): { base: string; step: number } | null {
   return base && rawStep && isInteger(rawStep) ? { base, step: Number(rawStep) } : null;
 }
 
-function getFieldValueForDate(field: CronFieldName, date: Date): number {
-  switch (field) {
-    case "minute":
-      return date.getMinutes();
-    case "hour":
-      return date.getHours();
-    case "dayOfMonth":
-      return date.getDate();
-    case "month":
-      return date.getMonth() + 1;
-    case "dayOfWeek":
-      return date.getDay();
-  }
-}
-
 function expandCronToken(field: CronFieldName, token: string): number[] | null {
   const { min, max, names } = FIELD_CONFIG[field];
 
@@ -304,14 +348,19 @@ function matchesCronField(field: CronFieldName, token: string, value: number): b
 }
 
 function matchesCronDate(parts: CronParts, date: Date): boolean {
-  const minuteMatches = matchesCronField("minute", parts.minute, getFieldValueForDate("minute", date));
-  const hourMatches = matchesCronField("hour", parts.hour, getFieldValueForDate("hour", date));
-  const monthMatches = matchesCronField("month", parts.month, getFieldValueForDate("month", date));
+  // Read all wall-clock fields once in Pacific time. Using
+  // getPacificFields here is what makes cron evaluation timezone-correct
+  // when this runs on a non-Pacific host (Vercel/UTC, Supabase/UTC).
+  const fields = getPacificFields(date);
+
+  const minuteMatches = matchesCronField("minute", parts.minute, fields.minute);
+  const hourMatches = matchesCronField("hour", parts.hour, fields.hour);
+  const monthMatches = matchesCronField("month", parts.month, fields.month);
 
   if (!minuteMatches || !hourMatches || !monthMatches) return false;
 
-  const dayOfMonthMatches = matchesCronField("dayOfMonth", parts.dayOfMonth, getFieldValueForDate("dayOfMonth", date));
-  const dayOfWeekMatches = matchesCronField("dayOfWeek", parts.dayOfWeek, getFieldValueForDate("dayOfWeek", date));
+  const dayOfMonthMatches = matchesCronField("dayOfMonth", parts.dayOfMonth, fields.dayOfMonth);
+  const dayOfWeekMatches = matchesCronField("dayOfWeek", parts.dayOfWeek, fields.dayOfWeek);
   const restrictsDayOfMonth = !isWildcard(parts.dayOfMonth);
   const restrictsDayOfWeek = !isWildcard(parts.dayOfWeek);
 
@@ -412,19 +461,38 @@ export function parseCronExpression(expression: string): CronParts {
   return { minute, hour, dayOfMonth, month, dayOfWeek };
 }
 
-/** Returns the next local Date that matches a supported 5-field cron expression. */
+/**
+ * Returns the next Date strictly after `fromDate` whose Pacific wall-clock
+ * fields match the given 5-field cron expression.
+ *
+ * DST behavior in America/Los_Angeles:
+ * - Spring forward (1:59am PST → 3:00am PDT): wall-clock times in
+ *   2:00am–2:59am do not exist that day. A cron matching that range
+ *   skips the affected day and fires on the next valid occurrence.
+ * - Fall back (1:59am PDT → 1:00am PST): wall-clock times in 1:00am–1:59am
+ *   occur twice. A cron matching that range will fire at BOTH occurrences,
+ *   one hour apart in absolute time. For human-facing reminders this means
+ *   a once-yearly duplicate notification on the fall-back Sunday.
+ */
 export function getNextCronOccurrence(expression: string, fromDate: Date = new Date()): Date {
   const parts = parseCronExpression(expression);
-  const next = new Date(fromDate);
 
-  next.setSeconds(0, 0);
-  next.setMinutes(next.getMinutes() + 1);
+  // Floor to the start of the current UTC minute, then advance by one minute.
+  // Pure timestamp arithmetic only — we deliberately avoid Date methods like
+  // setSeconds/setMinutes here. Those operate on LOCAL fields, which has two
+  // problems: (a) on a UTC host, "local" means UTC and cron fields would not
+  // be interpreted in Pacific; (b) on a Pacific host, ambiguous local times
+  // during the fall-back hour cause setSeconds to silently shift the
+  // underlying timestamp by an hour.
+  let timestampMs = Math.floor(fromDate.getTime() / 60_000) * 60_000 + 60_000;
+  const next = new Date(timestampMs);
 
   const MAX_MINUTE_LOOKAHEAD = 60 * 24 * 366 * 5;
 
   for (let i = 0; i < MAX_MINUTE_LOOKAHEAD; i += 1) {
     if (matchesCronDate(parts, next)) return new Date(next);
-    next.setMinutes(next.getMinutes() + 1);
+    timestampMs += 60_000;
+    next.setTime(timestampMs);
   }
 
   throw new Error(`Could not find next occurrence for cron expression within 5 years: "${expression}"`);
