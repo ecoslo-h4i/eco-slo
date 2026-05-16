@@ -24,6 +24,8 @@ export type SurveyBodyPayload = {
   /** URL string only; binary images are not stored. */
   imageLink: string;
   adminContact: boolean;
+  /** Free-form notes from the submitter (may be long). */
+  notes: string;
 };
 
 export const SURVEY_ISSUE_OPTIONS = [
@@ -51,6 +53,7 @@ export function buildSurveyBodyPayload(input: {
   issueOther: string;
   imageLink: string;
   adminContact: boolean;
+  notes: string;
 }): SurveyBodyPayload {
   const other = input.issueOther.trim();
   return {
@@ -58,6 +61,7 @@ export function buildSurveyBodyPayload(input: {
     ...(input.issue === "other" && other ? { issueOther: other } : {}),
     imageLink: input.imageLink.trim(),
     adminContact: input.adminContact,
+    notes: input.notes.trim(),
   };
 }
 
