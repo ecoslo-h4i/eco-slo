@@ -55,8 +55,10 @@ export type Database = {
           id: number;
           is_active: boolean;
           is_group_task: boolean;
+          last_run_at: string | null;
           name: string;
           needs_survey: boolean;
+          next_run_at: string;
           task_message: string;
         };
         Insert: {
@@ -66,8 +68,10 @@ export type Database = {
           id?: number;
           is_active?: boolean;
           is_group_task?: boolean;
+          last_run_at?: string | null;
           name?: string;
           needs_survey?: boolean;
+          next_run_at: string;
           task_message?: string;
         };
         Update: {
@@ -77,8 +81,10 @@ export type Database = {
           id?: number;
           is_active?: boolean;
           is_group_task?: boolean;
+          last_run_at?: string | null;
           name?: string;
           needs_survey?: boolean;
+          next_run_at?: string;
           task_message?: string;
         };
         Relationships: [];
@@ -128,9 +134,13 @@ export type Database = {
           completion_date: string | null;
           created_at: string;
           created_by: number | null;
+          email_attempts: number;
+          email_last_error: string | null;
+          email_sent_at: string | null;
           id: number;
           is_complete: boolean;
           message: string;
+          reminder_id: number | null;
           surveys_needed: number;
           title: string;
         };
@@ -139,9 +149,13 @@ export type Database = {
           completion_date?: string | null;
           created_at?: string;
           created_by?: number | null;
+          email_attempts?: number;
+          email_last_error?: string | null;
+          email_sent_at?: string | null;
           id?: number;
           is_complete?: boolean;
           message: string;
+          reminder_id?: number | null;
           surveys_needed?: number;
           title?: string;
         };
@@ -150,9 +164,13 @@ export type Database = {
           completion_date?: string | null;
           created_at?: string;
           created_by?: number | null;
+          email_attempts?: number;
+          email_last_error?: string | null;
+          email_sent_at?: string | null;
           id?: number;
           is_complete?: boolean;
           message?: string;
+          reminder_id?: number | null;
           surveys_needed?: number;
           title?: string;
         };
@@ -162,6 +180,13 @@ export type Database = {
             columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tasks_reminder_id_fkey";
+            columns: ["reminder_id"];
+            isOneToOne: false;
+            referencedRelation: "reminders";
             referencedColumns: ["id"];
           },
         ];
@@ -299,7 +324,26 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      fire_reminder: {
+        Args: { p_next_run_at: string; p_reminder_id: number };
+        Returns: undefined;
+      };
+      get_pending_email_jobs: {
+        Args: { p_limit?: number };
+        Returns: {
+          assignee_id: number;
+          email_attempts: number;
+          member_email: string;
+          member_firstname: string;
+          task_id: number;
+          task_message: string;
+          task_title: string;
+        }[];
+      };
+      increment_email_attempts: {
+        Args: { p_error: string; p_task_ids: number[] };
+        Returns: undefined;
+      };
     };
     Enums: {
       Condition: "good" | "fair" | "poor";

@@ -16,7 +16,7 @@ type Member = Tables<"members">;
 type Reminder = Tables<"reminders">;
 type Template = Tables<"templates">;
 type ReminderWithNeedsSurvey = Reminder & { needs_survey?: boolean | null };
-type ReminderInsertPayload = TablesInsert<"reminders"> & { needs_survey?: boolean }; // TODO: update database types for needs_survey
+type ReminderInsertPayload = TablesInsert<"reminders"> & { needs_survey?: boolean };
 type ReminderUpdatePayload = TablesUpdate<"reminders"> & { needs_survey?: boolean };
 const MEMBER_TYPES = ["Admin", "Tree Keeper"] as const satisfies readonly MemberEnum[];
 
@@ -385,15 +385,17 @@ function getReminderPayload(form: ReminderFormState): ReminderInsertPayload {
   }
 
   const assignees = getSelectedAssigneeIds(form.assignees);
+  const crons_expression = getCronExpressionFromForm(form);
 
   return {
     assignees,
-    crons_expression: getCronExpressionFromForm(form),
+    crons_expression: crons_expression,
     is_active: form.isActive,
     is_group_task: assignees.length > 1,
     needs_survey: form.needsSurvey,
     name: form.name.trim(),
     task_message: form.message,
+    next_run_at: getNextCronOccurrence(crons_expression).toISOString(),
   };
 }
 
