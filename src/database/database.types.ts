@@ -20,6 +20,7 @@ export type Database = {
           role: Database["public"]["Enums"]["MemberType"] | null;
           trees_assigned: number[] | null;
           trees_count: number;
+          user_id: string | null;
         };
         Insert: {
           created_at?: string;
@@ -32,6 +33,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["MemberType"] | null;
           trees_assigned?: number[] | null;
           trees_count?: number;
+          user_id?: string | null;
         };
         Update: {
           created_at?: string;
@@ -44,6 +46,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["MemberType"] | null;
           trees_assigned?: number[] | null;
           trees_count?: number;
+          user_id?: string | null;
         };
         Relationships: [];
       };
@@ -123,6 +126,13 @@ export type Database = {
             foreignKeyName: "surveys_tree_fkey";
             columns: ["tree"];
             isOneToOne: false;
+            referencedRelation: "public_trees";
+            referencedColumns: ["ecoslo_num"];
+          },
+          {
+            foreignKeyName: "surveys_tree_fkey";
+            columns: ["tree"];
+            isOneToOne: false;
             referencedRelation: "trees";
             referencedColumns: ["ecoslo_num"];
           },
@@ -180,6 +190,13 @@ export type Database = {
             columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tasks_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "public_members";
             referencedColumns: ["id"];
           },
           {
@@ -317,13 +334,73 @@ export type Database = {
             referencedRelation: "members";
             referencedColumns: ["id"];
           },
+          {
+            foreignKeyName: "trees_tree_keeper_id_fkey";
+            columns: ["tree_keeper_id"];
+            isOneToOne: false;
+            referencedRelation: "public_members";
+            referencedColumns: ["id"];
+          },
         ];
       };
     };
     Views: {
-      [_ in never]: never;
+      public_members: {
+        Row: {
+          firstname: string | null;
+          id: number | null;
+          lastname: string | null;
+        };
+        Insert: {
+          firstname?: string | null;
+          id?: number | null;
+          lastname?: string | null;
+        };
+        Update: {
+          firstname?: string | null;
+          id?: number | null;
+          lastname?: string | null;
+        };
+        Relationships: [];
+      };
+      public_trees: {
+        Row: {
+          address: string | null;
+          common_name: string | null;
+          condition: Database["public"]["Enums"]["Condition"] | null;
+          date_planted: string | null;
+          ecoslo_num: number | null;
+          id: number | null;
+          is_public: boolean | null;
+          latitude: number | null;
+          longitude: number | null;
+          notes: string | null;
+          species_name: string | null;
+          status: Database["public"]["Enums"]["TreeStatus"] | null;
+          tree_keeper_firstname: string | null;
+          tree_keeper_id: number | null;
+          tree_keeper_lastname: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "trees_tree_keeper_id_fkey";
+            columns: ["tree_keeper_id"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "trees_tree_keeper_id_fkey";
+            columns: ["tree_keeper_id"];
+            isOneToOne: false;
+            referencedRelation: "public_members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Functions: {
+      current_member_id: { Args: never; Returns: number };
       fire_reminder: {
         Args: { p_next_run_at: string; p_reminder_id: number };
         Returns: undefined;
@@ -344,6 +421,7 @@ export type Database = {
         Args: { p_error: string; p_task_ids: number[] };
         Returns: undefined;
       };
+      is_admin: { Args: never; Returns: boolean };
     };
     Enums: {
       Condition: "good" | "fair" | "poor";
