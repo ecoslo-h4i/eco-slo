@@ -1,4 +1,4 @@
-import { supabase } from "@/supabase-client";
+import { createServerLevelClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 
@@ -8,12 +8,13 @@ import { postgrestErrorToHttpStatus } from "@/database/utils";
  */
 export async function GET() {
   try {
+    const supabase = await createServerLevelClient();
     const { data, error } = await supabase
-      .from("trees")
+      .from("public_trees")
       .select("id, latitude, longitude, ecoslo_num, species_name, common_name, date_planted, tree_keeper_id");
 
     if (error) {
-      console.error("Supabase error fetching trees:", error.message);
+      console.error("Supabase error fetching public trees:", error.message);
       return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
     }
 

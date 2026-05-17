@@ -1,8 +1,7 @@
-import { supabase } from "@/supabase-client";
+import { createServerLevelClient } from "@/lib/supabase/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 import { NextRequest, NextResponse } from "next/server";
 
-// TODO: enforce auth — use createAuthenticatedClient(jwt) when auth is wired up
 // TODO: surveys — spec fields issue/needs_contact/image_link are stored inside body (jsonb), validate body shape when schema is finalized
 
 type IParams = {
@@ -13,6 +12,7 @@ type IParams = {
 
 export async function GET(req: NextRequest, { params }: IParams) {
   try {
+    const supabase = await createServerLevelClient();
     const { id } = await params;
 
     const { data, error } = await supabase.from("surveys").select("*").eq("id", id).single();
@@ -34,6 +34,7 @@ export async function GET(req: NextRequest, { params }: IParams) {
 
 export async function PUT(request: NextRequest, { params }: IParams) {
   try {
+    const supabase = await createServerLevelClient();
     const { id } = await params;
     const body = await request.json();
 
@@ -52,6 +53,7 @@ export async function PUT(request: NextRequest, { params }: IParams) {
 
 export async function DELETE(req: NextRequest, { params }: IParams) {
   try {
+    const supabase = await createServerLevelClient();
     const { id } = await params;
 
     const { data, error } = await supabase.from("surveys").delete().eq("id", id).select().single();

@@ -1,6 +1,6 @@
+import { createServerLevelClient } from "@/lib/supabase/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 import type { SurveyTaskOption } from "@/types/survey";
-import { supabase } from "@/supabase-client";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +19,7 @@ function rowToOption(row: Record<string, unknown>): SurveyTaskOption {
  * GET — task list for public selectors (`surveys.task` references `tasks.id`).
  */
 export async function GET() {
+  const supabase = await createServerLevelClient();
   try {
     const { data, error } = await supabase.from("tasks").select("*").order("id", { ascending: true });
 

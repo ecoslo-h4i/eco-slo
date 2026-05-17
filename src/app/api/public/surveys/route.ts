@@ -1,6 +1,6 @@
+import { createServerLevelClient } from "@/lib/supabase/server";
 import { Json, TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
-import { supabase } from "@/supabase-client";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +16,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createServerLevelClient();
     let body: unknown;
     try {
       body = await request.json();

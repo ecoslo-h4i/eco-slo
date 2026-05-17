@@ -1,8 +1,6 @@
-import { supabase } from "@/supabase-client";
+import { createServerLevelClient } from "@/lib/supabase/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 import { NextRequest, NextResponse } from "next/server";
-
-// TODO: enforce auth — use createAuthenticatedClient(jwt) when auth is wired up
 
 type IParams = {
   params: Promise<{
@@ -12,6 +10,7 @@ type IParams = {
 
 export async function GET(req: NextRequest, { params }: IParams) {
   try {
+    const supabase = await createServerLevelClient();
     const { id } = await params;
 
     const { data, error } = await supabase.from("templates").select("*").eq("id", id).single();
@@ -33,6 +32,7 @@ export async function GET(req: NextRequest, { params }: IParams) {
 
 export async function PUT(request: NextRequest, { params }: IParams) {
   try {
+    const supabase = await createServerLevelClient();
     const { id } = await params;
     const body = await request.json();
 
@@ -51,6 +51,7 @@ export async function PUT(request: NextRequest, { params }: IParams) {
 
 export async function DELETE(req: NextRequest, { params }: IParams) {
   try {
+    const supabase = await createServerLevelClient();
     const { id } = await params;
 
     const { data, error } = await supabase.from("templates").delete().eq("id", id).select().single();

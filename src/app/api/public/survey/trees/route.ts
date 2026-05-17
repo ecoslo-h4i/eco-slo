@@ -1,6 +1,6 @@
+import { createServerLevelClient } from "@/lib/supabase/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 import type { SurveyTreeOption } from "@/types/survey";
-import { supabase } from "@/supabase-client";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET() {
   try {
+    const supabase = await createServerLevelClient();
     const { data, error } = await supabase
       .from("trees")
       .select("ecoslo_num, common_name, species_name")

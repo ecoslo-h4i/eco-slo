@@ -1,4 +1,4 @@
-import { supabase } from "@/supabase-client";
+import { createServerLevelClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 
@@ -24,6 +24,7 @@ type IParams = {
  */
 export async function GET(_request: NextRequest, { params }: IParams) {
   try {
+    const supabase = await createServerLevelClient();
     const { id } = await params;
 
     const { data, error } = await supabase.from("members").select("*").eq("id", id).single();
@@ -60,6 +61,7 @@ export async function GET(_request: NextRequest, { params }: IParams) {
  */
 export async function PUT(request: NextRequest, { params }: IParams) {
   try {
+    const supabase = await createServerLevelClient();
     const { id } = await params;
     const body = await request.json();
 
@@ -92,6 +94,7 @@ export async function PUT(request: NextRequest, { params }: IParams) {
  */
 export async function DELETE(_request: NextRequest, { params }: IParams) {
   try {
+    const supabase = await createServerLevelClient();
     const { id } = await params;
 
     const { data, error } = await supabase.from("members").delete().eq("id", id).select().single();
