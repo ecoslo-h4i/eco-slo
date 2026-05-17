@@ -1,9 +1,11 @@
 "use client";
 import { TreeSchema } from "@/components/data-table/table-widget-defs";
 import { Tables } from "@/database/database.types";
-import { supabase } from "@/supabase-client";
+import { createUserLevelClient } from "@/lib/supabase/client";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+
+const supabase = await createUserLevelClient();
 
 type treeDetailsPopoutProps = {
   tree?: TreeSchema;
