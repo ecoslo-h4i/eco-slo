@@ -104,10 +104,12 @@ export async function POST(request: NextRequest) {
       // Same reasoning: deliverability failures shouldn't tell the
       // caller anything about whether the email was valid.
       console.error("[magiclink] resend send failed:", resendError);
+      console.log("[magiclink] DEV link for", email, ":", data.properties.action_link);
       await padTo(startMs, RESPONSE_BUDGET_MS);
       return NextResponse.json(UNIFORM_SUCCESS_RESPONSE, { status: 200 });
     }
 
+    // TODO: delete this after setting up ECOSLO email domain
     await padTo(startMs, RESPONSE_BUDGET_MS);
     return NextResponse.json(UNIFORM_SUCCESS_RESPONSE, { status: 200 });
   } catch (error) {
