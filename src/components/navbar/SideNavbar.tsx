@@ -1,45 +1,59 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import NavbarButton, { NavbarButtonProps } from "./SideNavbarButton";
 import { LogoutButton } from "../LogoutButton";
-import { useCurrentMember } from "@/hooks/useCurrentMember";
+import { useCurrentMember } from "@/hooks/useCurrentProvider";
 
-const buttons: NavbarButtonProps[] = [
-  { icon: "/icons/home.svg", label: "Dashboard", link: "/dashboard", adminOnly: false },
-  { icon: "/icons/tree.svg", label: "Trees", link: "/trees", adminOnly: false },
-  { icon: "/icons/volunteers.svg", label: "Members", link: "/members", adminOnly: false },
+// All possible feature buttons. Filtered by role at render time.
+// `adminOnly` flags entries hidden from Tree Keepers because RLS prevents
+// them from doing meaningful work on those pages (Reminders are admin-only;
+// Members would just show their own row).
+type FeatureButton = NavbarButtonProps & { adminOnly?: boolean };
+
+const allFeatureButtons: FeatureButton[] = [
+  { icon: "/icons/home.svg", label: "Dashboard", link: "/dashboard" },
+  { icon: "/icons/tree.svg", label: "Trees", link: "/trees" },
+  { icon: "/icons/volunteers.svg", label: "Members", link: "/members", adminOnly: true },
   { icon: "/icons/calendar.svg", label: "Reminders", link: "/reminders", adminOnly: true },
-  { icon: "/icons/analytics.svg", label: "Tasks", link: "/tasks", adminOnly: false },
-  { icon: "/icons/pen-paper.svg", label: "Surveys", link: "/survey", adminOnly: false },
-  { icon: "/icons/map.svg", label: "Map", link: "/map", adminOnly: false },
+  { icon: "/icons/analytics.svg", label: "Tasks", link: "/tasks" },
+  { icon: "/icons/pen-paper.svg", label: "Surveys", link: "/survey" },
+  { icon: "/icons/map.svg", label: "Map", link: "/map" },
 ];
 
 const NAV_ITEM_HEIGHT = 88;
 const NAV_ITEM_GAP = 16;
 
 export default function SideNavbar() {
+  const pathname = usePathname();
+  const { member, loading, isAdmin } = useCurrentMember();
+
   const navListRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
-  const [visibleButtonCount, setVisibleButtonCount] = useState(buttons.length);
+  const [visibleButtonCount, setVisibleButtonCount] = useState(0);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const { isAdmin } = useCurrentMember();
-  const filteredButtons: NavbarButtonProps[] = buttons.filter((button) => (!isAdmin && !button.adminOnly) || isAdmin);
 
-  // Set up resize observer that continuously updates the button view based on viewport size
+  // Compute which buttons to show based on auth + role. Memoized so the
+  // resize observer effect below doesn't re-run on every render.
+  const featureButtons = useMemo<FeatureButton[]>(() => {
+    if (!member) return [];
+    return allFeatureButtons.filter((button) => !button.adminOnly || isAdmin);
+  }, [member, isAdmin]);
+
+  // Resize observer: figure out how many buttons fit in the available space.
+  // When the list overflows, the last visible slot becomes a "More" button.
   useEffect(() => {
     const navList = navListRef.current;
-
-    if (!navList) {
-      return;
-    }
+    if (!navList) return;
 
     const updateVisibleButtonCount = () => {
       const capacity = Math.floor((navList.clientHeight + NAV_ITEM_GAP) / (NAV_ITEM_HEIGHT + NAV_ITEM_GAP));
 
-      if (capacity >= filteredButtons.length) {
-        setVisibleButtonCount(filteredButtons.length);
+      if (capacity >= featureButtons.length) {
+        setVisibleButtonCount(featureButtons.length);
         setIsMoreOpen(false);
         return;
       }
@@ -53,13 +67,11 @@ export default function SideNavbar() {
     resizeObserver.observe(navList);
 
     return () => resizeObserver.disconnect();
-  }, []);
+  }, [featureButtons.length]);
 
-  // When more menu opens, open listener for KBM events to see if user closes it
+  // Close the More menu when clicking outside or pressing Escape.
   useEffect(() => {
-    if (!isMoreOpen) {
-      return;
-    }
+    if (!isMoreOpen) return;
 
     const handlePointerDown = (event: PointerEvent) => {
       if (!moreMenuRef.current?.contains(event.target as Node)) {
@@ -68,9 +80,7 @@ export default function SideNavbar() {
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsMoreOpen(false);
-      }
+      if (event.key === "Escape") setIsMoreOpen(false);
     };
 
     document.addEventListener("pointerdown", handlePointerDown);
@@ -82,8 +92,48 @@ export default function SideNavbar() {
     };
   }, [isMoreOpen]);
 
-  const visibleButtons = useMemo(() => filteredButtons.slice(0, visibleButtonCount), [visibleButtonCount]);
-  const overflowButtons = useMemo(() => filteredButtons.slice(visibleButtonCount), [visibleButtonCount]);
+  const visibleButtons = useMemo(
+    () => featureButtons.slice(0, visibleButtonCount),
+    [featureButtons, visibleButtonCount],
+  );
+  const overflowButtons = useMemo(() => featureButtons.slice(visibleButtonCount), [featureButtons, visibleButtonCount]);
+
+  // Decide what to render in the top "action" slot — the area that holds
+  // either the Login link, the Back-to-Map link, or the Logout button.
+  const topAction = (() => {
+    // While the auth check is in flight, render nothing here. The logo
+    // above still renders, so the layout doesn't jump. Once resolved,
+    // the right button slots in.
+    if (loading) return null;
+
+    if (member) {
+      return (
+        <LogoutButton className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer" />
+      );
+    }
+
+    if (pathname === "/login") {
+      return (
+        <Link
+          href="/map"
+          className="flex items-center justify-center gap-2 bg-white text-black rounded-full w-28 h-[39px] px-3 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+        >
+          <Image src="/icons/black-map.svg" width={16} height={16} alt="" />
+          <span>Map</span>
+        </Link>
+      );
+    }
+
+    // Default for logged-out users on any other public page (notably /map).
+    return (
+      <Link
+        href="/login"
+        className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+      >
+        Login
+      </Link>
+    );
+  })();
 
   return (
     <div className="sticky top-0 z-60 flex h-screen w-35 flex-col gap-6 bg-primary px-5 py-6">
@@ -97,8 +147,9 @@ export default function SideNavbar() {
             className="h-full w-full object-contain"
           />
         </div>
-        <LogoutButton className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer" />
+        {topAction}
       </div>
+
       <div ref={navListRef} className="flex min-h-0 flex-grow flex-col items-center gap-4">
         {visibleButtons.map((button) => (
           <NavbarButton key={button.label} {...button} />

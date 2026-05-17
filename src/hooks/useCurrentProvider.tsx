@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { createUserLevelClient } from "@/lib/supabase/client";
 import type { Tables } from "@/database/database.types";
 
 type Member = Tables<"members">;
 
-interface UseCurrentMemberResult {
+interface CurrentMemberContextValue {
   member: Member | null;
   loading: boolean;
   error: Error | null;
@@ -14,17 +14,19 @@ interface UseCurrentMemberResult {
   isTreeKeeper: boolean;
 }
 
+const CurrentMemberContext = createContext<CurrentMemberContextValue | null>(null);
+
 /**
- * Fetches the current authenticated member.
+ * Provides the current authenticated member to descendant components.
  *
- * Relies on the `members_self_select` RLS policy, which allows any
- * authenticated member to read their own row (where user_id = auth.uid()).
+ * Fetched once per layout render and shared via context, so every component
+ * that calls useCurrentMember() reads from the same source instead of
+ * triggering its own fetch.
  *
- * Returns `member: null` if the user is unauthenticated or has no linked
- * members row (which shouldn't happen in normal flow — the callback page
- * signs them out if linkage is missing).
+ * Uses supabase.auth.getSession(), which reads the session locally from
+ * cookies/storage auth server. RLS still validates every data query.
  */
-export function useCurrentMember(): UseCurrentMemberResult {
+export function CurrentMemberProvider({ children }: { children: ReactNode }) {
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -35,14 +37,14 @@ export function useCurrentMember(): UseCurrentMemberResult {
 
     const fetchMember = async () => {
       const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
       if (cancelled) return;
 
-      if (userError || !user) {
+      if (sessionError || !session?.user) {
         setMember(null);
-        setError(userError ? new Error(userError.message) : null);
+        setError(sessionError ? new Error(sessionError.message) : null);
         setLoading(false);
         return;
       }
@@ -50,7 +52,7 @@ export function useCurrentMember(): UseCurrentMemberResult {
       const { data, error: queryError } = await supabase
         .from("members")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", session.user.id)
         .maybeSingle();
       if (cancelled) return;
 
@@ -66,8 +68,6 @@ export function useCurrentMember(): UseCurrentMemberResult {
 
     void fetchMember();
 
-    // Re-fetch on auth state changes so the hook stays in sync if the user
-    // signs out in another tab or the session refreshes.
     const { data: subscription } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT") {
         setMember(null);
@@ -86,11 +86,26 @@ export function useCurrentMember(): UseCurrentMemberResult {
     };
   }, []);
 
-  return {
+  const value: CurrentMemberContextValue = {
     member,
     loading,
     error,
     isAdmin: member?.role === "Admin",
     isTreeKeeper: member?.role === "Tree Keeper",
   };
+
+  return <CurrentMemberContext.Provider value={value}>{children}</CurrentMemberContext.Provider>;
+}
+
+/**
+ * Reads the current authenticated member from CurrentMemberProvider context.
+ * Must be used inside a tree wrapped by CurrentMemberProvider; throws
+ * otherwise to make missing-provider bugs loud at development time.
+ */
+export function useCurrentMember(): CurrentMemberContextValue {
+  const context = useContext(CurrentMemberContext);
+  if (context === null) {
+    throw new Error("useCurrentMember must be used within a CurrentMemberProvider");
+  }
+  return context;
 }

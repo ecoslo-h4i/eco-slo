@@ -6,7 +6,7 @@ import { useState } from "react";
 import NotificationWidget from "@/components/notifications/NotificationWidget";
 import TreeDashboardWidget from "@/components/TreeDashboardWidget";
 import { ReminderWidget, VolunteerWidget } from "@/components/SimpleDashboardWidget";
-import { useCurrentMember } from "@/hooks/useCurrentMember";
+import { useCurrentMember } from "@/hooks/useCurrentProvider";
 
 // TODO: This is just for testing/development, remove once backend integration is finished
 function createNotificationList() {
