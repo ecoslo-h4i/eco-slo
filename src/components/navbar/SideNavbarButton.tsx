@@ -2,6 +2,7 @@ export interface NavbarButtonProps {
   icon: string;
   label: string;
   link?: string;
+  adminOnly?: boolean;
   onClick?: () => void;
 }
 

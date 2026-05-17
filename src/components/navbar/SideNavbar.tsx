@@ -4,15 +4,16 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import NavbarButton, { NavbarButtonProps } from "./SideNavbarButton";
 import { LogoutButton } from "../LogoutButton";
+import { useCurrentMember } from "@/hooks/useCurrentMember";
 
 const buttons: NavbarButtonProps[] = [
-  { icon: "/icons/home.svg", label: "Dashboard", link: "/dashboard" },
-  { icon: "/icons/tree.svg", label: "Trees", link: "/trees" },
-  { icon: "/icons/volunteers.svg", label: "Members", link: "/members" },
-  { icon: "/icons/calendar.svg", label: "Reminders", link: "/reminders" },
-  { icon: "/icons/analytics.svg", label: "Tasks", link: "/tasks" },
-  { icon: "/icons/pen-paper.svg", label: "Surveys", link: "/survey" },
-  { icon: "/icons/map.svg", label: "Map", link: "/map" },
+  { icon: "/icons/home.svg", label: "Dashboard", link: "/dashboard", adminOnly: false },
+  { icon: "/icons/tree.svg", label: "Trees", link: "/trees", adminOnly: false },
+  { icon: "/icons/volunteers.svg", label: "Members", link: "/members", adminOnly: false },
+  { icon: "/icons/calendar.svg", label: "Reminders", link: "/reminders", adminOnly: true },
+  { icon: "/icons/analytics.svg", label: "Tasks", link: "/tasks", adminOnly: false },
+  { icon: "/icons/pen-paper.svg", label: "Surveys", link: "/survey", adminOnly: false },
+  { icon: "/icons/map.svg", label: "Map", link: "/map", adminOnly: false },
 ];
 
 const NAV_ITEM_HEIGHT = 88;
@@ -23,6 +24,8 @@ export default function SideNavbar() {
   const moreMenuRef = useRef<HTMLDivElement>(null);
   const [visibleButtonCount, setVisibleButtonCount] = useState(buttons.length);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const { isAdmin } = useCurrentMember();
+  const filteredButtons: NavbarButtonProps[] = buttons.filter((button) => (!isAdmin && !button.adminOnly) || isAdmin);
 
   // Set up resize observer that continuously updates the button view based on viewport size
   useEffect(() => {
@@ -35,8 +38,8 @@ export default function SideNavbar() {
     const updateVisibleButtonCount = () => {
       const capacity = Math.floor((navList.clientHeight + NAV_ITEM_GAP) / (NAV_ITEM_HEIGHT + NAV_ITEM_GAP));
 
-      if (capacity >= buttons.length) {
-        setVisibleButtonCount(buttons.length);
+      if (capacity >= filteredButtons.length) {
+        setVisibleButtonCount(filteredButtons.length);
         setIsMoreOpen(false);
         return;
       }
@@ -79,8 +82,8 @@ export default function SideNavbar() {
     };
   }, [isMoreOpen]);
 
-  const visibleButtons = useMemo(() => buttons.slice(0, visibleButtonCount), [visibleButtonCount]);
-  const overflowButtons = useMemo(() => buttons.slice(visibleButtonCount), [visibleButtonCount]);
+  const visibleButtons = useMemo(() => filteredButtons.slice(0, visibleButtonCount), [visibleButtonCount]);
+  const overflowButtons = useMemo(() => filteredButtons.slice(visibleButtonCount), [visibleButtonCount]);
 
   return (
     <div className="sticky top-0 z-60 flex h-screen w-35 flex-col gap-6 bg-primary px-5 py-6">
