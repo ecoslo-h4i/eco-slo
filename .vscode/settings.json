@@ -3,5 +3,8 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
-  }
+  },
+  "deno.enable": true,
+  "deno.enablePaths": ["./supabase/functions"],
+  "deno.unstable": false
 }
