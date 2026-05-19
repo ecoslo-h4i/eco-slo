@@ -11,12 +11,13 @@ export const config = {
      * Feel free to modify this pattern to include more paths.
      */
     // "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-    "/dashboard",
-    "/trees",
-    "/members",
-    "/reminders",
-    "/tasks",
-    "/surveys",
+    "/dashboard/:path*",
+    "/trees/:path*",
+    "/members/:path*",
+    "/reminders/:path*",
+    "/tasks/:path*",
+    "/surveys/:path*",
+    "/",
   ],
 };
 
