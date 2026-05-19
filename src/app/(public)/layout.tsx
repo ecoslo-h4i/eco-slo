@@ -1,10 +1,13 @@
-import TopNavbar from "@/components/navbar/TopNavbar";
+import SideNavbar from "@/components/navbar/SideNavbar";
+import { CurrentMemberProvider } from "@/hooks/useCurrentProvider";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col h-screen">
-      <TopNavbar />
-      {children}
-    </div>
+    <CurrentMemberProvider>
+      <div className="flex min-h-screen">
+        <SideNavbar />
+        {children}
+      </div>
+    </CurrentMemberProvider>
   );
 }

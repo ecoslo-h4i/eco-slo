@@ -6,6 +6,7 @@ import { useState } from "react";
 import NotificationWidget from "@/components/notifications/NotificationWidget";
 import TreeDashboardWidget from "@/components/TreeDashboardWidget";
 import { ReminderWidget, VolunteerWidget } from "@/components/SimpleDashboardWidget";
+import { useCurrentMember } from "@/hooks/useCurrentProvider";
 
 // TODO: This is just for testing/development, remove once backend integration is finished
 function createNotificationList() {
@@ -18,6 +19,7 @@ function createNotificationList() {
 
 export default function Dash() {
   const [notifPopout, setNotifPopout] = useState(false);
+  const { member } = useCurrentMember();
   return (
     //the whole page div//
     <div className="flex flex-grow bg-[#FBF7EE]">
@@ -29,7 +31,9 @@ export default function Dash() {
         <div className="px-6 py-10">
           {/*header*/}
           <header className="flex items-center justify-between pt-5">
-            <h1 className="flex-1 text-[56px] font-[Constantia] font-semibold leading-none">Welcome Back, User</h1>
+            <h1 className="flex-1 text-[56px] font-[Constantia] font-semibold leading-none">
+              Welcome Back, {member?.firstname}
+            </h1>
             {/*icons*/}
             <div className="flex items-center gap-4">
               {/*bell*/}
