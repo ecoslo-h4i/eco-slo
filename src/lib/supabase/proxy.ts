@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
-  const ADMIN_ONLY_PATHS: [string] = ["/reminders"];
+  const ADMIN_ONLY_PATHS: [string] = ["/reminders", "/members"];
   let supabaseResponse = NextResponse.next({
     request,
   });
