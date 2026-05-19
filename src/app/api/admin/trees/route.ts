@@ -1,7 +1,8 @@
-import { supabase, createAuthenticatedClient } from "@/supabase-client";
+import { createServerLevelClient } from "@/lib/supabase/server";
 import { TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 import { NextRequest, NextResponse } from "next/server";
+
 /**
  * GET API ROUTE: Retrieves all trees from the database
  *
@@ -17,6 +18,7 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function GET() {
   try {
+    const supabase = await createServerLevelClient();
     const { data, error } = await supabase
       .from("trees")
       .select(
@@ -59,6 +61,7 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createServerLevelClient();
     const json = await request.json();
     const body = json as TablesInsert<"trees">;
 

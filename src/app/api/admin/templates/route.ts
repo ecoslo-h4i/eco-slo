@@ -1,12 +1,11 @@
-import { supabase } from "@/supabase-client";
+import { createServerLevelClient } from "@/lib/supabase/server";
 import { TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 import { NextRequest, NextResponse } from "next/server";
 
-// TODO: enforce auth — use createAuthenticatedClient(jwt) when auth is wired up
-
 export async function GET() {
   try {
+    const supabase = await createServerLevelClient();
     const { data, error } = await supabase.from("templates").select("*").order("created_at", { ascending: true });
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
@@ -23,6 +22,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createServerLevelClient();
     const json = await request.json();
     const body = json as TablesInsert<"templates">;
 

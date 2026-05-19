@@ -1,4 +1,4 @@
-import { supabase } from "@/supabase-client";
+import { createServerLevelClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 
@@ -26,6 +26,7 @@ export async function GET(req: NextRequest, { params }: IParams) {
   const { id } = await params;
 
   try {
+    const supabase = await createServerLevelClient();
     const { data, error } = await supabase.from("trees").select().eq("id", id).single();
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
@@ -54,6 +55,7 @@ export async function GET(req: NextRequest, { params }: IParams) {
  */
 export async function PUT(req: NextRequest, { params }: IParams) {
   try {
+    const supabase = await createServerLevelClient();
     const { id } = await params;
     const body = await req.json();
 
@@ -85,6 +87,7 @@ export async function PUT(req: NextRequest, { params }: IParams) {
  */
 export async function DELETE(req: NextRequest, { params }: IParams) {
   try {
+    const supabase = await createServerLevelClient();
     const { id } = await params;
     const { data, error } = await supabase.from("trees").delete().eq("id", id).limit(1).select().single();
 

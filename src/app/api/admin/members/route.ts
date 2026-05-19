@@ -1,4 +1,4 @@
-import { supabase } from "@/supabase-client";
+import { createServerLevelClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/database/database.types";
 import { hasOnlyAllowedKeys, isDate, isEmail, isPhone, postgrestErrorToHttpStatus } from "@/database/utils";
@@ -21,6 +21,7 @@ type VolunteerInsert = Database["public"]["Tables"]["members"]["Insert"];
  */
 export async function GET() {
   try {
+    const supabase = await createServerLevelClient();
     const { data, error } = await supabase.from("members").select("*").order("created_at", { ascending: true });
 
     if (error) {
@@ -45,6 +46,7 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createServerLevelClient();
     const body = await request.json();
 
     const { data, error } = await supabase.from("members").insert(body).select().single<VolunteerRow>();

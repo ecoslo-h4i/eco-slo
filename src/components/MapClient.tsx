@@ -1,11 +1,13 @@
 "use client";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
-import L, { Icon, map } from "leaflet";
-import { supabase } from "@/supabase-client";
+import L, { Icon } from "leaflet";
+import { createUserLevelClient } from "@/lib/supabase/client";
 import MapPopout from "./MapPopout";
 import MapControlPanel from "./MapControlPanel";
 import { QueryData } from "@supabase/supabase-js";
+
+const supabase = createUserLevelClient();
 
 type Member = {
   id: number;
@@ -32,7 +34,7 @@ const zoom = 13;
 const MIN_ZOOM = 8;
 const MAX_ZOOM = 18;
 
-const treesQuery = supabase.from("trees").select(`
+const treesQuery = supabase.from("public_trees").select(`
   id,
   ecoslo_num,
   status,
@@ -42,11 +44,9 @@ const treesQuery = supabase.from("trees").select(`
   address,
   latitude,
   longitude,
-  member: tree_keeper_id (
-    id,
-    firstname,
-    lastname
-  ),
+  tree_keeper_id,
+  tree_keeper_firstname,
+  tree_keeper_lastname,
   is_public,
   notes
 `);
@@ -87,7 +87,14 @@ export default function MapClient() {
         id: row.id,
         latitude: row.latitude,
         longitude: row.longitude,
-        member: Array.isArray(row.member) ? (row.member[0] ?? null) : row.member,
+        member:
+          row.tree_keeper_id !== null && row.tree_keeper_firstname !== null && row.tree_keeper_lastname !== null
+            ? {
+                id: row.tree_keeper_id,
+                firstname: row.tree_keeper_firstname,
+                lastname: row.tree_keeper_lastname,
+              }
+            : null,
         species_name: row.species_name ?? null,
         common_name: row.common_name,
         address: row.address,
@@ -98,13 +105,10 @@ export default function MapClient() {
       }));
 
       setLocations(normalized);
+      setFilteredLocations(locations);
     }
     fetchLocations();
   }, []);
-
-  useEffect(() => {
-    setFilteredLocations(locations);
-  }, [locations]);
 
   useEffect(() => {
     const container = mapContainerRef.current;

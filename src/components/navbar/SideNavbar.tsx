@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import NavbarButton, { NavbarButtonProps } from "./SideNavbarButton";
+import { LogoutButton } from "../LogoutButton";
 
 const buttons: NavbarButtonProps[] = [
   { icon: "/icons/home.svg", label: "Dashboard", link: "/dashboard" },
@@ -93,12 +94,7 @@ export default function SideNavbar() {
             className="h-full w-full object-contain"
           />
         </div>
-        <a
-          href="/login"
-          className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
-        >
-          <span>Log out</span>
-        </a>
+        <LogoutButton className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer" />
       </div>
       <div ref={navListRef} className="flex min-h-0 flex-grow flex-col items-center gap-4">
         {visibleButtons.map((button) => (

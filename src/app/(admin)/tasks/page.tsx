@@ -5,53 +5,62 @@ import { useEffect, useState } from "react";
 import { TaskSchema } from "@/components/data-table/table-widget-defs";
 import { TaskCard } from "@/components/TaskCard";
 import { TasksControlPanel } from "@/components/TasksControlPanel";
-import { Database } from "@/database/database.types";
-
-type AdminTasksResponse = {
-  message?: Database["public"]["Tables"]["tasks"]["Row"][] | string;
-  error?: string;
-};
+import { createUserLevelClient } from "@/lib/supabase/client";
 
 interface TaskSchemaWithNames extends TaskSchema {
   names: string[];
 }
 
-export async function getTasks() {
-  const response = await fetch("/api/admin/tasks");
-  const payload = (await response.json()) as AdminTasksResponse;
+export async function getTasks(): Promise<TaskSchemaWithNames[]> {
+  const supabase = createUserLevelClient();
 
-  if (!response.ok) {
-    throw new Error(payload.error ?? String(payload.message ?? "Failed to load members"));
+  // 1. Fetch tasks directly. RLS filters to:
+  //    - Admins: all tasks
+  //    - Tree Keepers: tasks where they're in the assignees array
+  //    Sort matches the previous /api/admin/tasks behavior (newest first).
+  const { data: tasks, error: tasksError } = await supabase
+    .from("tasks")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (tasksError) {
+    throw new Error(tasksError.message);
   }
 
-  if (!Array.isArray(payload.message)) return [];
-  const result: TaskSchemaWithNames[] = await Promise.all(payload.message.map(async (row) => reMapAssignees(row)));
-  return result;
-}
+  if (!tasks || tasks.length === 0) return [];
 
-async function reMapAssignees(row: Database["public"]["Tables"]["tasks"]["Row"]) {
-  if (row.assignees) {
-    const requests = row.assignees.map(async (assignee) => {
-      const response = await fetch("api/admin/members/" + assignee)
-        .then((response) => response.json())
-        .then((response) => response.data.firstname + " " + response.data.lastname);
-      return response;
-    });
-    const result = await Promise.all(requests);
-    return {
-      ...row,
-      names: result,
-    };
+  // 2. Collect every assignee id referenced across all returned tasks,
+  //    then batch-fetch their names from public_members in one round trip.
+  //    public_members is readable by any authenticated user and exposes
+  //    only id/firstname/lastname.
+  const assigneeIds = Array.from(new Set(tasks.flatMap((task) => task.assignees ?? [])));
+
+  let nameById = new Map<number, string>();
+  if (assigneeIds.length > 0) {
+    const { data: members, error: membersError } = await supabase
+      .from("public_members")
+      .select("id, firstname, lastname")
+      .in("id", assigneeIds);
+
+    if (membersError) {
+      console.error("[tasks] failed to fetch member names:", membersError);
+      // Non-fatal: render task rows with placeholders rather than crashing.
+    } else if (members) {
+      nameById = new Map(members.map((m) => [m.id, `${m.firstname} ${m.lastname}`]));
+    }
   }
-  return {
-    ...row,
-    names: [],
-  };
+
+  // 3. Attach names to each task. An id without a matching member entry
+  //    falls back to "Unknown" — shouldn't happen given current RLS, but
+  //    survives the case where a member was deleted while a task still
+  //    references their id.
+  return tasks.map((task) => ({
+    ...task,
+    names: (task.assignees ?? []).map((id: number) => nameById.get(id) ?? "Unknown"),
+  }));
 }
 
 export default function Tasks() {
-  // TODO: integrate backend instead of using mock data
-
   const [status, setStatus] = useState("All");
   const [surveys, setSurveys] = useState("All Tasks");
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,7 +79,7 @@ export default function Tasks() {
           setError(null);
         }
       } catch (err) {
-        if (mounted) setError(err instanceof Error ? err.message : "Failed to load trees");
+        if (mounted) setError(err instanceof Error ? err.message : "Failed to load tasks");
       } finally {
       }
     })();
