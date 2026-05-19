@@ -11,29 +11,60 @@ Deno.serve(async () => {
     .select("id, crons_expression")
     .eq("is_active", true)
     .lte("next_run_at", new Date().toISOString())
+    .order("next_run_at", { ascending: true })
     .limit(500);
 
   if (error) throw error;
+  if (!due?.length) {
+    return new Response(JSON.stringify({ fired: 0, failed: 0, total: 0 }), {
+      headers: { "content-type": "application/json" },
+    });
+  }
 
-  let fired = 0;
-  let failed = 0;
-  for (const r of due ?? []) {
+  // Precompute next-run timestamps in a single pass. Any reminder with a
+  // malformed cron expression is recorded as a compute failure and skipped
+  // so it doesn't poison the RPC payload or block the rest of the batch.
+  const ids: number[] = [];
+  const nextRunAts: string[] = [];
+  const computeFailures: { id: number; error: string }[] = [];
+
+  for (const r of due) {
     try {
       const nextRunAt = getNextCronOccurrence(r.crons_expression); // PST-aware
-      const { error: rpcError } = await supabase.rpc("fire_reminder", {
-        p_reminder_id: r.id,
-        p_next_run_at: nextRunAt.toISOString(),
-      });
-      if (rpcError) throw rpcError;
-      fired++;
+      ids.push(r.id);
+      nextRunAts.push(nextRunAt.toISOString());
     } catch (e) {
-      // Log and continue — one bad reminder shouldn't stop the others
-      console.error(`fire_reminder failed for ${r.id}:`, e);
-      failed++;
+      console.error(`getNextCronOccurrence failed for ${r.id}:`, e);
+      computeFailures.push({ id: r.id, error: String(e) });
     }
   }
 
-  return new Response(JSON.stringify({ fired, failed, total: due?.length ?? 0 }), {
-    headers: { "content-type": "application/json" },
+  // One round-trip to the database, regardless of batch size. The per-row
+  // try/catch lives inside fire_reminders_batch now.
+  const { data: result, error: rpcError } = await supabase.rpc("fire_reminders_batch", {
+    p_reminder_ids: ids,
+    p_next_run_ats: nextRunAts,
   });
+
+  if (rpcError) {
+    console.error("fire_reminders_batch failed:", rpcError);
+    return new Response(JSON.stringify({ error: rpcError.message }), {
+      status: 500,
+      headers: { "content-type": "application/json" },
+    });
+  }
+
+  // rpc() with a `returns table` function gives back an array of rows.
+  const fired = result?.[0]?.fired ?? 0;
+  const failed = (result?.[0]?.failed ?? 0) + computeFailures.length;
+
+  return new Response(
+    JSON.stringify({
+      fired,
+      failed,
+      total: due.length,
+      computeFailures: computeFailures.length ? computeFailures : undefined,
+    }),
+    { headers: { "content-type": "application/json" } },
+  );
 });

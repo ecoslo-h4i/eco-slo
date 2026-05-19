@@ -32,21 +32,81 @@ Deno.serve(async () => {
     })),
   );
 
-  const result = await resend.batch.send(batch);
+  const { data, error: resendError } = await resend.batch.send(batch, {
+    batchValidation: "permissive",
+  });
 
-  // Mark the touched tasks as sent. Note: a task may appear in `jobs`
-  // multiple times (group task with N assignees → N rows), but we only
-  // need to mark email_sent_at once per task. Use a Set to dedupe.
-  const taskIds = [...new Set(jobs.map((j) => j.task_id))];
-
-  if (result.error) {
+  // Top-level request failure (auth, network, malformed request): every job
+  // in this batch is unsent. Bump attempts on all of them and bail.
+  if (resendError) {
+    const allTaskIds = [...new Set(jobs.map((j) => j.task_id))];
     await supabase.rpc("increment_email_attempts", {
-      p_task_ids: taskIds,
-      p_error: result.error.message,
+      p_task_ids: allTaskIds,
+      p_error: resendError.message,
     });
-  } else {
-    await supabase.from("tasks").update({ email_sent_at: new Date().toISOString() }).in("id", taskIds);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "content-type": "application/json" },
+    });
   }
 
-  return new Response(JSON.stringify({ sent: batch.length }));
+  // Permissive mode: data contains the queued emails, errors contains the
+  // per-index validation failures. `errors` is undefined if every email
+  // in the batch was valid, so default it.
+  const failedIndices = new Set<number>((data?.errors ?? []).map((e: { index: number }) => e.index));
+
+  // A task may produce N rows in `jobs` (group tasks: one per assignee).
+  // A task is considered "sent" only if every one of its rows succeeded;
+  // if any assignee row failed, the task should be retried so the failed
+  // recipient gets another shot. Group jobs by task_id and record the
+  // first error message seen for each failed task.
+  const taskOutcomes = new Map<number, { ok: boolean; firstError?: string }>();
+  for (let i = 0; i < jobs.length; i++) {
+    const taskId = jobs[i].task_id;
+    const prior = taskOutcomes.get(taskId);
+    const failed = failedIndices.has(i);
+    const errMsg = failed
+      ? (data?.errors?.find((e: { index: number }) => e.index === i)?.message ?? "unknown error")
+      : undefined;
+
+    if (!prior) {
+      taskOutcomes.set(taskId, { ok: !failed, firstError: errMsg });
+    } else if (failed && prior.ok) {
+      taskOutcomes.set(taskId, { ok: false, firstError: errMsg });
+    }
+  }
+
+  const sentTaskIds: number[] = [];
+  const failedByError = new Map<string, number[]>();
+  for (const [taskId, outcome] of taskOutcomes) {
+    if (outcome.ok) {
+      sentTaskIds.push(taskId);
+    } else {
+      const key = outcome.firstError ?? "unknown error";
+      if (!failedByError.has(key)) failedByError.set(key, []);
+      failedByError.get(key)!.push(taskId);
+    }
+  }
+
+  if (sentTaskIds.length) {
+    await supabase.from("tasks").update({ email_sent_at: new Date().toISOString() }).in("id", sentTaskIds);
+  }
+
+  // One RPC per distinct error message keeps email_last_error informative
+  // without N round-trips. In practice failures cluster around 1-2 causes.
+  for (const [errMsg, taskIds] of failedByError) {
+    await supabase.rpc("increment_email_attempts", {
+      p_task_ids: taskIds,
+      p_error: errMsg,
+    });
+  }
+
+  return new Response(
+    JSON.stringify({
+      attempted: batch.length,
+      sent: sentTaskIds.length,
+      failed_tasks: [...failedByError.values()].reduce((a, b) => a + b.length, 0),
+    }),
+    { headers: { "content-type": "application/json" } },
+  );
 });
