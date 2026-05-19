@@ -4,11 +4,18 @@ import ReminderDropdown from "./ReminderDropdown";
 import ReminderNestedMultiSelectDropdown, { type NestedMultiSelectGroup } from "./ReminderNestedMultiSelectDropdown";
 import ReminderTextInput from "./ReminderTextInput";
 import ReminderTimePicker from "./ReminderTimePicker";
+import ReminderMonthlyDayPicker from "./ReminderMonthlyDayPicker";
+import ReminderYearlyDatePicker, { type YearlyDate } from "./ReminderYearlyDatePicker";
 import { Calendar, SquarePen, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import ReminderLongTextInput from "./ReminderLongTextInput";
 import ReminderToggleArea from "./ReminderToggleArea";
-import { createWeeklyCronExpression, cronExpressionToFormValues, getNextCronOccurrence } from "@/lib/cron_utils";
+import {
+  createCronExpression,
+  cronExpressionToFormValues,
+  getCronPreset,
+  getNextCronOccurrence,
+} from "@/lib/cron_utils";
 import type { NestedMultiSelectValue } from "./ReminderNestedMultiSelectDropdown";
 
 type MemberEnum = Enums<"MemberType">;
@@ -27,6 +34,21 @@ const DEFAULT_REMINDER_DAY = "";
 const DEFAULT_REMINDER_TIME = "";
 const DEFAULT_REMINDER_MESSAGE = "";
 
+const REPEAT_OPTIONS = ["Weekly", "Monthly", "Yearly"] as const;
+type RepeatOption = (typeof REPEAT_OPTIONS)[number];
+type ReminderRepeatPreset = "weekly" | "monthly" | "yearly";
+
+const REPEAT_LABEL_TO_PRESET: Record<RepeatOption, ReminderRepeatPreset> = {
+  Weekly: "weekly",
+  Monthly: "monthly",
+  Yearly: "yearly",
+};
+const REPEAT_PRESET_TO_LABEL: Record<ReminderRepeatPreset, RepeatOption> = {
+  weekly: "Weekly",
+  monthly: "Monthly",
+  yearly: "Yearly",
+};
+
 interface ReminderViewProps {
   assigneeLabel?: string;
   members: Member[];
@@ -43,7 +65,10 @@ type ReminderViewMode = "create" | "edit" | "view";
 
 type ReminderFormState = {
   assignees: NestedMultiSelectValue;
+  repeat: ReminderRepeatPreset;
   dayOfWeek: string;
+  dayOfMonth: number | null;
+  yearlyDate: YearlyDate | null;
   isActive: boolean;
   needsSurvey: boolean;
   message: string;
@@ -83,6 +108,11 @@ export default function ReminderView({
     setForm((current) => ({ ...current, [key]: value }));
     setSubmitError("");
     setDeleteError("");
+  };
+
+  const handleRepeatChange = (label: string) => {
+    if (!isRepeatOption(label)) return;
+    updateForm("repeat", REPEAT_LABEL_TO_PRESET[label]);
   };
 
   const handleTemplateSelect = (templateName: string) => {
@@ -151,7 +181,11 @@ export default function ReminderView({
     [members],
   );
   const templateOptions = useMemo(() => templates.map((template) => template.name), [templates]);
-  const nextSendLabel = useMemo(() => getNextSendLabel(form.dayOfWeek, form.time), [form.dayOfWeek, form.time]);
+  const nextSendLabel = useMemo(
+    () => getNextSendLabel(form),
+    // Listing schedule-relevant fields keeps this stable when name/message/etc. change.
+    [form.repeat, form.dayOfWeek, form.dayOfMonth, form.yearlyDate, form.time],
+  );
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-6 overflow-auto no-scrollbar rounded-3xl border-1 border-border bg-table-row-dark px-6 py-8">
@@ -218,17 +252,17 @@ export default function ReminderView({
           </div>
         </div>
       )}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4">
         <span className="font-avenir text-m font-normal text-text-dark">Schedule</span>
         <div className="flex flex-row gap-4">
-          <div className="flex basis-1/2 text-text-muted">
+          <div className="flex basis-1/2 text-text-dark">
             <ReminderDropdown
               disabled={isReadOnly}
-              label="Day of Week"
-              options={[...WEEK_DAYS]}
-              placeholder="Select a day..."
-              value={form.dayOfWeek}
-              onOptionClick={(value) => updateForm("dayOfWeek", value)}
+              label="Repeats"
+              options={[...REPEAT_OPTIONS]}
+              placeholder="Select a frequency..."
+              value={REPEAT_PRESET_TO_LABEL[form.repeat]}
+              onOptionClick={handleRepeatChange}
             />
           </div>
           <div className="flex basis-1/2 text-text-muted">
@@ -241,6 +275,43 @@ export default function ReminderView({
             />
           </div>
         </div>
+
+        {form.repeat === "weekly" && (
+          <div className="flex flex-row gap-4">
+            <div className="flex basis-1/2 text-text-muted">
+              <ReminderDropdown
+                disabled={isReadOnly}
+                label="Day of Week"
+                options={[...WEEK_DAYS]}
+                placeholder="Select a day..."
+                value={form.dayOfWeek}
+                onOptionClick={(value) => updateForm("dayOfWeek", value)}
+              />
+            </div>
+          </div>
+        )}
+
+        {form.repeat === "monthly" && (
+          <div className="flex flex-col gap-1">
+            <span className="font-avenir text-m font-normal">Day of Month</span>
+            <ReminderMonthlyDayPicker
+              disabled={isReadOnly}
+              value={form.dayOfMonth}
+              onChange={(day) => updateForm("dayOfMonth", day)}
+            />
+          </div>
+        )}
+
+        {form.repeat === "yearly" && (
+          <div className="flex flex-col gap-1">
+            <span className="font-avenir text-m font-normal">Date</span>
+            <ReminderYearlyDatePicker
+              disabled={isReadOnly}
+              value={form.yearlyDate}
+              onChange={(date) => updateForm("yearlyDate", date)}
+            />
+          </div>
+        )}
       </div>
       <div className="flex h-25 shrink-0 flex-row items-center gap-3 rounded-3xl bg-table-header">
         <Calendar className="ml-4" size={20} color="#6b7456" />
@@ -298,24 +369,74 @@ export default function ReminderView({
   );
 }
 
-function getReminderSchedule(reminder?: Reminder) {
+// ---------------------------------------------------------------------------
+// Schedule helpers
+// ---------------------------------------------------------------------------
+
+function isRepeatOption(value: string): value is RepeatOption {
+  return (REPEAT_OPTIONS as readonly string[]).includes(value);
+}
+
+/**
+ * Detect which repeat preset this UI should show for an existing cron
+ * expression. The UI only offers weekly/monthly/yearly, so daily/weekdays/
+ * custom fall back to weekly. This shouldn't be reached since every
+ * reminder this form creates uses one of the three supported presets, but
+ * the fallback keeps hydration safe if a cron is hand-edited later.
+ */
+function getReminderRepeatPreset(cronExpression: string | undefined): ReminderRepeatPreset {
+  if (!cronExpression) return "weekly";
+  try {
+    const preset = getCronPreset(cronExpression);
+    if (preset === "monthly" || preset === "yearly") return preset;
+    return "weekly";
+  } catch {
+    return "weekly";
+  }
+}
+
+type ScheduleFromCron = {
+  repeat: ReminderRepeatPreset;
+  dayOfWeek: string;
+  dayOfMonth: number | null;
+  yearlyDate: YearlyDate | null;
+  time: string;
+};
+
+function emptySchedule(): ScheduleFromCron {
+  return {
+    repeat: "weekly",
+    dayOfWeek: DEFAULT_REMINDER_DAY,
+    dayOfMonth: null,
+    yearlyDate: null,
+    time: DEFAULT_REMINDER_TIME,
+  };
+}
+
+function getReminderSchedule(reminder?: Reminder): ScheduleFromCron {
   return getScheduleFromCronExpression(reminder?.crons_expression);
 }
 
-function getScheduleFromCronExpression(cronsExpression?: string) {
-  if (!cronsExpression) {
-    return { dayOfWeek: DEFAULT_REMINDER_DAY, time: DEFAULT_REMINDER_TIME };
-  }
+function getScheduleFromCronExpression(cronsExpression?: string): ScheduleFromCron {
+  if (!cronsExpression) return emptySchedule();
 
   try {
     const values = cronExpressionToFormValues(cronsExpression);
+    const preset = getReminderRepeatPreset(cronsExpression);
+    const time = `${String(values.hour).padStart(2, "0")}:${String(values.minute).padStart(2, "0")}`;
 
     return {
-      dayOfWeek: cronDayToWeekDay(values.dayOfWeek),
-      time: `${String(values.hour).padStart(2, "0")}:${String(values.minute).padStart(2, "0")}`,
+      repeat: preset,
+      // Each repeat-specific field is only filled when its preset is active.
+      // Leaving the others at their empty defaults avoids accidentally
+      // resurfacing stale data if the user toggles between presets.
+      dayOfWeek: preset === "weekly" ? cronDayToWeekDay(values.dayOfWeek) : DEFAULT_REMINDER_DAY,
+      dayOfMonth: preset === "monthly" ? values.dayOfMonth : null,
+      yearlyDate: preset === "yearly" ? { month: values.month, day: values.dayOfMonth } : null,
+      time,
     };
   } catch {
-    return { dayOfWeek: DEFAULT_REMINDER_DAY, time: DEFAULT_REMINDER_TIME };
+    return emptySchedule();
   }
 }
 
@@ -324,7 +445,10 @@ function getTemplateFormValues(template: Template, members: Member[]): Partial<R
 
   return {
     assignees: getAssigneesFromMemberIds(template.assignees, members),
+    repeat: schedule.repeat,
     dayOfWeek: schedule.dayOfWeek,
+    dayOfMonth: schedule.dayOfMonth,
+    yearlyDate: schedule.yearlyDate,
     message: template.task_message,
     time: schedule.time,
   };
@@ -336,7 +460,10 @@ function getReminderFormState(reminder: Reminder | undefined, members: Member[])
 
   return {
     assignees: getSelectedAssignees(reminder, members),
+    repeat: schedule.repeat,
     dayOfWeek: schedule.dayOfWeek,
+    dayOfMonth: schedule.dayOfMonth,
+    yearlyDate: schedule.yearlyDate,
     isActive: reminder?.is_active ?? true,
     needsSurvey: reminderWithNeedsSurvey?.needs_survey ?? false,
     message: reminder?.task_message ?? DEFAULT_REMINDER_MESSAGE,
@@ -363,20 +490,47 @@ function getSelectedAssigneeIds(assignees: NestedMultiSelectValue) {
   return Object.values(assignees).flat().map(Number).filter(Number.isInteger);
 }
 
-function getCronExpressionFromForm(form: ReminderFormState) {
-  const cronDay = weekDayToCronDay(form.dayOfWeek);
-
-  if (cronDay === null || !form.time) {
-    throw new Error("Select a day and time before saving.");
+/**
+ * Build a cron expression from the current form state, throwing a
+ * user-facing error if the schedule isn't fully specified yet.
+ */
+function getCronExpressionFromForm(form: ReminderFormState): string {
+  if (!form.time) {
+    throw new Error("Select a time before saving.");
   }
 
   const [hour, minute] = form.time.split(":").map(Number);
-
   if (!Number.isInteger(hour) || !Number.isInteger(minute)) {
     throw new Error("Select a valid time before saving.");
   }
+  const time = { hour, minute };
 
-  return createWeeklyCronExpression({ hour, minute }, cronDay);
+  switch (form.repeat) {
+    case "weekly": {
+      const cronDay = weekDayToCronDay(form.dayOfWeek);
+      if (cronDay === null) {
+        throw new Error("Select a day of the week before saving.");
+      }
+      return createCronExpression({ repeat: "weekly", time, dayOfWeek: cronDay });
+    }
+    case "monthly": {
+      if (form.dayOfMonth === null) {
+        throw new Error("Select a day of the month before saving.");
+      }
+      return createCronExpression({ repeat: "monthly", time, dayOfMonth: form.dayOfMonth });
+    }
+    case "yearly": {
+      if (!form.yearlyDate) {
+        throw new Error("Select a date before saving.");
+      }
+      return createCronExpression({
+        repeat: "yearly",
+        time,
+        dayOfMonth: form.yearlyDate.day,
+        month: form.yearlyDate.month,
+      });
+    }
+  }
 }
 
 function getReminderPayload(form: ReminderFormState): ReminderInsertPayload {
@@ -472,21 +626,34 @@ function weekDayToCronDay(dayOfWeek: string) {
   return weekDayIndex < 0 ? null : (weekDayIndex + 1) % 7;
 }
 
-function getNextSendLabel(dayOfWeek: string, time: string) {
-  const cronDay = weekDayToCronDay(dayOfWeek);
+/**
+ * Compute the human-readable "Next Send" line shown below the schedule.
+ *
+ * Mirrors getCronExpressionFromForm's validation rules but returns the
+ * shortcoming as a UI string rather than throwing. Returning early on each
+ * missing field gives the user a precise nudge ("Select a day of the
+ * month") instead of a generic "schedule incomplete".
+ */
+function getNextSendLabel(form: ReminderFormState): string {
+  if (!form.time) return "Select a time";
 
-  if (cronDay === null || !time) {
-    return "Select a day and time";
-  }
+  const [hour, minute] = form.time.split(":").map(Number);
+  if (!Number.isInteger(hour) || !Number.isInteger(minute)) return "Select a valid time";
 
-  const [hour, minute] = time.split(":").map(Number);
-
-  if (!Number.isInteger(hour) || !Number.isInteger(minute)) {
-    return "Select a valid time";
+  switch (form.repeat) {
+    case "weekly":
+      if (weekDayToCronDay(form.dayOfWeek) === null) return "Select a day of the week";
+      break;
+    case "monthly":
+      if (form.dayOfMonth === null) return "Select a day of the month";
+      break;
+    case "yearly":
+      if (!form.yearlyDate) return "Select a date";
+      break;
   }
 
   try {
-    const expression = createWeeklyCronExpression({ hour, minute }, cronDay);
+    const expression = getCronExpressionFromForm(form);
     return formatNextSendDate(getNextCronOccurrence(expression));
   } catch {
     return "Select a valid schedule";

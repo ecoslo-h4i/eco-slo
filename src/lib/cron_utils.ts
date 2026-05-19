@@ -347,18 +347,12 @@ function matchesCronField(field: CronFieldName, token: string, value: number): b
   return !!allowedValues?.includes(value);
 }
 
-function matchesCronDate(parts: CronParts, date: Date): boolean {
-  // Read all wall-clock fields once in Pacific time. Using
-  // getPacificFields here is what makes cron evaluation timezone-correct
-  // when this runs on a non-Pacific host (Vercel/UTC, Supabase/UTC).
-  const fields = getPacificFields(date);
-
-  const minuteMatches = matchesCronField("minute", parts.minute, fields.minute);
-  const hourMatches = matchesCronField("hour", parts.hour, fields.hour);
-  const monthMatches = matchesCronField("month", parts.month, fields.month);
-
-  if (!minuteMatches || !hourMatches || !monthMatches) return false;
-
+/**
+ * Standard cron day-field semantics: if BOTH dayOfMonth and dayOfWeek are
+ * restricted (non-wildcard), a date matches when EITHER matches; otherwise
+ * the restricted field (or both wildcards) must match.
+ */
+function matchesCronDayFields(parts: CronParts, fields: PacificFields): boolean {
   const dayOfMonthMatches = matchesCronField("dayOfMonth", parts.dayOfMonth, fields.dayOfMonth);
   const dayOfWeekMatches = matchesCronField("dayOfWeek", parts.dayOfWeek, fields.dayOfWeek);
   const restrictsDayOfMonth = !isWildcard(parts.dayOfMonth);
@@ -478,20 +472,50 @@ export function getNextCronOccurrence(expression: string, fromDate: Date = new D
   const parts = parseCronExpression(expression);
 
   // Floor to the start of the current UTC minute, then advance by one minute.
-  // Pure timestamp arithmetic only — we deliberately avoid Date methods like
-  // setSeconds/setMinutes here. Those operate on LOCAL fields, which has two
-  // problems: (a) on a UTC host, "local" means UTC and cron fields would not
-  // be interpreted in Pacific; (b) on a Pacific host, ambiguous local times
-  // during the fall-back hour cause setSeconds to silently shift the
-  // underlying timestamp by an hour.
+  // Pure timestamp arithmetic only — same DST-safety reasoning as before:
+  // touching local fields via setSeconds/setMinutes is unsafe during the
+  // fall-back ambiguous hour.
   let timestampMs = Math.floor(fromDate.getTime() / 60_000) * 60_000 + 60_000;
   const next = new Date(timestampMs);
 
+  // Upper bound expressed in minutes of look-ahead. Each loop iteration
+  // advances by at least one minute (either a single-minute step inside a
+  // matching hour, or a multi-minute jump to the next UTC hour boundary),
+  // so this still bounds the total search to ~5 years of clock time even
+  // though most iterations now cover much more than one minute.
   const MAX_MINUTE_LOOKAHEAD = 60 * 24 * 366 * 5;
 
   for (let i = 0; i < MAX_MINUTE_LOOKAHEAD; i += 1) {
-    if (matchesCronDate(parts, next)) return new Date(next);
-    timestampMs += 60_000;
+    const fields = getPacificFields(next);
+
+    // Short-circuit from cheapest to most expensive: month gates everything
+    // else; day-of-month/day-of-week is the next gate; hour gates the
+    // per-minute walk. The `matchesCronField` calls themselves are cheap
+    // compared to `getPacificFields` (which we've already paid for above),
+    // so the savings come from avoiding the minute-level walk, not from
+    // skipping the field checks.
+    const monthMatches = matchesCronField("month", parts.month, fields.month);
+    const dayMatches = monthMatches && matchesCronDayFields(parts, fields);
+    const hourMatches = dayMatches && matchesCronField("hour", parts.hour, fields.hour);
+
+    if (hourMatches) {
+      if (matchesCronField("minute", parts.minute, fields.minute)) {
+        return new Date(next);
+      }
+      // Inside a matching month/day/hour but wrong minute — walk one minute.
+      // We can't skip here: the right minute might be in this same hour.
+      timestampMs += 60_000;
+      next.setTime(timestampMs);
+      continue;
+    }
+
+    // Month, day, or hour doesn't match. Jump to the next UTC hour boundary
+    // (minute=00). This guarantees we never overshoot the cron's minute
+    // target on the next hour-match: we always re-enter the minute-walk
+    // with a clean minute=00 starting point.
+    const minutesIntoUtcHour = next.getUTCMinutes();
+    const minutesToNextHour = 60 - minutesIntoUtcHour;
+    timestampMs += minutesToNextHour * 60_000;
     next.setTime(timestampMs);
   }
 

@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET() {
   try {
     const supabase = await createServerLevelClient();
-    const { data, error } = await supabase.from("reminders").select("*").order("created_at", { ascending: true });
+    const { data, error } = await supabase.from("reminders").select("*").order("created_at", { ascending: false });
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
       return NextResponse.json({ message: error.message }, { status: status });
