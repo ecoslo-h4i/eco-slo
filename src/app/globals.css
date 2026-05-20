@@ -2,76 +2,76 @@
 
 @theme inline {
   /* Font tokens */
-  --font-serif: var(--font-cardo), Constantia, Georgia, 'Times New Roman', serif;
-  --font-avenir: var(--font-avenir), 'Avenir Next', 'Nunito Sans', system-ui, sans-serif;
+  --font-serif: var(--font-cardo), Constantia, Georgia, "Times New Roman", serif;
+  --font-lato: var(--font-lato), Lato, "Nunito Sans", system-ui, sans-serif;
 
   /* Core palette */
-  --color-off-white: #F2F0ED;
-  --color-off-white-2: #EAE7E0;
-  --color-off-white-3: #DEDBD2;
+  --color-off-white: #f2f0ed;
+  --color-off-white-2: #eae7e0;
+  --color-off-white-3: #dedbd2;
   --color-green: #879471;
-  --color-green-2: #7B8963;
+  --color-green-2: #7b8963;
   --color-dark-green: #697751;
-  --color-light-green: #E1E4D0;
-  --color-light-green-2: #C9CEAD;
-  --color-brown: #7D7469;
-  --color-dark-brown: #6A5F52;
-  --color-red: #B45F5F;
-  --color-light-red: #EACECE;
-  --color-light-red-2: #DFAFAF;
-  --color-blue: #5F7C8C;
-  --color-light-blue: #D2DEE4;
-  --color-light-blue-2: #B1C6D1;
+  --color-light-green: #e1e4d0;
+  --color-light-green-2: #c9cead;
+  --color-brown: #7d7469;
+  --color-dark-brown: #6a5f52;
+  --color-red: #b45f5f;
+  --color-light-red: #eacece;
+  --color-light-red-2: #dfafaf;
+  --color-blue: #5f7c8c;
+  --color-light-blue: #d2dee4;
+  --color-light-blue-2: #b1c6d1;
 
   /* Semantic tokens */
-  --color-background: #F2F0ED;
-  --color-card: #FFFFFF;
+  --color-background: #ffffff;
+  --color-card: #ffffff;
   --color-primary: #697751;
-  --color-primary-hover: #7B8963;
-  --color-primary-soft: #E1E4D0;
-  --color-primary-border: #C9CEAD;
-  --color-on-primary: #FFFFFF;
+  --color-primary-hover: #7b8963;
+  --color-primary-soft: #e1e4d0;
+  --color-primary-border: #c9cead;
+  --color-on-primary: #ffffff;
   --color-text: #000000;
-  --color-text-muted: #6A5F52;
-  --color-text-subtle: #7D7469;
-  --color-text-light: #FFFFFF;
-  --color-border: #DEDBD2;
-  --color-border-strong: #7D7469;
-  --color-destructive: #B45F5F;
+  --color-text-muted: #6a5f52;
+  --color-text-subtle: #7d7469;
+  --color-text-light: #ffffff;
+  --color-border: #dedbd2;
+  --color-border-strong: #7d7469;
+  --color-destructive: #b45f5f;
   --color-success: #697751;
-  --color-success-bg: #E1E4D0;
-  --color-success-border: #C9CEAD;
-  --color-danger: #B45F5F;
-  --color-danger-bg: #EACECE;
-  --color-danger-border: #DFAFAF;
-  --color-info: #5F7C8C;
-  --color-info-bg: #D2DEE4;
-  --color-info-border: #B1C6D1;
-  --color-muted-card-bg: #EAE7E0;
-  --color-disabled-bg: #DEDBD2;
-  --color-panel-bg: #F2F0ED;
-  --color-app-bg: #FFFFFF;
+  --color-success-bg: #e1e4d0;
+  --color-success-border: #c9cead;
+  --color-danger: #b45f5f;
+  --color-danger-bg: #eacece;
+  --color-danger-border: #dfafaf;
+  --color-info: #5f7c8c;
+  --color-info-bg: #d2dee4;
+  --color-info-border: #b1c6d1;
+  --color-muted-card-bg: #eae7e0;
+  --color-disabled-bg: #dedbd2;
+  --color-panel-bg: #f2f0ed;
+  --color-app-bg: #ffffff;
 
   /* Backward-compatible aliases */
   --color-text-dark: #000000;
-  --color-primary-light: #7B8963;
+  --color-primary-light: #7b8963;
   --color-primary-extra-light: #879471;
-  --color-button: #F2F0ED;
-  --color-button-muted: #DEDBD2;
-  --color-button-light: #FFFFFF;
-  --color-table-header: #EAE7E0;
-  --color-table-row-light: #FFFFFF;
-  --color-table-row-dark: #F2F0ED;
-  --color-inactive-pill: #DEDBD2;
-  --color-active-pill: #E1E4D0;
-  --color-pill-border: #C9CEAD;
-  --color-foreground: #FFFFFF;
+  --color-button: #f2f0ed;
+  --color-button-muted: #dedbd2;
+  --color-button-light: #ffffff;
+  --color-table-header: #eae7e0;
+  --color-table-row-light: #ffffff;
+  --color-table-row-dark: #f2f0ed;
+  --color-inactive-pill: #dedbd2;
+  --color-active-pill: #e1e4d0;
+  --color-pill-border: #c9cead;
+  --color-foreground: #ffffff;
   --color-warning: #d4a574;
-  --color-icon-primary-muted: #C9CEAD;
+  --color-icon-primary-muted: #c9cead;
 
   /* Shadow tokens */
   --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.12);
-  --shadow-panel: 0 1px 4px rgba(0, 0, 0, 0.10);
+  --shadow-panel: 0 1px 4px rgba(0, 0, 0, 0.1);
   --shadow-map-control: 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 

@@ -2,7 +2,7 @@
 import { TreeSchema } from "@/components/data-table/table-widget-defs";
 import { Tables } from "@/database/database.types";
 import { createUserLevelClient } from "@/lib/supabase/client";
-import { X } from "lucide-react";
+import { Pencil, Trash2, TriangleAlert, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const supabase = await createUserLevelClient();
@@ -201,7 +201,7 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
           <h1 className="text-[32px] font-serif">#{source.ecoslo_num} Tree Details</h1>
           <div className="flex flex-row gap-[10px]">
             <div className="flex w-[150px] flex-row gap-[3px] rounded-2xl bg-danger-bg p-[2px] pr-[10px] pl-[10px]">
-              <img src="/exclamation-mark.svg"></img>
+              <TriangleAlert aria-hidden="true" className="h-4 w-4 text-danger" strokeWidth={2} />
               <p className="text-sm font-semibold text-danger">Issue Reported</p>
             </div>
             <div className="rounded-2xl bg-success-bg p-[2px] pr-[10px] pl-[10px] text-sm font-semibold text-success">
@@ -266,11 +266,11 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
             <div className="flex flex-col items-center gap-[16px]">
               <button className="flex h-[32px] w-[460px] cursor-pointer items-center justify-center gap-[8px] rounded-2xl bg-primary p-[10px]">
                 <p className="font-semibold text-on-primary">Edit Tree</p>
-                <img className="h-[20px] w-[20px]" src="/white_edit.png"></img>
+                <Pencil aria-hidden="true" className="h-5 w-5 text-on-primary" strokeWidth={2} />
               </button>
               <button className="flex h-[32px] w-[460px] cursor-pointer flex-row items-center justify-center gap-[8px] rounded-2xl border border-danger/35 bg-danger-bg p-[10px]">
                 <p className="font-bold text-danger">Delete Tree</p>
-                <img className="h-[20px] w-[20px]" src="/hugeicons_delete-02.svg"></img>
+                <Trash2 aria-hidden="true" className="h-5 w-5 text-danger" strokeWidth={2} />
               </button>
             </div>
           ) : (

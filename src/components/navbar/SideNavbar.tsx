@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { BarChart3, Calendar, Ellipsis, Home, Map, NotebookPen, TreeDeciduous, UsersRound } from "lucide-react";
 import NavbarButton, { NavbarButtonProps } from "./SideNavbarButton";
 import { LogoutButton } from "../LogoutButton";
 import { useCurrentMember } from "@/hooks/useCurrentProvider";
@@ -15,13 +16,13 @@ import { useCurrentMember } from "@/hooks/useCurrentProvider";
 type FeatureButton = NavbarButtonProps & { adminOnly?: boolean };
 
 const allFeatureButtons: FeatureButton[] = [
-  { icon: "/icons/home.svg", label: "Dashboard", link: "/dashboard" },
-  { icon: "/icons/tree.svg", label: "Trees", link: "/trees" },
-  { icon: "/icons/volunteers.svg", label: "Members", link: "/members", adminOnly: true },
-  { icon: "/icons/calendar.svg", label: "Reminders", link: "/reminders", adminOnly: true },
-  { icon: "/icons/analytics.svg", label: "Tasks", link: "/tasks" },
-  { icon: "/icons/pen-paper.svg", label: "Surveys", link: "/survey" },
-  { icon: "/icons/map.svg", label: "Map", link: "/map" },
+  { icon: Home, label: "Dashboard", link: "/dashboard" },
+  { icon: TreeDeciduous, label: "Trees", link: "/trees" },
+  { icon: UsersRound, label: "Members", link: "/members", adminOnly: true },
+  { icon: Calendar, label: "Reminders", link: "/reminders", adminOnly: true },
+  { icon: BarChart3, label: "Tasks", link: "/tasks" },
+  { icon: NotebookPen, label: "Surveys", link: "/survey" },
+  { icon: Map, label: "Map", link: "/map" },
 ];
 
 const NAV_ITEM_HEIGHT = 88;
@@ -108,7 +109,7 @@ export default function SideNavbar() {
 
     if (member) {
       return (
-        <LogoutButton className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer" />
+        <LogoutButton className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-lato font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer" />
       );
     }
 
@@ -116,9 +117,9 @@ export default function SideNavbar() {
       return (
         <Link
           href="/map"
-          className="flex items-center justify-center gap-2 bg-white text-black rounded-full w-28 h-[39px] px-3 py-2.5 text-sm font-avenir font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer"
+          className="flex items-center justify-center gap-2 bg-white text-black rounded-full w-28 h-[39px] px-3 py-2.5 text-sm font-lato font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer"
         >
-          <Image src="/icons/black-map.svg" width={16} height={16} alt="" />
+          <Map aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
           <span>Map</span>
         </Link>
       );
@@ -128,7 +129,7 @@ export default function SideNavbar() {
     return (
       <Link
         href="/login"
-        className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer"
+        className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-lato font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer"
       >
         Login
       </Link>
@@ -163,7 +164,7 @@ export default function SideNavbar() {
                 ))}
               </div>
             )}
-            <NavbarButton icon="/icons/ellipsis.svg" label="More" onClick={() => setIsMoreOpen((open) => !open)} />
+            <NavbarButton icon={Ellipsis} label="More" onClick={() => setIsMoreOpen((open) => !open)} />
           </div>
         )}
       </div>

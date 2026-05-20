@@ -43,7 +43,7 @@ export default function ReminderCard(props: ReminderCardProps) {
           {props.name}
         </span>
         <div
-          className={`text-sm font-avenir font-normal px-2 py-1 rounded-full ${
+          className={`text-sm font-lato font-normal px-2 py-1 rounded-full ${
             props.is_active
               ? "bg-active-pill text-primary border-1 border-pill-border"
               : "bg-danger-bg text-danger border-1 border-danger-border"
@@ -52,18 +52,20 @@ export default function ReminderCard(props: ReminderCardProps) {
           {props.is_active ? "Active" : "Inactive"}
         </div>
       </div>
-      <span className={`text-m font-avenir font-semibold ${props.is_active ? "text-text-muted" : "text-text-subtle"}`}>
-        {props.assignees}
-      </span>
-      <div
-        className={`flex flex-row items-center text-m font-avenir ${
-          props.is_active ? "text-text-muted" : "text-text-subtle"
-        }`}
-      >
-        <Clock className="mr-1" size={16} />
-        <span>{scheduleSummary[0]}</span>
-        <Dot />
-        <span>{scheduleSummary[1]}</span>
+      <div className="flex flex-col gap-1">
+        <span className={`text-m font-lato font-semibold ${props.is_active ? "text-text-muted" : "text-text-subtle"}`}>
+          {props.assignees}
+        </span>
+        <div
+          className={`flex flex-row items-center text-m font-lato ${
+            props.is_active ? "text-text-muted" : "text-text-subtle"
+          }`}
+        >
+          <Clock className="mr-1" size={16} />
+          <span>{scheduleSummary[0]}</span>
+          <Dot />
+          <span>{scheduleSummary[1]}</span>
+        </div>
       </div>
     </div>
   );

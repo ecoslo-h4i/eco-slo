@@ -7,6 +7,7 @@ import NotificationWidget from "@/components/notifications/NotificationWidget";
 import TreeDashboardWidget from "@/components/TreeDashboardWidget";
 import { ReminderWidget, VolunteerWidget } from "@/components/SimpleDashboardWidget";
 import { useCurrentMember } from "@/hooks/useCurrentProvider";
+import { Bell, NotebookPen } from "lucide-react";
 
 // TODO: This is just for testing/development, remove once backend integration is finished
 function createNotificationList() {
@@ -49,7 +50,7 @@ export default function Dash() {
                   setNotifPopout(true);
                 }}
               >
-                <img src="/assets/icons/bell.svg" alt="" />
+                <Bell aria-hidden="true" className="h-9 w-9 text-white" strokeWidth={2} />
               </button>
               {/*notes*/}
               <button
@@ -60,7 +61,7 @@ export default function Dash() {
                       hover:bg-primary-hover cursor-pointer`}
                 aria-label="Notes"
               >
-                <img src="/assets/icons/notepad.svg" alt="" />
+                <NotebookPen aria-hidden="true" className="h-9 w-9 text-white" strokeWidth={2} />
               </button>
             </div>
           </header>

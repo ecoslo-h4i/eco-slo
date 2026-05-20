@@ -1,6 +1,5 @@
-import Image from "next/image";
 import { useState } from "react";
-import { useFormStatus } from "react-dom";
+import { Bell, X } from "lucide-react";
 
 export default function NotificationCard({
   timestamp,
@@ -18,26 +17,29 @@ export default function NotificationCard({
   const [read, setRead] = useState(readProp);
   return (
     <div
-      onClick={(event) => {
+      onClick={() => {
         onRead(timestamp);
-        () => setRead(true);
+        setRead(true);
       }}
-      className={`w-auto h-[75px] pt-3 pl-4 pb-3 pr-4 rounded-lg gap-1 bg-success-bg mt-2.5 mb-0 border-col`}
+      className={`w-auto h-[75px] pt-3 pl-4 pb-3 pr-4 rounded-lg gap-1 mt-2.5 mb-0 border-col ${
+        read ? "bg-success-bg" : "bg-off-white-2"
+      }`}
     >
       <div className="flex flex-row items-center">
         <p className="text-sm font-medium">{timestamp}</p>
         <button
-          className="ml-auto font-medium text-sm font-avenir p-0.5 cursor-pointer"
+          className="ml-auto p-0.5 cursor-pointer text-black/70 transition-colors hover:text-black"
+          aria-label="Delete notification"
           onClick={(event) => {
             event.stopPropagation();
             onDelete(timestamp, event);
           }}
         >
-          X
+          <X aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
         </button>
       </div>
       <div className="flex flex-row items-center mt-2">
-        <Image src="/small_bell.png" width={24} height={25} alt="A small notification bell"></Image>
+        <Bell aria-hidden="true" className="h-6 w-6 shrink-0 text-black" strokeWidth={2} />
         <p className="ml-1.5 truncate">{notificationText}</p>
       </div>
     </div>

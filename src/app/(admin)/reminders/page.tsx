@@ -3,7 +3,7 @@
 import RemindersList from "@/components/reminders/RemindersList";
 import ReminderView from "@/components/reminders/ReminderView";
 import type { Tables } from "@/database/database.types";
-import Image from "next/image";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 type Member = Tables<"members">;
@@ -82,10 +82,10 @@ export default function Reminders() {
       <header className="flex flex-row items-center justify-between pt-5">
         <h1 className="text-[56px] font-serif font-semibold leading-none">Reminders</h1>
         <button
-          className="h-11 px-4 bg-primary rounded-lg text-white font-avenir flex flex-row items-center justify-center gap-3 hover:bg-primary-light transition-colors duration-200 cursor-pointer"
+          className="h-11 px-4 bg-primary rounded-lg text-white font-lato flex flex-row items-center justify-center gap-3 hover:bg-primary-light transition-colors duration-200 cursor-pointer"
           onClick={handleCreateReminder}
         >
-          <Image src="/icons/plus.svg" alt="Plus Icon" width={20} height={20} />
+          <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
           <span>New Reminder</span>
         </button>
       </header>

@@ -4,6 +4,12 @@ import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../dropdown-menu";
 import { cn } from "@/lib/utils";
+import {
+  reminderDropdownContentClass,
+  reminderDropdownTriggerClass,
+  reminderElevationHoverClass,
+  reminderFieldLabelClass,
+} from "./reminderInputStyles";
 
 export type NestedMultiSelectOption = {
   label: string;
@@ -103,14 +109,16 @@ export default function ReminderNestedMultiSelectDropdown({
 
   return (
     <div className="flex w-full flex-col gap-1">
-      <span className="font-avenir text-m font-normal">{label}</span>
+      <span className={reminderFieldLabelClass}>{label}</span>
 
       <DropdownMenu open={!disabled && isOpen} onOpenChange={disabled ? undefined : setIsOpen}>
-        <DropdownMenuTrigger
-          disabled={disabled}
-          className="flex h-10 w-full flex-row items-center justify-between rounded-full bg-white px-4 font-avenir text-m focus:outline-none hover:cursor-pointer disabled:cursor-default disabled:bg-table-header disabled:opacity-100"
-        >
-          <span className={cn("truncate", getSelectedCount(selectedValue) > 0 ? "text-text-dark" : "text-text-muted")}>
+        <DropdownMenuTrigger disabled={disabled} className={reminderDropdownTriggerClass}>
+          <span
+            className={cn(
+              "truncate leading-normal [text-box:normal]",
+              getSelectedCount(selectedValue) > 0 ? "text-text-dark" : "text-text-muted",
+            )}
+          >
             {triggerText}
           </span>
           {!disabled && (
@@ -123,7 +131,7 @@ export default function ReminderNestedMultiSelectDropdown({
           )}
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="start" className="w-72 p-2 font-avenir">
+        <DropdownMenuContent align="start" className={`w-72 p-2 ${reminderDropdownContentClass}`}>
           <div className="flex max-h-80 flex-col gap-1 overflow-auto">
             {options.map((group) => {
               const selectedNestedValues = selectedValue[group.value] ?? [];
@@ -133,7 +141,9 @@ export default function ReminderNestedMultiSelectDropdown({
 
               return (
                 <div key={group.value} className="rounded-lg">
-                  <div className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-table-header">
+                  <div
+                    className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors ${reminderElevationHoverClass}`}
+                  >
                     <input
                       type="checkbox"
                       disabled={disabled}
@@ -155,7 +165,7 @@ export default function ReminderNestedMultiSelectDropdown({
                       type="button"
                       disabled={disabled}
                       onClick={() => setOpenGroups((current) => ({ ...current, [group.value]: !isGroupOpen }))}
-                      className="flex items-center justify-between rounded-lg bg-white px-2 py-1.5 text-left text-xs font-medium text-text-muted transition-colors hover:cursor-pointer hover:bg-table-header disabled:cursor-default disabled:bg-table-header disabled:hover:bg-table-header"
+                      className={`flex items-center justify-between rounded-lg bg-white px-2 py-1.5 text-left text-xs font-medium text-text-muted transition-colors hover:cursor-pointer ${reminderElevationHoverClass} disabled:cursor-default disabled:bg-table-header disabled:hover:bg-table-header`}
                     >
                       <span>{allNestedSelected ? "All selected" : `${selectedNestedValues.length} selected`}</span>
                       {!disabled && (
@@ -168,7 +178,7 @@ export default function ReminderNestedMultiSelectDropdown({
                       group.options.map((nestedOption) => (
                         <label
                           key={nestedOption.value}
-                          className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-text-dark transition-colors hover:bg-table-header"
+                          className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-text-dark transition-colors ${reminderElevationHoverClass}`}
                         >
                           <input
                             type="checkbox"

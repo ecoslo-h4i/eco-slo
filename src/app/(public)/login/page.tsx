@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 
 const LOGIN_STATE = {
@@ -16,11 +14,6 @@ const LOGIN_TITLE = "Log In";
 const EMAIL_LABEL = "Email Address";
 const PLACEHOLDER_EMAIL = "Input your registered email address...";
 const CONFIRM_BUTTON_TEXT = "Confirm";
-const BACK_TO_MAP_TEXT = "Back to Map";
-const BACK_TO_MAP_ICON_SRC = "/icons/map.svg";
-const BACK_TO_MAP_ICON_ALT = "Map";
-const LOGO_SRC = "/icons/ecoslo-logo.png";
-const LOGO_ALT = "Eco SLO - Environmental Center of San Luis Obispo";
 const CONFIRMATION_HEADING = "Check Your Email";
 const CONFIRMATION_MESSAGE_START = "A log-in link has been sent to";
 const CONFIRMATION_MESSAGE_END = "Click the link to continue. It will expire in 24 hours.";
@@ -109,13 +102,8 @@ export default function LoginPage() {
       <div className="flex flex-1 flex-col bg-app-bg" style={{ width: "100vw" }}>
         <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
           <div className="w-full max-w-xl rounded-xl border border-primary px-12 py-12 shadow-sm bg-card">
-            <h1 className="mb-6 text-[44px] font-normal leading-tight text-text font-serif">
-              {LOGIN_TITLE}
-            </h1>
-            <label
-              htmlFor="login-email"
-              className="mb-2 block text-[16px] font-bold text-text font-avenir"
-            >
+            <h1 className="mb-6 text-[44px] font-normal leading-tight text-text font-serif">{LOGIN_TITLE}</h1>
+            <label htmlFor="login-email" className="mb-2 block text-[16px] font-bold text-text font-lato">
               {EMAIL_LABEL}
             </label>
             <input
@@ -124,14 +112,14 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={PLACEHOLDER_EMAIL}
-              className="mb-6 w-full rounded-lg border-0 px-4 py-3 text-[16px] text-text placeholder:text-[13px] placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-primary bg-off-white-2 font-avenir"
+              className="mb-6 w-full rounded-lg border-0 px-4 py-3 text-[16px] text-text placeholder:text-[13px] placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-primary bg-off-white-2 font-lato"
               aria-label="Email address"
             />
             <button
               type="button"
               onClick={handleConfirm}
               disabled={!email.trim() || !isValidEmail(email.trim()) || isSubmitting}
-              className="w-full rounded-full px-4 py-3 text-[16px] font-medium text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 bg-primary font-avenir"
+              className="w-full rounded-full px-4 py-3 text-[16px] font-medium text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 bg-primary font-lato"
             >
               {isSubmitting ? "Sending..." : CONFIRM_BUTTON_TEXT}
             </button>
@@ -149,7 +137,7 @@ export default function LoginPage() {
             <h1 className="mb-4 text-center text-[44px] font-normal leading-tight text-text font-serif">
               {CONFIRMATION_HEADING}
             </h1>
-            <p className="mb-6 text-center text-[16px] leading-snug text-text font-avenir">
+            <p className="mb-6 text-center text-[16px] leading-snug text-text font-lato">
               {CONFIRMATION_MESSAGE_START} <strong>{submittedEmail}</strong>. {CONFIRMATION_MESSAGE_END}
             </p>
             <div className="flex flex-col gap-3">
@@ -157,14 +145,14 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleResendLink}
                 disabled={isSubmitting}
-                className="w-full rounded-full px-4 py-3 text-[16px] font-bold text-white transition-colors hover:opacity-90 bg-primary font-avenir"
+                className="w-full rounded-full px-4 py-3 text-[16px] font-bold text-white transition-colors hover:opacity-90 bg-primary font-lato"
               >
                 {isSubmitting ? "Sending..." : RESEND_LINK_TEXT}
               </button>
               <button
                 type="button"
                 onClick={handleTryAnotherEmail}
-                className="text-left text-[14px] underline hover:opacity-80 text-text-muted font-avenir"
+                className="text-left text-[14px] underline hover:opacity-80 text-text-muted font-lato"
               >
                 {TRY_ANOTHER_EMAIL_TEXT}
               </button>
@@ -180,16 +168,12 @@ export default function LoginPage() {
     <div className="flex flex-1 flex-col bg-app-bg" style={{ width: "100vw" }}>
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
         <div className="w-full max-w-xl rounded-xl border border-primary px-12 py-12 shadow-sm bg-card">
-          <h1 className="mb-4 text-[44px] font-normal leading-tight text-text font-serif">
-            {ERROR_HEADING}
-          </h1>
-          <p className="mb-6 text-[15px] leading-snug text-text font-avenir">
-            {errorMessage}
-          </p>
+          <h1 className="mb-4 text-[44px] font-normal leading-tight text-text font-serif">{ERROR_HEADING}</h1>
+          <p className="mb-6 text-[15px] leading-snug text-text font-lato">{errorMessage}</p>
           <button
             type="button"
             onClick={handleTryAnotherEmail}
-            className="text-left text-[14px] underline hover:opacity-80 text-text-muted font-avenir"
+            className="text-left text-[14px] underline hover:opacity-80 text-text-muted font-lato"
           >
             {ERROR_TRY_ANOTHER_TEXT}
           </button>

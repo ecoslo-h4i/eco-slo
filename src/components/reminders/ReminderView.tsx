@@ -10,6 +10,7 @@ import { Calendar, SquarePen, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import ReminderLongTextInput from "./ReminderLongTextInput";
 import ReminderToggleArea from "./ReminderToggleArea";
+import { reminderFieldLabelClass } from "./reminderInputStyles";
 import {
   createCronExpression,
   cronExpressionToFormValues,
@@ -192,12 +193,12 @@ export default function ReminderView({
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-col gap-2">
           <h1 className="font-serif text-[26px] font-normal leading-tight">{headerTitle}</h1>
-          <span className="font-avenir text-m font-normal text-text-muted">{headerSubtitle}</span>
+          <span className="font-lato text-m font-normal text-text-muted">{headerSubtitle}</span>
         </div>
         <div className="flex flex-row items-center gap-4">
           {(isViewMode || isEditMode) && (
             <button
-              className="flex items-center justify-center h-9 w-9 rounded-full font-avenir text-text-light transition-colors duration-200 hover:cursor-pointer hover:bg-border disabled:cursor-default disabled:opacity-60"
+              className="flex items-center justify-center h-9 w-9 rounded-full font-lato transition-colors duration-200 hover:cursor-pointer hover:bg-border disabled:cursor-default disabled:opacity-60"
               disabled={isDeleting}
               onClick={handleDelete}
               type="button"
@@ -207,7 +208,7 @@ export default function ReminderView({
           )}
           {isViewMode && (
             <button
-              className="flex items-center justify-center h-9 w-9 rounded-full font-avenir text-text-light transition-colors duration-200 hover:cursor-pointer hover:bg-border"
+              className="flex items-center justify-center h-9 w-9 rounded-full font-lato transition-colors duration-200 hover:cursor-pointer hover:bg-border"
               onClick={onEdit}
             >
               <SquarePen size={24} className="text-text-muted" />
@@ -216,7 +217,7 @@ export default function ReminderView({
         </div>
       </div>
       <hr className="border-0 border-t border-text-muted w-full"></hr>
-      {deleteError && <span className="font-avenir text-sm text-danger">{deleteError}</span>}
+      {deleteError && <span className="font-lato text-sm text-danger">{deleteError}</span>}
       {isCreateMode && (
         <div className="text-text-dark">
           <ReminderTextInput
@@ -264,7 +265,7 @@ export default function ReminderView({
               onOptionClick={handleRepeatChange}
             />
           </div>
-          <div className="flex basis-1/2 text-text-muted">
+          <div className="flex basis-1/2 text-text-dark">
             <ReminderTimePicker
               disabled={isReadOnly}
               label="Time"
@@ -277,7 +278,7 @@ export default function ReminderView({
 
         {form.repeat === "weekly" && (
           <div className="flex flex-row items-start gap-4">
-            <div className="flex basis-1/2 text-text-muted">
+            <div className="flex basis-1/2 text-text-dark">
               <ReminderDropdown
                 disabled={isReadOnly}
                 label="Day of Week"
@@ -291,7 +292,7 @@ export default function ReminderView({
               <div className="flex items-center rounded-lg bg-primary p-2">
                 <Calendar className="text-white" size={24} />
               </div>
-              <div className="flex flex-col gap-1 font-avenir text-m">
+              <div className="flex flex-col gap-1 font-lato text-m">
                 <span className="font-semibold text-text-dark">Starts</span>
                 <span className="text-text-muted">{nextSendLabel}</span>
               </div>
@@ -301,7 +302,7 @@ export default function ReminderView({
 
         {form.repeat === "monthly" && (
           <div className="flex flex-col gap-1">
-            <span className="font-avenir text-m font-normal">Day of Month</span>
+            <span className={reminderFieldLabelClass}>Day of Month</span>
             <ReminderMonthlyDayPicker
               disabled={isReadOnly}
               value={form.dayOfMonth}
@@ -312,7 +313,7 @@ export default function ReminderView({
 
         {form.repeat === "yearly" && (
           <div className="flex flex-col gap-1">
-            <span className="font-avenir text-m font-normal">Date</span>
+            <span className={reminderFieldLabelClass}>Date</span>
             <ReminderYearlyDatePicker
               disabled={isReadOnly}
               value={form.yearlyDate}
@@ -325,7 +326,7 @@ export default function ReminderView({
             <div className="flex items-center rounded-lg bg-primary p-2">
               <Calendar className="text-white" size={24} />
             </div>
-            <div className="flex flex-col gap-1 font-avenir text-m">
+            <div className="flex flex-col gap-1 font-lato text-m">
               <span className="font-semibold text-text-dark">Starts</span>
               <span className="text-text-muted">{nextSendLabel}</span>
             </div>
@@ -333,7 +334,7 @@ export default function ReminderView({
         )}
       </div>
       <div className="flex flex-col gap-3">
-        <span className="font-serif text-xl font-normal text-text-dark">Message Template</span>
+        <span className={reminderFieldLabelClass}>Message Template</span>
         <div className="flex flex-row flex-wrap gap-2">
           {["{firstName}", "{treeCount}", "{surveyLink}", "{treeNames}"].map((variable) => (
             <span key={variable} className="rounded-full bg-table-header px-4 py-1 font-mono text-m text-text-muted">
@@ -389,7 +390,7 @@ export default function ReminderView({
               Cancel
             </button>
           </div>
-          {submitError && <span className="font-avenir text-sm text-danger">{submitError}</span>}
+          {submitError && <span className="font-lato text-sm text-danger">{submitError}</span>}
         </>
       )}
     </div>

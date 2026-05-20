@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Flag, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type Member = {
@@ -149,9 +149,9 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
           type="button"
           onClick={onClose}
           aria-label="Close panel"
-          className="flex h-6 w-6 items-center justify-center text-[12px] leading-none text-black/70 cursor-pointer font-semibold transition-all duration-200 hover:text-black/60"
+          className="flex h-6 w-6 items-center justify-center text-black/70 cursor-pointer transition-all duration-200 hover:text-black/60"
         >
-          ✕
+          <X aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
         </button>
       </div>
       <div className="space-y-5">
@@ -188,7 +188,7 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
           className="w-[337px] flex items-center justify-center gap-3 rounded-full bg-primary px-6 py-2 mb-4 text-white cursor-pointer transition-all duration-200 hover:bg-primary-hover"
           onClick={openReportModal}
         >
-          <Image src="/icons/report.svg" alt="" width={20} height={20} className="h-5 w-5" />
+          <Flag aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
           <span>Report an Issue</span>
         </button>
         <button
@@ -216,9 +216,9 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
                     type="button"
                     onClick={closeReportModal}
                     aria-label="Close report form"
-                    className="flex h-6 w-6 items-center justify-center text-[16px] leading-none text-black/70 cursor-pointer font-semibold transition-all duration-200 hover:text-black/60"
+                    className="flex h-6 w-6 items-center justify-center text-black/70 cursor-pointer transition-all duration-200 hover:text-black/60"
                   >
-                    ✕
+                    <X aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
                   </button>
                 </div>
                 <textarea

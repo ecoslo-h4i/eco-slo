@@ -19,7 +19,7 @@ export default function RemindersList({
 }: RemindersListProps) {
   return (
     <div className="flex max-h-full min-h-0 flex-col gap-6 overflow-hidden rounded-3xl border-1 border-border bg-table-row-dark px-6 py-8">
-      <h2 className="font-serif text-xl font-semibold leading-none">Overview</h2>
+      <h2 className="font-serif text-[26px] font-normal leading-tight">Overview</h2>
       <div className="min-h-0 no-scrollbar flex flex-1 flex-col gap-4 overflow-y-auto pr-1">
         {reminders.length > 0 ? (
           reminders.map((reminder) => (
@@ -35,7 +35,7 @@ export default function RemindersList({
             />
           ))
         ) : (
-          <span className="font-avenir">Loading...</span>
+          <span className="font-lato">Loading...</span>
         )}
       </div>
     </div>

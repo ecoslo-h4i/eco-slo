@@ -1,10 +1,9 @@
 "use client";
 
 import { ChangeEvent, type MutableRefObject, type ReactNode, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { TreeSchema } from "./data-table/table-widget-defs";
 import { Table } from "./data-table/table/table-types";
-import { Check, ChevronDown, Search, X } from "lucide-react";
+import { Check, ChevronDown, Search, X, type LucideIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -58,12 +57,13 @@ interface ControlButtonInterface {
   hoverHex: string;
   textHex: string;
   text: string;
-  iconPath?: string;
+  icon?: LucideIcon;
   function: () => void;
 }
 
 export function ControlButton(props: ControlButtonInterface) {
   const [hovering, setHovering] = useState(false);
+  const Icon = props.icon;
 
   return (
     <div
@@ -80,7 +80,7 @@ export function ControlButton(props: ControlButtonInterface) {
       <p className="font-medium text-base whitespace-nowrap" style={{ fontSize: "clamp(0.75rem, 15cqw, 1.125rem)" }}>
         {props.text}
       </p>
-      {props.iconPath && <Image src={props.iconPath} width={22} height={22} alt="" />}
+      {Icon ? <Icon aria-hidden="true" className="h-[22px] w-[22px]" strokeWidth={2} /> : null}
     </div>
   );
 }

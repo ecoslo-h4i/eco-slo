@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { dashboardTreeColumns, TreeSchema } from "./data-table/table-widget-defs";
 import TreeDashboardTable from "./data-table/tree-dashboard-table";
 import { getAdminTrees } from "@/lib/get-admin-trees";
+import { TreeDeciduous } from "lucide-react";
 
 function TreeDashboardWidget({ className }: { className?: string }) {
   const [trees, setTrees] = useState<TreeSchema[]>([]);
@@ -43,7 +44,7 @@ function TreeDashboardWidget({ className }: { className?: string }) {
             aria-label="Go to Trees page"
             className="rounded-full size-14 bg-transparent transition-all duration-200 ease-out hover:bg-black/10 cursor-pointer flex justify-center items-center items-center"
           >
-            <img src="/icons/tree.svg" alt="To Tree Page" className="size-10 invert" />
+            <TreeDeciduous aria-hidden="true" className="size-10 text-black" strokeWidth={2} />
           </Link>
         </div>
         <div className="h-[0.1rem] w-full bg-border-strong"></div>

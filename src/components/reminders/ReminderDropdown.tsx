@@ -3,6 +3,12 @@ import { ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../dropdown-menu";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  reminderDropdownContentClass,
+  reminderDropdownItemClass,
+  reminderDropdownTriggerClass,
+  reminderFieldLabelClass,
+} from "./reminderInputStyles";
 
 interface ReminderDropdownProps {
   disabled?: boolean;
@@ -28,14 +34,16 @@ export default function ReminderDropdown(props: ReminderDropdownProps) {
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      <span className="font-serif text-xl font-normal">{props.label}</span>
+      <span className={reminderFieldLabelClass}>{props.label}</span>
 
       <DropdownMenu open={!props.disabled && isOpen} onOpenChange={props.disabled ? undefined : setIsOpen}>
-        <DropdownMenuTrigger
-          disabled={props.disabled}
-          className="flex flex-row items-center justify-between w-full h-10 rounded-2xl bg-white px-4 font-avenir text-m focus:outline-none hover:cursor-pointer disabled:cursor-default disabled:bg-table-header disabled:opacity-100"
-        >
-          <span className={cn("truncate", isPlaceholder ? "text-text-muted" : "text-text-dark")}>
+        <DropdownMenuTrigger disabled={props.disabled} className={reminderDropdownTriggerClass}>
+          <span
+            className={cn(
+              "truncate leading-normal [text-box:normal]",
+              isPlaceholder ? "text-text-muted" : "text-text-dark",
+            )}
+          >
             {displayedOption}
           </span>
           {!props.disabled && (
@@ -44,9 +52,13 @@ export default function ReminderDropdown(props: ReminderDropdownProps) {
             />
           )}
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
+        <DropdownMenuContent align="start" className={reminderDropdownContentClass}>
           {props.options.map((option) => (
-            <DropdownMenuItem key={option} className="font-medium" onClick={() => handleOptionClick(option)}>
+            <DropdownMenuItem
+              key={option}
+              className={reminderDropdownItemClass}
+              onClick={() => handleOptionClick(option)}
+            >
               {option}
             </DropdownMenuItem>
           ))}
