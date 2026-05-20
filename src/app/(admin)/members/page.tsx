@@ -28,7 +28,7 @@ export default function Volunteers() {
     <main className="flex-1 min-w-0 bg-background">
       <div className="flex flex-col gap-y-8 px-6 py-10">
         <header className="w-full flex items-center justify-between pb-2">
-          <h1 className="text-5xl font-[Constantia] font-semibold leading-none">Volunteers</h1>
+          <h1 className="text-5xl font-serif font-semibold leading-none">Volunteers</h1>
           <button
             className="flex items-center gap-x-2 px-4 py-2 bg-primary text-text-light border border-border text-text-dark rounded-full hover:bg-primary/90 transition-colors duration-100"
             onClick={handleAddVolunteerClick}

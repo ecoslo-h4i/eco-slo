@@ -2,19 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-const tiktokSans = localFont({
-  src: [
-    { path: "./fonts/tiktok-sans/TikTokSans-Light.ttf", weight: "300", style: "normal" },
-    { path: "./fonts/tiktok-sans/TikTokSans-Regular.ttf", weight: "400", style: "normal" },
-    { path: "./fonts/tiktok-sans/TikTokSans-Medium.ttf", weight: "500", style: "normal" },
-    { path: "./fonts/tiktok-sans/TikTokSans-SemiBold.ttf", weight: "600", style: "normal" },
-    { path: "./fonts/tiktok-sans/TikTokSans-Bold.ttf", weight: "700", style: "normal" },
-    { path: "./fonts/tiktok-sans/TikTokSans-ExtraBold.ttf", weight: "800", style: "normal" },
-    { path: "./fonts/tiktok-sans/TikTokSans-Black.ttf", weight: "900", style: "normal" },
-  ],
-  display: "swap",
-});
-
 const cardo = localFont({
   src: [
     { path: "./fonts/cardo/Cardo-Regular.ttf", weight: "400", style: "normal" },
@@ -51,7 +38,7 @@ const avenir = localFont({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${tiktokSans.className} ${cardo.variable} ${avenir.variable} font-avenir`}>{children}</body>
+      <body className={`${cardo.variable} ${avenir.variable} font-avenir`}>{children}</body>
     </html>
   );
 }

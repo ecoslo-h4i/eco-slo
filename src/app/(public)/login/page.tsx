@@ -12,16 +12,6 @@ const LOGIN_STATE = {
 
 type LoginState = (typeof LOGIN_STATE)[keyof typeof LOGIN_STATE];
 
-const HEADER_BG = "#6A7B4F";
-const CARD_BG = "#FDFBF7";
-const PAGE_BG = "#FFFFFF";
-const INPUT_BG = "#F0E9DF";
-const CONFIRM_BTN_BG = "#6A7B4F";
-const CARD_OUTLINE = "#6A7B4F";
-
-const FONT_SERIF = "var(--font-cardo), Constania, serif";
-const FONT_SANS = "var(--font-avenir), system-ui, sans-serif";
-
 const LOGIN_TITLE = "Log In";
 const EMAIL_LABEL = "Email Address";
 const PLACEHOLDER_EMAIL = "Input your registered email address...";
@@ -36,8 +26,6 @@ const CONFIRMATION_MESSAGE_START = "A log-in link has been sent to";
 const CONFIRMATION_MESSAGE_END = "Click the link to continue. It will expire in 24 hours.";
 const RESEND_LINK_TEXT = "Resend Link";
 const TRY_ANOTHER_EMAIL_TEXT = "Wrong email? Try another one.";
-const RESEND_BTN_BG = "#A68B6E";
-const TRY_ANOTHER_LINK_COLOR = "#8B7355";
 const ERROR_HEADING = "Email Not Registered";
 const ERROR_MESSAGE =
   "It looks like the email you entered is not registered as a user. If you are a new treekeeper or admin, please contact administration for a sign-up link.";
@@ -118,22 +106,15 @@ export default function LoginPage() {
 
   if (loginState === LOGIN_STATE.INPUT) {
     return (
-      <div className="flex flex-1 flex-col" style={{ backgroundColor: PAGE_BG, width: "100vw" }}>
+      <div className="flex flex-1 flex-col bg-app-bg" style={{ width: "100vw" }}>
         <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
-          <div
-            className="w-full max-w-xl rounded-xl border px-12 py-12 shadow-sm"
-            style={{ backgroundColor: CARD_BG, borderColor: CARD_OUTLINE }}
-          >
-            <h1
-              className="mb-6 text-[44px] font-normal leading-tight text-[#415763]"
-              style={{ fontFamily: FONT_SERIF }}
-            >
+          <div className="w-full max-w-xl rounded-xl border border-primary px-12 py-12 shadow-sm bg-card">
+            <h1 className="mb-6 text-[44px] font-normal leading-tight text-text font-serif">
               {LOGIN_TITLE}
             </h1>
             <label
               htmlFor="login-email"
-              className="mb-2 block text-[16px] font-bold text-[#415763]"
-              style={{ fontFamily: FONT_SANS }}
+              className="mb-2 block text-[16px] font-bold text-text font-avenir"
             >
               {EMAIL_LABEL}
             </label>
@@ -143,16 +124,14 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={PLACEHOLDER_EMAIL}
-              className="mb-6 w-full rounded-lg border-0 px-4 py-3 text-[16px] text-[#415763] placeholder:text-[13px] placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-[#758656]"
-              style={{ backgroundColor: INPUT_BG, fontFamily: FONT_SANS }}
+              className="mb-6 w-full rounded-lg border-0 px-4 py-3 text-[16px] text-text placeholder:text-[13px] placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-primary bg-off-white-2 font-avenir"
               aria-label="Email address"
             />
             <button
               type="button"
               onClick={handleConfirm}
               disabled={!email.trim() || !isValidEmail(email.trim()) || isSubmitting}
-              className="w-full rounded-lg px-4 py-3 text-[16px] font-medium text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ backgroundColor: CONFIRM_BTN_BG, fontFamily: FONT_SANS }}
+              className="w-full rounded-full px-4 py-3 text-[16px] font-medium text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 bg-primary font-avenir"
             >
               {isSubmitting ? "Sending..." : CONFIRM_BUTTON_TEXT}
             </button>
@@ -164,19 +143,13 @@ export default function LoginPage() {
 
   if (loginState === LOGIN_STATE.CONFIRMATION) {
     return (
-      <div className="flex flex-1 flex-col" style={{ backgroundColor: PAGE_BG, width: "100vw" }}>
+      <div className="flex flex-1 flex-col bg-app-bg" style={{ width: "100vw" }}>
         <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
-          <div
-            className="w-full max-w-xl rounded-xl border px-12 py-12 shadow-sm"
-            style={{ backgroundColor: CARD_BG, borderColor: CARD_OUTLINE }}
-          >
-            <h1
-              className="mb-4 text-center text-[44px] font-normal leading-tight text-[#415763]"
-              style={{ fontFamily: FONT_SERIF }}
-            >
+          <div className="w-full max-w-xl rounded-xl border border-primary px-12 py-12 shadow-sm bg-card">
+            <h1 className="mb-4 text-center text-[44px] font-normal leading-tight text-text font-serif">
               {CONFIRMATION_HEADING}
             </h1>
-            <p className="mb-6 text-center text-[16px] leading-snug text-[#415763]" style={{ fontFamily: FONT_SANS }}>
+            <p className="mb-6 text-center text-[16px] leading-snug text-text font-avenir">
               {CONFIRMATION_MESSAGE_START} <strong>{submittedEmail}</strong>. {CONFIRMATION_MESSAGE_END}
             </p>
             <div className="flex flex-col gap-3">
@@ -184,16 +157,14 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleResendLink}
                 disabled={isSubmitting}
-                className="w-full rounded-lg px-4 py-3 text-[16px] font-bold text-white transition-colors hover:opacity-90"
-                style={{ backgroundColor: RESEND_BTN_BG, fontFamily: FONT_SANS }}
+                className="w-full rounded-full px-4 py-3 text-[16px] font-bold text-white transition-colors hover:opacity-90 bg-primary font-avenir"
               >
                 {isSubmitting ? "Sending..." : RESEND_LINK_TEXT}
               </button>
               <button
                 type="button"
                 onClick={handleTryAnotherEmail}
-                className="text-left text-[14px] underline hover:opacity-80"
-                style={{ fontFamily: FONT_SANS, color: TRY_ANOTHER_LINK_COLOR }}
+                className="text-left text-[14px] underline hover:opacity-80 text-text-muted font-avenir"
               >
                 {TRY_ANOTHER_EMAIL_TEXT}
               </button>
@@ -206,23 +177,19 @@ export default function LoginPage() {
 
   // Error state
   return (
-    <div className="flex flex-1 flex-col" style={{ backgroundColor: PAGE_BG, width: "100vw" }}>
+    <div className="flex flex-1 flex-col bg-app-bg" style={{ width: "100vw" }}>
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
-        <div
-          className="w-full max-w-xl rounded-xl border px-12 py-12 shadow-sm"
-          style={{ backgroundColor: CARD_BG, borderColor: CARD_OUTLINE }}
-        >
-          <h1 className="mb-4 text-[44px] font-normal leading-tight text-black" style={{ fontFamily: FONT_SERIF }}>
+        <div className="w-full max-w-xl rounded-xl border border-primary px-12 py-12 shadow-sm bg-card">
+          <h1 className="mb-4 text-[44px] font-normal leading-tight text-text font-serif">
             {ERROR_HEADING}
           </h1>
-          <p className="mb-6 text-[15px] leading-snug text-black" style={{ fontFamily: FONT_SANS }}>
+          <p className="mb-6 text-[15px] leading-snug text-text font-avenir">
             {errorMessage}
           </p>
           <button
             type="button"
             onClick={handleTryAnotherEmail}
-            className="text-left text-[14px] underline hover:opacity-80"
-            style={{ fontFamily: FONT_SANS, color: TRY_ANOTHER_LINK_COLOR }}
+            className="text-left text-[14px] underline hover:opacity-80 text-text-muted font-avenir"
           >
             {ERROR_TRY_ANOTHER_TEXT}
           </button>

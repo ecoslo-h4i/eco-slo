@@ -198,12 +198,12 @@ export default function SurveyForm() {
         <button
           type="submit"
           disabled={submitting || !canSubmit}
-          className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#758656] px-10 py-3 text-base font-medium text-white transition hover:bg-[#6A7B4F] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-primary px-10 py-3 text-base font-medium text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? "Submitting…" : "Submit"}
         </button>
         {submitMessage ? (
-          <p role="status" className={submitMessage.type === "ok" ? "text-sm text-green-800" : "text-sm text-red-700"}>
+          <p role="status" className={submitMessage.type === "ok" ? "text-sm text-success" : "text-sm text-danger"}>
             {submitMessage.text}
           </p>
         ) : null}

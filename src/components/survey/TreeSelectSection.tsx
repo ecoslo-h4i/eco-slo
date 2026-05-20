@@ -40,7 +40,7 @@ export default function TreeSelectSection({ trees, value, onChange, disabled, er
           ))}
         </select>
         {error ? (
-          <p id="survey-err-tree" className="mt-2 text-sm text-red-700" role="alert">
+          <p id="survey-err-tree" className="mt-2 text-sm text-danger" role="alert">
             {error}
           </p>
         ) : null}

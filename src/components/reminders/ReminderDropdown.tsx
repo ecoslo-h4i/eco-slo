@@ -28,12 +28,12 @@ export default function ReminderDropdown(props: ReminderDropdownProps) {
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      <span className="font-avenir text-m font-normal">{props.label}</span>
+      <span className="font-serif text-xl font-normal">{props.label}</span>
 
       <DropdownMenu open={!props.disabled && isOpen} onOpenChange={props.disabled ? undefined : setIsOpen}>
         <DropdownMenuTrigger
           disabled={props.disabled}
-          className="flex flex-row items-center justify-between w-full h-10 rounded-full bg-white px-4 font-avenir text-m focus:outline-none hover:cursor-pointer disabled:cursor-default disabled:bg-table-header disabled:opacity-100"
+          className="flex flex-row items-center justify-between w-full h-10 rounded-2xl bg-white px-4 font-avenir text-m focus:outline-none hover:cursor-pointer disabled:cursor-default disabled:bg-table-header disabled:opacity-100"
         >
           <span className={cn("truncate", isPlaceholder ? "text-text-muted" : "text-text-dark")}>
             {displayedOption}

@@ -45,7 +45,7 @@ function TreePageTableWidget({
     <div className={`min-w-0 flex flex-col ${className || ""}`}>
       <div className="flex-1 min-h-0 min-w-0 flex flex-col">
         {error ? (
-          <div className="w-full h-full flex justify-center items-center text-red-500">{error}</div>
+          <div className="w-full h-full flex justify-center items-center text-danger">{error}</div>
         ) : (
           <TreePageTable
             className="w-full max-w-full min-w-0"

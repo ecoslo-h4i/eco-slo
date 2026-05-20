@@ -101,7 +101,7 @@ function AssignedTreePickerModalBody({
     <>
       <ModalHeader>
         <div className="flex items-center justify-between gap-x-4">
-          <h2 className="text-2xl text-text-dark font-[Constantia] font-extrabold">Assign Tree</h2>
+          <h2 className="text-2xl text-text-dark font-serif font-extrabold">Assign Tree</h2>
           <ModalClose asChild>
             <button
               type="button"

@@ -21,25 +21,25 @@ export default function NotificationsPopout(props: NotificationPopoutProps) {
   const [notificationList, setNotificationList] = useState(props.notificationList);
   const [readFilter, setReadFilter] = useState(READ_FILTER_ALL);
   return props.trigger ? (
-    <div className="h-[835px] w-[457px] p-[32px]  gap-[16px] bg-[#fffcf5] filter drop-shadow-xl transition-transform duration-500 -translate-x-103">
+    <div className="h-[835px] w-[457px] p-8 gap-4 bg-card filter drop-shadow-xl transition-transform duration-500 -translate-x-103">
       <h1 className="text-[40px] font-serif font-medium">Notifications</h1>
-      <hr className="mt-[5px] border-1"></hr>
-      <div className="flex flex-row items-center mt-[15px] mb-[10px] gap-[10px]">
+      <hr className="mt-1.5 border-1"></hr>
+      <div className="flex flex-row items-center mt-4 mb-2.5 gap-2.5">
         <button
           onClick={() => setReadFilter(READ_FILTER_ALL)}
-          className={`${readFilter != READ_FILTER_ALL ? "bg-[#f5eadd]" : "bg-[#756859] text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-[10px] gap-[8px] text-sm cursor-pointer`}
+          className={`${readFilter != READ_FILTER_ALL ? "bg-muted-card-bg" : "bg-primary text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-2.5 gap-2 text-sm cursor-pointer`}
         >
           All
         </button>
         <button
           onClick={() => setReadFilter(READ_FILTER_UNREAD)}
-          className={`${readFilter != READ_FILTER_UNREAD ? "bg-[#f5eadd]" : "bg-[#756859] text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-[10px] gap-[8px] text-sm cursor-pointer`}
+          className={`${readFilter != READ_FILTER_UNREAD ? "bg-muted-card-bg" : "bg-primary text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-2.5 gap-2 text-sm cursor-pointer`}
         >
           Unread
         </button>
         <button
           onClick={() => setReadFilter(READ_FILTER_READ)}
-          className={`${readFilter != READ_FILTER_READ ? "bg-[#f5eadd]" : "bg-[#756859] text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-[10px] gap-[8px] text-sm cursor-pointer`}
+          className={`${readFilter != READ_FILTER_READ ? "bg-muted-card-bg" : "bg-primary text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-2.5 gap-2 text-sm cursor-pointer`}
         >
           Read
         </button>

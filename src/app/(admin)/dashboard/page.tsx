@@ -22,7 +22,7 @@ export default function Dash() {
   const { member } = useCurrentMember();
   return (
     //the whole page div//
-    <div className="flex flex-grow bg-[#FBF7EE]">
+    <div className="flex flex-grow bg-background">
       <div className="fixed top-3 -right-100 h-auto w-auto z-30">
         <NotificationsPopout notificationList={createNotificationList()} trigger={notifPopout}></NotificationsPopout>
       </div>
@@ -31,7 +31,7 @@ export default function Dash() {
         <div className="px-6 py-10">
           {/*header*/}
           <header className="flex items-center justify-between pt-5">
-            <h1 className="flex-1 text-[56px] font-[Constantia] font-semibold leading-none">
+            <h1 className="flex-1 text-[56px] font-serif font-semibold leading-none">
               Welcome Back, {member?.firstname}
             </h1>
             {/*icons*/}
@@ -40,9 +40,9 @@ export default function Dash() {
               <button
                 type="button"
                 className={`w-[81px] h-[81px] rounded-full flex items-center justify-center 
-                      bg-[#758656] 
+                      bg-primary 
                       transition-all duration-200 ease-out 
-                      hover:bg-[#6A7B4F] cursor-pointer`}
+                      hover:bg-primary-hover cursor-pointer`}
                 aria-label="Notifications"
                 onClick={(event) => {
                   event.stopPropagation();
@@ -55,9 +55,9 @@ export default function Dash() {
               <button
                 type="button"
                 className={`w-[81px] h-[81px] rounded-full flex items-center justify-center 
-                      bg-[#758656] 
+                      bg-primary 
                       transition-all duration-200 ease-out 
-                      hover:bg-[#6A7B4F] cursor-pointer`}
+                      hover:bg-primary-hover cursor-pointer`}
                 aria-label="Notes"
               >
                 <img src="/assets/icons/notepad.svg" alt="" />
@@ -74,16 +74,16 @@ export default function Dash() {
               }}
             ></NotificationWidget>
             {/*volunteers*/}
-            <div className="h-[366px] rounded-3xl border-2 border-black bg-[#EEE0CF]">
+            <div className="h-[366px] rounded-3xl border border-border bg-muted-card-bg">
               <VolunteerWidget></VolunteerWidget>
             </div>
             {/*reminders*/}
-            <div className="h-[366px] rounded-3xl border-2 border-black bg-[#EEE0CF]">
+            <div className="h-[366px] rounded-3xl border border-border bg-muted-card-bg">
               <ReminderWidget></ReminderWidget>
             </div>
           </div>
           {/*trees*/}
-          <TreeDashboardWidget className="mt-8 rounded-3xl border-2 border-[#CDAA7F] bg-[#EEE0CF]" />
+          <TreeDashboardWidget className="mt-8 rounded-3xl border border-border bg-muted-card-bg" />
         </div>
       </main>
     </div>

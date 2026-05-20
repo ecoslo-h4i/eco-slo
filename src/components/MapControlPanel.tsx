@@ -55,14 +55,14 @@ function ControlSearch(props: ControlSearchProps) {
   };
 
   return (
-    <div className="h-[44px] flex itesm-center rounded-2xl bg-white border solid border-[#D6D1C7]">
+    <div className="h-[44px] flex itesm-center rounded-2xl bg-white border solid border-border">
       <input
         type="text"
         id="query"
         placeholder="Search by address"
         value={query}
         onChange={handleChange}
-        className="w-full px-[24px] py-[12px] text-lg text-[#2B2B2B] placeholder:text-[#6B6B6B] outline-none bg-transparent"
+        className="w-full px-[24px] py-[12px] text-lg text-text placeholder:text-text-muted outline-none bg-transparent"
       />
     </div>
   );
@@ -79,8 +79,6 @@ interface ControlStatusPillsInterface {
   options: string[];
   delay: number; // Delay in ms before calling delayFunction
   delayFunction: (status: string) => void;
-  activeBackgroundHex: string;
-  activeTextHex: string;
   activeFilter: string;
 }
 
@@ -107,19 +105,18 @@ function ControlStatusPills(props: ControlStatusPillsInterface) {
 
   return (
     <div className="flex flex-col gap-1.5 select-none">
-      <h2 className="text-lg font-medium text-[#2B2B2B]">{props.text}</h2>
+      <h2 className="text-lg font-medium text-text">{props.text}</h2>
       <div className="flex gap-2 flex-wrap">
         {props.options.map((option, index) => (
           <button
             key={option}
             type="button"
-            className="h-9 rounded-xl cursor-pointer flex items-center justify-center px-3 transition-colors text-sm"
+            className={`h-9 rounded-xl cursor-pointer flex items-center justify-center px-3 transition-colors text-sm ${
+              option === props.activeFilter
+                ? "bg-primary text-on-primary border-none"
+                : "bg-off-white-2 text-text border border-border"
+            }`}
             onClick={() => handleSelect(index)}
-            style={{
-              backgroundColor: option === props.activeFilter ? props.activeBackgroundHex : "#E7E2D8",
-              color: option === props.activeFilter ? props.activeTextHex : "#2B2B2B",
-              border: option === props.activeFilter ? "none" : "1px solid #D6D1C7",
-            }}
           >
             <p className="font-medium text-lg whitespace-nowrap">{option}</p>
           </button>
@@ -197,8 +194,6 @@ export default function ControlPanel(props: ControlPanelProps) {
           options={["All"]}
           delay={0}
           delayFunction={handleClearFilters}
-          activeBackgroundHex="#6F7C58"
-          activeTextHex="white"
           activeFilter={!visibilityFilter && !statusFilter ? "All" : ""}
         />
         <ControlStatusPills
@@ -208,8 +203,6 @@ export default function ControlPanel(props: ControlPanelProps) {
           delayFunction={(option: string) => {
             handleVisibilityFilter(option as Visibility);
           }}
-          activeBackgroundHex="#6F7C58"
-          activeTextHex="white"
           activeFilter={visibilityFilter ?? ""}
         />
         <ControlStatusPills
@@ -219,8 +212,6 @@ export default function ControlPanel(props: ControlPanelProps) {
           delayFunction={(option: string) => {
             handleStatusFilter(option as Status);
           }}
-          activeBackgroundHex="#6F7C58"
-          activeTextHex="white"
           activeFilter={statusFilter ?? ""}
         />
       </div>

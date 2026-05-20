@@ -108,7 +108,7 @@ export default function SideNavbar() {
 
     if (member) {
       return (
-        <LogoutButton className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer" />
+        <LogoutButton className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer" />
       );
     }
 
@@ -116,7 +116,7 @@ export default function SideNavbar() {
       return (
         <Link
           href="/map"
-          className="flex items-center justify-center gap-2 bg-white text-black rounded-full w-28 h-[39px] px-3 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+          className="flex items-center justify-center gap-2 bg-white text-black rounded-full w-28 h-[39px] px-3 py-2.5 text-sm font-avenir font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer"
         >
           <Image src="/icons/black-map.svg" width={16} height={16} alt="" />
           <span>Map</span>
@@ -128,7 +128,7 @@ export default function SideNavbar() {
     return (
       <Link
         href="/login"
-        className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+        className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer"
       >
         Login
       </Link>

@@ -139,11 +139,11 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
   if (!tree) return null;
 
   return (
-    <aside className="absolute right-0 top-0 z-[3000] h-full w-[400px] overflow-y-auto flex-col bg-[#FFFCF5] px-8 py-10">
+    <aside className="absolute right-0 top-0 z-[3000] h-full w-[405px] overflow-y-auto flex-col bg-card px-8 py-10">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-[22px] leading-none text-black">ECOSLO #{tree.id}</h2>
-          <span className="rounded-full bg-[#EEEAE4] px-3 py-1 text-[11px] text-black/50">{tree.status}</span>
+          <h2 className="text-[30px] font-serif leading-none text-black">ECOSLO #{tree.id}</h2>
+          <span className="rounded-full bg-off-white-2 px-3 py-1 text-[11px] text-black/50">{tree.status}</span>
         </div>
         <button
           type="button"
@@ -155,37 +155,37 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
         </button>
       </div>
       <div className="space-y-5">
-        <div className="px-4 py-3 rounded-2xl bg-[#EEEAE4]">
+        <div className="px-4 py-3 rounded-2xl bg-off-white-2">
           <p className="mb-1 text-[12px] font-semibold text-black">Species</p>
           <p className="text-[14px] text-black font-semibold">{tree.species_name}</p>
           <p className="text-[12px] mt-1 text-black/70 font-semibold">{tree.common_name}</p>
         </div>
-        <div className="px-4 py-3 rounded-2xl bg-[#EEEAE4]">
+        <div className="px-4 py-3 rounded-2xl bg-off-white-2">
           <p className="mb-1 text-[12px] font-semibold text-black">Location</p>
           <p className="text-[14px] text-black font-semibold">{tree.address}</p>
           <p className="text-[12px] mt-1 text-black/70 font-semibold">
             {tree.latitude}, {tree.longitude}
           </p>
         </div>
-        <div className="px-4 py-3 rounded-2xl bg-[#EEEAE4]">
+        <div className="px-4 py-3 rounded-2xl bg-off-white-2">
           <p className="mb-1 text-[12px] font-semibold text-black">Tree Keeper</p>
           <p className="text-[14px] text-black font-semibold">
             {tree.member?.firstname} {tree.member?.lastname}
           </p>
         </div>
-        <div className="px-4 py-3 rounded-2xl bg-[#EEEAE4]">
+        <div className="px-4 py-3 rounded-2xl bg-off-white-2">
           <p className="mb-1 text-[12px] font-semibold text-black">Visibility</p>
           <p className="text-[14px] text-black font-semibold">{tree.is_public ? "Public" : "Private"}</p>
         </div>
-        <div className="px-4 py-3 rounded-2xl bg-[#EEEAE4]">
+        <div className="px-4 py-3 rounded-2xl bg-off-white-2">
           <p className="mb-1 text-[12px] font-semibold text-black">Notes</p>
           <p className="text-[14px] text-black font-semibold">{tree.notes}</p>
         </div>
       </div>
-      <div className="mt-8 border-t border-[#F5EADD] pt-6">
+      <div className="mt-8 border-t border-border pt-6">
         <button
           type="button"
-          className="w-[337px] flex items-center justify-center gap-3 rounded-full bg-[#758656] px-6 py-2 mb-4 text-white cursor-pointer transition-all duration-200 hover:bg-[#6c7d4c]"
+          className="w-[337px] flex items-center justify-center gap-3 rounded-full bg-primary px-6 py-2 mb-4 text-white cursor-pointer transition-all duration-200 hover:bg-primary-hover"
           onClick={openReportModal}
         >
           <Image src="/icons/report.svg" alt="" width={20} height={20} className="h-5 w-5" />
@@ -194,7 +194,7 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
         <button
           type="button"
           onClick={onClose}
-          className="w-[337px] flex items-center justify-center gap-3 rounded-full bg-[#EDE6DB] px-6 py-2 text-black font-semibold cursor-pointer border border-black/10 transition-all duration-200 hover:bg-[#DED6C6]"
+          className="w-[337px] flex items-center justify-center gap-3 rounded-full bg-off-white-2 px-6 py-2 text-black font-semibold cursor-pointer border border-black/10 transition-all duration-200 hover:bg-off-white-3"
         >
           <span>Close</span>
         </button>
@@ -205,7 +205,7 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-[24px] font-semibold">Report an Issue</h2>
-                <p className="mt-1 text-sm text-slate-600">Tell us what&apos;s wrong with this tree.</p>
+                <p className="mt-1 text-sm text-text-muted">Tell us what&apos;s wrong with this tree.</p>
               </div>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -226,7 +226,7 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   rows={5}
-                  className="mt-2 w-full resize-none rounded-2xl border border-slate-300 bg-slate-50 p-4 text-sm shadow-sm outline-none transition focus:border-[#758656] focus:ring-2 focus:ring-[#758656]/20"
+                  className="mt-2 w-full resize-none rounded-2xl border border-border bg-off-white-2 p-4 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                   placeholder="Let us know what's wrong with this tree"
                 />
                 <div className="grid gap-4 md:grid-cols-2">
@@ -236,7 +236,7 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
                       type="text"
                       value={reporterName}
                       onChange={(event) => setReporterName(event.target.value)}
-                      className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 p-3 text-sm shadow-sm outline-none transition focus:border-[#758656] focus:ring-2 focus:ring-[#758656]/20 cursor-text"
+                      className="mt-2 w-full rounded-2xl border border-border bg-off-white-2 p-3 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-text"
                       placeholder="Enter your name"
                     />
                   </label>
@@ -246,7 +246,7 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
                       type="tel"
                       value={reporterPhone}
                       onChange={(event) => setReporterPhone(event.target.value)}
-                      className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 p-3 text-sm shadow-sm outline-none transition focus:border-[#758656] focus:ring-2 focus:ring-[#758656]/20"
+                      className="mt-2 w-full rounded-2xl border border-border bg-off-white-2 p-3 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                       placeholder="Phone number"
                     />
                   </label>
@@ -256,30 +256,30 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
                       type="email"
                       value={reporterEmail}
                       onChange={(event) => setReporterEmail(event.target.value)}
-                      className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 p-3 text-sm shadow-sm outline-none transition focus:border-[#758656] focus:ring-2 focus:ring-[#758656]/20"
+                      className="mt-2 w-full rounded-2xl border border-border bg-off-white-2 p-3 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                       placeholder="Email address"
                     />
                   </label>
                 </div>
-                {submitError ? <p className="text-sm text-red-700">{submitError}</p> : null}
-                {submitSuccess ? <p className="text-sm text-green-700">{submitSuccess}</p> : null}
+                {submitError ? <p className="text-sm text-danger">{submitError}</p> : null}
+                {submitSuccess ? <p className="text-sm text-success">{submitSuccess}</p> : null}
                 <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                   <button
                     type="button"
                     onClick={closeReportModal}
-                    className="rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 cursor-pointer"
+                    className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-text transition hover:bg-off-white-2 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    className="rounded-full bg-[#758656] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#6c7d4c] disabled:cursor-not-allowed disabled:bg-slate-300 cursor-pointer"
+                    className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-off-white-3 cursor-pointer"
                   >
                     {isSubmitting ? "Submitting..." : "Submit"}
                   </button>
                 </div>
-                <p className="text-xs text-slate-500">This report will create a task for the ECOSLO admin team.</p>
+                <p className="text-xs text-text-muted">This report will create a task for the ECOSLO admin team.</p>
               </div>
             </div>
           </div>

@@ -23,7 +23,7 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
     <div className="flex flex-col h-full w-full p-8 justify-between">
       <div className="flex flex-col justify-center flex-grow">
         <div
-          className={`flex items-end justify-between border-b-2 border-black pt-4 pb-4 ${hasButtons ? "mb-10" : "mb-0"}`}
+          className={`flex items-end justify-between border-b-2 border-border-strong pt-4 pb-4 ${hasButtons ? "mb-10" : "mb-0"}`}
         >
           <Link href={props.pageRoute}>
             <h2 className="text-4xl font-avenir text-black leading-none">{props.name}</h2>
@@ -36,7 +36,7 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
             <button
               key={index}
               onClick={button.handler}
-              className={`bg-[#758656] hover:bg-[#8A9573] text-white px-4 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer ${
+              className={`bg-primary hover:bg-primary-hover text-white px-4 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer ${
                 index === buttonsArray.length - 1 ? "py-7" : "py-5"
               }`}
             >

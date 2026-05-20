@@ -191,7 +191,7 @@ export default function ReminderView({
     <div className="flex h-full min-h-0 flex-col gap-6 overflow-auto no-scrollbar rounded-3xl border-1 border-border bg-table-row-dark px-6 py-8">
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-col gap-2">
-          <h1 className="font-[Constantia] text-xl font-bold">{headerTitle}</h1>
+          <h1 className="font-serif text-[26px] font-normal leading-tight">{headerTitle}</h1>
           <span className="font-avenir text-m font-normal text-text-muted">{headerSubtitle}</span>
         </div>
         <div className="flex flex-row items-center gap-4">
@@ -202,7 +202,7 @@ export default function ReminderView({
               onClick={handleDelete}
               type="button"
             >
-              <Trash2 size={24} color="#b45f5f" />
+              <Trash2 size={24} className="text-danger" />
             </button>
           )}
           {isViewMode && (
@@ -210,13 +210,13 @@ export default function ReminderView({
               className="flex items-center justify-center h-9 w-9 rounded-full font-avenir text-text-light transition-colors duration-200 hover:cursor-pointer hover:bg-border"
               onClick={onEdit}
             >
-              <SquarePen size={24} color="#6b6662" />
+              <SquarePen size={24} className="text-text-muted" />
             </button>
           )}
         </div>
       </div>
       <hr className="border-0 border-t border-text-muted w-full"></hr>
-      {deleteError && <span className="font-avenir text-sm text-red-600">{deleteError}</span>}
+      {deleteError && <span className="font-avenir text-sm text-danger">{deleteError}</span>}
       {isCreateMode && (
         <div className="text-text-dark">
           <ReminderTextInput
@@ -253,7 +253,7 @@ export default function ReminderView({
         </div>
       )}
       <div className="flex flex-col gap-4">
-        <span className="font-avenir text-m font-normal text-text-dark">Schedule</span>
+        <span className="font-serif text-m font-normal text-text-dark">Schedule</span>
         <div className="flex flex-row gap-4">
           <div className="flex basis-1/2 text-text-dark">
             <ReminderDropdown
@@ -314,7 +314,7 @@ export default function ReminderView({
         )}
       </div>
       <div className="flex h-25 shrink-0 flex-row items-center gap-3 rounded-3xl bg-table-header">
-        <Calendar className="ml-4" size={20} color="#6b7456" />
+        <Calendar className="ml-4 text-primary" size={20} />
         <div className="flex flex-col gap-1 font-avenir text-sm">
           <span className="text-text-dark">Next Send</span>
           <span className="text-text-muted">{nextSendLabel}</span>
@@ -349,20 +349,20 @@ export default function ReminderView({
           <hr className="border-0 border-t border-text-muted w-full"></hr>
           <div className="flex flex-row gap-4">
             <button
-              className="basis-1/2 rounded-full bg-primary text-text-light h-10 hover:cursor-pointer transition-colors duration-250 hover:bg-primary-light disabled:cursor-default disabled:opacity-70"
+              className="basis-1/2 flex items-center justify-center rounded-full bg-primary text-text-light h-10 hover:cursor-pointer transition-colors duration-250 hover:bg-primary-light disabled:cursor-default disabled:opacity-70"
               disabled={isSubmitting}
               onClick={handleSubmit}
             >
               {isSubmitting ? "Saving..." : submitLabel}
             </button>
             <button
-              className="basis-1/2 rounded-full bg-button text-text-dark border-1 border-border h-10 transition-colors duration-250 hover:cursor-pointer hover:bg-button-muted"
+              className="basis-1/2 flex items-center justify-center rounded-full bg-button text-text-dark border-1 border-border h-10 transition-colors duration-250 hover:cursor-pointer hover:bg-button-muted"
               onClick={onCancel}
             >
               Cancel
             </button>
           </div>
-          {submitError && <span className="font-avenir text-sm text-red-600">{submitError}</span>}
+          {submitError && <span className="font-avenir text-sm text-danger">{submitError}</span>}
         </>
       )}
     </div>

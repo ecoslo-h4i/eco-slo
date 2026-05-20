@@ -93,16 +93,16 @@ export default function Tasks() {
   const filteredTasks = filterTasks(tasks, status, surveys, assignees, searchQuery);
 
   return (
-    <main className="flex-1 min-w-0 bg-[#f6f2ec]">
+    <main className="flex-1 min-w-0 bg-background">
       {error ? (
-        <div className="w-full h-full flex justify-center items-center text-red-500">{error}</div>
+        <div className="w-full h-full flex justify-center items-center text-danger">{error}</div>
       ) : (
-        <div className="flex flex-col min-w-0 ml-[20px] mt-[15px] mr-[20px] gap-[20px]">
+        <div className="flex flex-col min-w-0 mx-5 mt-4 gap-[20px]">
           <header className="flex items-center justify-between pt-5">
-            <h1 className="flex text-[36px] font-[Constantia] font-bold">Tasks</h1>
+            <h1 className="flex text-[36px] font-serif font-bold">Tasks</h1>
           </header>
 
-          <div className="rounded-xl border-[1px] border-[#d8d3ca] drop-shadow-sm bg-[#ebe7de] w-full min-w-0">
+          <div className="rounded-xl border-[1px] border-border drop-shadow-sm bg-muted-card-bg w-full min-w-0">
             <TasksControlPanel
               setStatusFunction={setStatus}
               setSurveyFunction={setSurveys}
@@ -113,7 +113,7 @@ export default function Tasks() {
             />
           </div>
 
-          <div className="flex flex-col rounded-xl border-[1px] border-[#d8d3ca] drop-shadow-sm bg-[#ebe7de] w-auto h-[570px] overflow-hidden">
+          <div className="flex flex-col rounded-xl border-[1px] border-border drop-shadow-sm bg-muted-card-bg w-auto h-[570px] overflow-hidden">
             <div className="flex-1 overflow-y-scroll no-scrollbar p-[15px]">
               <div className="flex flex-col gap-[10px]">
                 {filteredTasks.map((task) => (
@@ -122,7 +122,7 @@ export default function Tasks() {
               </div>
             </div>
 
-            <div className="border-t border-[#ded9cf] border-t-[1.5px] px-[15px] py-[10px] text-[#6b6661] text-[14px] bg-[#ebe7de] font-semibold">
+            <div className="border-t border-border border-t-[1.5px] px-4 py-2.5 text-text-muted text-sm bg-muted-card-bg font-semibold">
               Showing {filteredTasks.length} tasks
             </div>
           </div>

@@ -345,7 +345,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
             <ModalHeader className="flex flex-col gap-y-4">
               <div className="flex items-center justify-between gap-x-4">
                 <div className="flex gap-x-4 items-center">
-                  <h2 className="text-[1.75rem] text-text-dark font-[Constantia] font-extrabold capitalize">
+                  <h2 className="text-[1.75rem] text-text-dark font-serif font-extrabold capitalize">
                     {displayedName}
                   </h2>
                   {String(displayedRole).toLowerCase() === "admin" ? (
@@ -408,7 +408,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
             </ModalHeader>
             <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[70vh]">
               <div className="bg-foreground p-4 border border-border rounded-xl">
-                <p className="text-lg font-[Constantia] font-bold text-text-dark pb-4">Contact Information</p>
+                <p className="text-lg font-serif font-bold text-text-dark pb-4">Contact Information</p>
                 <div className="flex flex-col gap-y-4">
                   <div className="flex gap-x-4">
                     <div className="flex-1 flex flex-col items-start gap-y-1">
@@ -550,7 +550,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
 
               <div className="bg-foreground p-4 border border-border rounded-xl">
                 <div className="flex items-center justify-between gap-x-3 pb-4">
-                  <p className="text-lg font-[Constantia] font-bold text-text-dark">{`Assigned Trees (${memberForm.assignedTreeEcosloNumbers.length})`}</p>
+                  <p className="text-lg font-serif font-bold text-text-dark">{`Assigned Trees (${memberForm.assignedTreeEcosloNumbers.length})`}</p>
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center">
                     {isEditing ? (
                       <button
@@ -632,7 +632,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
         <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false} widthClassName="px-8">
           <ModalHeader>
             <div className="flex items-center justify-between gap-x-4">
-              <h2 className="w-full text-center text-2xl text-text-dark font-[Constantia] font-extrabold">{`Delete ${displayedName}`}</h2>
+              <h2 className="w-full text-center text-2xl text-text-dark font-serif font-extrabold">{`Delete ${displayedName}`}</h2>
             </div>
           </ModalHeader>
           <ModalDescription className="flex flex-col gap-y-4 pt-1 pb-4">

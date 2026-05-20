@@ -29,7 +29,7 @@ export default function ImageLinkSection({ value, onChange, disabled, error }: I
           aria-describedby={error ? "survey-err-image" : undefined}
         />
         {error ? (
-          <p id="survey-err-image" className="mt-2 text-sm text-red-700" role="alert">
+          <p id="survey-err-image" className="mt-2 text-sm text-danger" role="alert">
             {error}
           </p>
         ) : null}

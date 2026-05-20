@@ -188,25 +188,25 @@ export default function MapClient() {
         <div ref={mapContainerRef} className="h-full w-full" />
 
         <div className="absolute top-6 left-5 z-[1000] flex items-start">
-          <div className="w-[64px] overflow-hidden rounded-[24px] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.14)]">
+          <div className="w-[64px] overflow-hidden rounded-[24px] bg-white shadow-map-control">
             <button
               type="button"
-              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-[#F3EFE8] hover:cursor-pointer"
+              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-background hover:cursor-pointer"
               onClick={zoomIn}
             >
               +
             </button>
-            <div className="mx-4 h-px  bg-[#E3DED3]" />
+            <div className="mx-4 h-px  bg-border" />
             <button
               onClick={handleCenter}
-              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-[#F3EFE8] hover:cursor-pointer"
+              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-background hover:cursor-pointer"
             >
               •
             </button>
-            <div className="mx-4 h-px bg-[#E3DED3]" />
+            <div className="mx-4 h-px bg-border" />
             <button
               type="button"
-              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-[#F3EFE8] hover:cursor-pointer"
+              className="grid h-[50px] w-full place-items-center text-4xl leading-none text-black hover:bg-background hover:cursor-pointer"
               onClick={zoomOut}
             >
               -

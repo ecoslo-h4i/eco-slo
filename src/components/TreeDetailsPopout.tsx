@@ -182,7 +182,7 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
       className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/40 p-6"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="relative flex w-[620px] max-h-[88vh] max-w-full flex-col items-center overflow-hidden rounded-2xl bg-[#f4ede2] p-[32px] pb-[0px] drop-shadow-xl">
+      <div className="relative flex w-[620px] max-h-[88vh] max-w-full flex-col items-center overflow-hidden rounded-2xl bg-panel-bg p-8 pb-0 drop-shadow-xl">
         {props.onClose ? (
           <button
             type="button"
@@ -190,7 +190,7 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
               e.stopPropagation();
               props.onClose?.();
             }}
-            className="absolute top-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-black/20 bg-white/90 text-neutral-700 shadow-sm transition hover:bg-white hover:text-neutral-900"
+            className="absolute top-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white/90 text-text-muted shadow-sm transition hover:bg-white hover:text-text"
             aria-label="Close tree details"
           >
             <X className="h-4 w-4" strokeWidth={2} />
@@ -200,14 +200,14 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
         <div className="flex flex-col items-center">
           <h1 className="text-[32px] font-serif">#{source.ecoslo_num} Tree Details</h1>
           <div className="flex flex-row gap-[10px]">
-            <div className="flex w-[150px] flex-row gap-[3px] rounded-2xl bg-[#ffd8d8] p-[2px] pr-[10px] pl-[10px]">
+            <div className="flex w-[150px] flex-row gap-[3px] rounded-2xl bg-danger-bg p-[2px] pr-[10px] pl-[10px]">
               <img src="/exclamation-mark.svg"></img>
-              <p className="text-sm font-semibold text-[#be4747]">Issue Reported</p>
+              <p className="text-sm font-semibold text-danger">Issue Reported</p>
             </div>
-            <div className="rounded-2xl bg-[#d7e6bd] p-[2px] pr-[10px] pl-[10px] text-sm font-semibold text-[#7b8c5d]">
+            <div className="rounded-2xl bg-success-bg p-[2px] pr-[10px] pl-[10px] text-sm font-semibold text-success">
               {display(source.status)}
             </div>
-            <div className="rounded-2xl bg-[#d7e6bd] p-[2px] pr-[10px] pl-[10px] text-sm font-semibold text-[#7b8c5d]">
+            <div className="rounded-2xl bg-success-bg p-[2px] pr-[10px] pl-[10px] text-sm font-semibold text-success">
               {source.is_public ? "Public" : "Private"}
             </div>
           </div>
@@ -215,19 +215,19 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
 
         {/* Body Container */}
         <div className="no-scrollbar m-[16px] flex h-full max-h-[70vh] w-fit flex-col items-start justify-items-center gap-[20px] overflow-y-auto">
-          <div className="h-auto w-[460px] rounded-2xl border border-black bg-white p-[16px]">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-4">
             {mapInfo("TREE INFORMATION", basicInformation)}
           </div>
-          <div className="h-auto w-[460px] rounded-2xl border border-black bg-white p-[16px]">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-4">
             {mapInfo("LOCATION", location)}
           </div>
-          <div className="h-auto w-[460px] rounded-2xl border border-black bg-white p-[16px]">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-4">
             {mapInfo("TREEKEEPER INFO", treeKeeperInfo)}
           </div>
-          <div className="h-auto w-[460px] rounded-2xl border border-black bg-white p-[16px]">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-4">
             {mapInfo("MAINTENANCE", maintenance)}
           </div>
-          <div className="h-auto w-[460px] rounded-2xl border border-black bg-white p-[20px]">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-5">
             {mapInfo(
               "NOTES",
               [
@@ -237,7 +237,7 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
               true,
             )}
           </div>
-          <div className="h-auto w-[460px] rounded-2xl border border-black bg-white p-[16px]">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-4">
             <h1 className="font-semibold">SURVEYS</h1>
             {surveys.length === 0 ? (
               <p>No associated surveys.</p>
@@ -264,12 +264,12 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
           </div>
           {props.admin ? (
             <div className="flex flex-col items-center gap-[16px]">
-              <button className="flex h-[32px] w-[460px] cursor-pointer items-center justify-center gap-[8px] rounded-2xl bg-[#758656] p-[10px]">
-                <p className="font-semibold text-[#FFFFFF]">Edit Tree</p>
+              <button className="flex h-[32px] w-[460px] cursor-pointer items-center justify-center gap-[8px] rounded-2xl bg-primary p-[10px]">
+                <p className="font-semibold text-on-primary">Edit Tree</p>
                 <img className="h-[20px] w-[20px]" src="/white_edit.png"></img>
               </button>
-              <button className="flex h-[32px] w-[460px] cursor-pointer flex-row items-center justify-center gap-[8px] rounded-2xl border border-[#be4747]/35 bg-[#ffd8d8] p-[10px]">
-                <p className="font-bold text-[#be4747]">Delete Tree</p>
+              <button className="flex h-[32px] w-[460px] cursor-pointer flex-row items-center justify-center gap-[8px] rounded-2xl border border-danger/35 bg-danger-bg p-[10px]">
+                <p className="font-bold text-danger">Delete Tree</p>
                 <img className="h-[20px] w-[20px]" src="/hugeicons_delete-02.svg"></img>
               </button>
             </div>

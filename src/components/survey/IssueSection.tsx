@@ -60,7 +60,7 @@ export default function IssueSection({
             aria-describedby={error ? "survey-err-issue-other" : undefined}
           />
           {error ? (
-            <p id="survey-err-issue-other" className="mt-2 text-sm text-red-700" role="alert">
+            <p id="survey-err-issue-other" className="mt-2 text-sm text-danger" role="alert">
               {error}
             </p>
           ) : null}

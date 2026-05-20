@@ -22,12 +22,12 @@ export default function NotificationCard({
         onRead(timestamp);
         () => setRead(true);
       }}
-      className={`w-auto h-[75px] pt-[12px] pl-[16px] pb-[12px] pr-[16px] rounded-lg gap-[4px] bg-[#AFC18F] mt-[10px] mb-[0px] border-col`}
+      className={`w-auto h-[75px] pt-3 pl-4 pb-3 pr-4 rounded-lg gap-1 bg-success-bg mt-2.5 mb-0 border-col`}
     >
       <div className="flex flex-row items-center">
         <p className="text-sm font-medium">{timestamp}</p>
         <button
-          className="ml-auto font-medium text-sm font-Avenir p-[2px] cursor-pointer"
+          className="ml-auto font-medium text-sm font-avenir p-0.5 cursor-pointer"
           onClick={(event) => {
             event.stopPropagation();
             onDelete(timestamp, event);
@@ -36,9 +36,9 @@ export default function NotificationCard({
           X
         </button>
       </div>
-      <div className="flex flex-row items-center mt-[8px]">
+      <div className="flex flex-row items-center mt-2">
         <Image src="/small_bell.png" width={24} height={25} alt="A small notification bell"></Image>
-        <p className="ml-[5px] truncate">{notificationText}</p>
+        <p className="ml-1.5 truncate">{notificationText}</p>
       </div>
     </div>
   );
