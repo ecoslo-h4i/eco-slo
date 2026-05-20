@@ -80,13 +80,13 @@ export default function Reminders() {
   return (
     <main className="flex h-screen flex-1 flex-col overflow-hidden bg-background px-8 py-10">
       <header className="flex flex-row items-center justify-between pt-5">
-        <h1 className="text-[56px] font-[Constantia] font-semibold leading-none">Automated Reminders</h1>
+        <h1 className="text-[56px] font-serif font-semibold leading-none">Reminders</h1>
         <button
-          className="h-10 w-40 bg-primary rounded-full text-white font-avenir flex flex-row items-center justify-center hover:bg-primary-light transition-colors duration-200 cursor-pointer"
+          className="h-11 px-4 bg-primary rounded-lg text-white font-avenir flex flex-row items-center justify-center gap-3 hover:bg-primary-light transition-colors duration-200 cursor-pointer"
           onClick={handleCreateReminder}
         >
+          <Image src="/icons/plus.svg" alt="Plus Icon" width={20} height={20} />
           <span>New Reminder</span>
-          <Image src="/icons/plus.svg" alt="Plus Icon" width={20} height={20} className="ml-2" />
         </button>
       </header>
       <div className="mt-10 flex min-h-0 flex-1 flex-row gap-8">
