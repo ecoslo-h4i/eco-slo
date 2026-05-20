@@ -11,8 +11,8 @@ interface ReminderLongTextInputProps {
 export default function ReminderTextInput(props: ReminderLongTextInputProps) {
   return (
     <div className="flex flex-col w-full">
-      <span className="font-serif text-xl font-normal text-text-dark">{props.label}</span>
-      <span className="font-avenir text-sm text-text-muted">{props.sublabel}</span>
+      {props.label && <span className="font-serif text-xl font-normal text-text-dark">{props.label}</span>}
+      {props.sublabel && <span className="font-avenir text-sm text-text-muted">{props.sublabel}</span>}
       <textarea
         className="w-full min-h-30 rounded-lg bg-white p-4 font-avenir text-m font-normal focus:outline-none mt-2 disabled:bg-table-header disabled:text-text-dark disabled:opacity-100"
         defaultValue={props.value === undefined ? props.initialValue || "" : undefined}

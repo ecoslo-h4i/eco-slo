@@ -332,30 +332,45 @@ export default function ReminderView({
           </div>
         )}
       </div>
-      <ReminderLongTextInput
-        disabled={isReadOnly}
-        label="Message Template"
-        sublabel="This is the message that will be sent to volunteers. You can use variables like {name} and {tree} to personalize the message."
-        placeholder="Write a message..."
-        value={form.message}
-        onChange={(event) => updateForm("message", event.target.value)}
-      />
-      <ReminderToggleArea
-        disabled={isReadOnly}
-        label="Active Status"
-        checkedDescription="This reminder is currently active"
-        uncheckedDescription="This reminder is currently inactive"
-        checked={form.isActive}
-        onChange={(value) => updateForm("isActive", value)}
-      />
-      <ReminderToggleArea
-        disabled={isReadOnly}
-        label="Survey Status"
-        checkedDescription="This reminder requires a survey"
-        uncheckedDescription="This reminder does not require a survey"
-        checked={form.needsSurvey}
-        onChange={(value) => updateForm("needsSurvey", value)}
-      />
+      <div className="flex flex-col gap-3">
+        <span className="font-serif text-xl font-normal text-text-dark">Message Template</span>
+        <div className="flex flex-row flex-wrap gap-2">
+          {["{firstName}", "{treeCount}", "{surveyLink}", "{treeNames}"].map((variable) => (
+            <span key={variable} className="rounded-full bg-table-header px-4 py-1 font-mono text-m text-text-muted">
+              {variable}
+            </span>
+          ))}
+        </div>
+        <ReminderLongTextInput
+          disabled={isReadOnly}
+          label=""
+          placeholder="Write a message..."
+          value={form.message}
+          onChange={(event) => updateForm("message", event.target.value)}
+        />
+      </div>
+      <div className="flex flex-row gap-4">
+        <div className="basis-1/2">
+          <ReminderToggleArea
+            disabled={isReadOnly}
+            label="Active Status"
+            checkedDescription="This reminder is currently active"
+            uncheckedDescription="This reminder is currently inactive"
+            checked={form.isActive}
+            onChange={(value) => updateForm("isActive", value)}
+          />
+        </div>
+        <div className="basis-1/2">
+          <ReminderToggleArea
+            disabled={isReadOnly}
+            label="Survey Status"
+            checkedDescription="This reminder requires a survey"
+            uncheckedDescription="This reminder does not require a survey"
+            checked={form.needsSurvey}
+            onChange={(value) => updateForm("needsSurvey", value)}
+          />
+        </div>
+      </div>
       {!isViewMode && (
         <>
           <hr className="border-0 border-t border-text-muted w-full"></hr>
