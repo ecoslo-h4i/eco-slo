@@ -253,7 +253,6 @@ export default function ReminderView({
         </div>
       )}
       <div className="flex flex-col gap-4">
-        <span className="font-serif text-m font-normal text-text-dark">Schedule</span>
         <div className="flex flex-row gap-4">
           <div className="flex basis-1/2 text-text-dark">
             <ReminderDropdown
@@ -277,7 +276,7 @@ export default function ReminderView({
         </div>
 
         {form.repeat === "weekly" && (
-          <div className="flex flex-row gap-4">
+          <div className="flex flex-row items-start gap-4">
             <div className="flex basis-1/2 text-text-muted">
               <ReminderDropdown
                 disabled={isReadOnly}
@@ -287,6 +286,15 @@ export default function ReminderView({
                 value={form.dayOfWeek}
                 onOptionClick={(value) => updateForm("dayOfWeek", value)}
               />
+            </div>
+            <div className="flex basis-1/2 items-center gap-4 rounded-lg bg-table-header px-4 py-3 self-end">
+              <div className="flex items-center rounded-lg bg-primary p-2">
+                <Calendar className="text-white" size={24} />
+              </div>
+              <div className="flex flex-col gap-1 font-avenir text-m">
+                <span className="font-semibold text-text-dark">Starts</span>
+                <span className="text-text-muted">{nextSendLabel}</span>
+              </div>
             </div>
           </div>
         )}
@@ -312,13 +320,17 @@ export default function ReminderView({
             />
           </div>
         )}
-      </div>
-      <div className="flex h-25 shrink-0 flex-row items-center gap-3 rounded-3xl bg-table-header">
-        <Calendar className="ml-4 text-primary" size={20} />
-        <div className="flex flex-col gap-1 font-avenir text-sm">
-          <span className="text-text-dark">Next Send</span>
-          <span className="text-text-muted">{nextSendLabel}</span>
-        </div>
+        {form.repeat !== "weekly" && (
+          <div className="flex items-center gap-4 rounded-lg bg-table-header px-4 py-3">
+            <div className="flex items-center rounded-lg bg-primary p-2">
+              <Calendar className="text-white" size={24} />
+            </div>
+            <div className="flex flex-col gap-1 font-avenir text-m">
+              <span className="font-semibold text-text-dark">Starts</span>
+              <span className="text-text-muted">{nextSendLabel}</span>
+            </div>
+          </div>
+        )}
       </div>
       <ReminderLongTextInput
         disabled={isReadOnly}
