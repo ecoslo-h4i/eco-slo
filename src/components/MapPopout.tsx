@@ -2,7 +2,7 @@
 
 import { Flag, X } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
-import { AppButton, TextField, TextAreaField, appButtonClassName } from "@/components/ui/form-controls";
+import { AppButton, TextField, TextAreaField, controlLabelClassName } from "@/components/ui/form-controls";
 import Badge from "@/components/badge";
 
 type Member = {
@@ -49,11 +49,9 @@ function statusBadgeVariant(status: string) {
 
 function InfoBlock({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <section className="min-h-[86px] rounded-[14px] bg-off-white px-4 py-4">
-      <h3 className="mb-2 font-serif text-[15px] font-bold uppercase leading-none tracking-normal text-text">
-        {label}
-      </h3>
-      <div className="font-mulish text-[13px] font-normal leading-snug text-text">{children}</div>
+    <section className="min-h-22 rounded-2xl bg-card border border-border px-4 py-4">
+      <h3 className="mb-2 font-serif text-sm font-bold uppercase leading-none tracking-normal text-text">{label}</h3>
+      <div className="font-mulish text-sm font-medium leading-snug text-text">{children}</div>
     </section>
   );
 }
@@ -164,34 +162,29 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
   if (!tree) return null;
 
   return (
-    <aside className="absolute right-0 top-0 z-[3000] flex h-full w-[405px] flex-col bg-card px-[29px] py-9 shadow-panel max-md:bottom-0 max-md:top-auto max-md:h-[76%] max-md:w-full max-md:rounded-t-[24px] max-md:px-5">
+    <aside className="absolute right-0 top-0 z-20 flex h-full w-full max-w-md flex-col bg-off-white px-7 py-9 shadow-panel max-md:bottom-0 max-md:top-auto max-md:h-3/4 max-md:max-w-none max-md:rounded-t-3xl max-md:px-5">
       <div className="mb-7 flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="font-serif text-[30px] font-normal leading-none text-text">ECOSLO #{tree.id}</h2>
-            <Badge variant={statusBadgeVariant(tree.status)} size="sm">
+            <h2 className="font-serif text-3xl font-normal leading-none text-text">#{tree.id}</h2>
+            <Badge variant={statusBadgeVariant(tree.status)} size="md">
               {displayStatus(tree.status)}
             </Badge>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close panel"
-          className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
-        >
-          <X aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-        </button>
+        <AppButton type="button" onClick={onClose} aria-label="Close panel" icon={X} iconOnly variant="ghost">
+          Close panel
+        </AppButton>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-[19px] overflow-y-auto pr-1">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
         <InfoBlock label="Species">
           <p>{displayValue(tree.species_name)}</p>
-          <p className="mt-1 text-[12px] text-text-muted">{displayValue(tree.common_name)}</p>
+          <p className="mt-1 text-xs text-text-muted">{displayValue(tree.common_name)}</p>
         </InfoBlock>
         <InfoBlock label="Location">
           <p>{displayValue(tree.address)}</p>
-          <p className="mt-1 text-[12px] text-text-muted">
+          <p className="mt-1 text-xs text-text-muted">
             {tree.latitude}, {tree.longitude}
           </p>
         </InfoBlock>
@@ -206,7 +199,7 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
         </InfoBlock>
       </div>
 
-      <div className="mt-7 border-t border-border pt-[22px]">
+      <div className="mt-7 border-t border-border pt-6">
         <AppButton type="button" className="mb-3 w-full" icon={Flag} onClick={openReportModal}>
           Report an Issue
         </AppButton>
@@ -215,72 +208,74 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
         </AppButton>
       </div>
       {isReporting ? (
-        <div className="fixed inset-0 z-[4000] flex items-center justify-center bg-text/45 px-4">
-          <div className="w-full max-w-xl overflow-hidden rounded-[24px] bg-card p-8 shadow-2xl">
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-text/45 px-4">
+          <div className="w-full max-w-xl overflow-hidden rounded-3xl bg-off-white p-8 shadow-2xl">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2 className="font-serif text-[28px] font-normal leading-none text-text">Report an Issue</h2>
+                <h2 className="font-serif text-3xl font-normal leading-none text-text">Report an Issue</h2>
               </div>
-              <button
+              <AppButton
                 type="button"
                 onClick={closeReportModal}
                 aria-label="Close report form"
-                className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
+                icon={X}
+                iconOnly
+                variant="ghost"
               >
-                <X aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-              </button>
+                Close report form
+              </AppButton>
             </div>
             <div className="space-y-4">
               <label className="block">
-                <span className="font-mulish text-sm font-bold">Message</span>
+                <span className={controlLabelClassName}>Message</span>
                 <TextAreaField
                   id="report-message"
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   rows={5}
-                  className="mt-2 resize-none bg-off-white-2"
+                  className="mt-2 resize-none"
                   placeholder="Let us know what's wrong with this tree"
                 />
               </label>
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block">
-                  <span className="font-mulish text-sm font-bold">Your Name (optional)</span>
+                  <span className={controlLabelClassName}>Your Name (optional)</span>
                   <TextField
                     type="text"
                     value={reporterName}
                     onChange={(event) => setReporterName(event.target.value)}
-                    className="mt-2 bg-off-white-2"
+                    className="mt-2"
                     placeholder="Enter your name"
                   />
                 </label>
                 <label className="block">
-                  <span className="font-mulish text-sm font-bold">Phone (optional)</span>
+                  <span className={controlLabelClassName}>Phone (optional)</span>
                   <TextField
                     type="tel"
                     value={reporterPhone}
                     onChange={(event) => setReporterPhone(event.target.value)}
-                    className="mt-2 bg-off-white-2"
+                    className="mt-2"
                     placeholder="Phone number"
                   />
                 </label>
                 <label className="block md:col-span-2">
-                  <span className="font-mulish text-sm font-bold">Email (optional)</span>
+                  <span className={controlLabelClassName}>Email (optional)</span>
                   <TextField
                     type="email"
                     value={reporterEmail}
                     onChange={(event) => setReporterEmail(event.target.value)}
-                    className="mt-2 bg-off-white-2"
+                    className="mt-2"
                     placeholder="Email address"
                   />
                 </label>
               </div>
               {submitError ? <p className="font-mulish text-sm text-danger">{submitError}</p> : null}
               {submitSuccess ? <p className="font-mulish text-sm text-success">{submitSuccess}</p> : null}
-              <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-                <AppButton type="button" onClick={closeReportModal} variant="secondary">
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-end mt-8">
+                <AppButton type="button" onClick={closeReportModal} variant="secondary" className="w-full sm:w-auto">
                   Cancel
                 </AppButton>
-                <AppButton type="button" onClick={handleSubmit} disabled={isSubmitting}>
+                <AppButton type="button" onClick={handleSubmit} disabled={isSubmitting} className="w-full sm:w-auto">
                   {isSubmitting ? "Submitting..." : "Submit"}
                 </AppButton>
               </div>

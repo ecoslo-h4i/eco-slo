@@ -30,7 +30,7 @@ export default function ReminderCard(props: ReminderCardProps) {
 
   return (
     <div
-      className={`flex w-full flex-col gap-4 rounded-3xl p-6 hover:cursor-pointer transition-colors duration-200 ${
+      className={`flex w-full flex-col gap-4 rounded-2xl p-4 hover:cursor-pointer transition-colors duration-200 ${
         props.selected
           ? "bg-card border-l-4 border-primary"
           : props.is_active
@@ -45,14 +45,12 @@ export default function ReminderCard(props: ReminderCardProps) {
             {props.name}
           </span>
         </div>
-        <Badge variant={props.is_active ? "success" : "danger"} size="sm">
+        <Badge variant={props.is_active ? "success" : "danger"} size="md">
           {props.is_active ? "Active" : "Inactive"}
         </Badge>
       </div>
       <div className="flex flex-col gap-1">
-        <span
-          className={`text-m font-mulish font-semibold ${props.is_active ? "text-text-muted" : "text-text-subtle"}`}
-        >
+        <span className={`text-m font-mulish font-medium ${props.is_active ? "text-text-muted" : "text-text-subtle"}`}>
           {props.assignees}
         </span>
         <div

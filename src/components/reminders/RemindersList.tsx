@@ -18,7 +18,7 @@ export default function RemindersList({
   selectedReminderId,
 }: RemindersListProps) {
   return (
-    <div className="flex max-h-full min-h-0 flex-col gap-6 overflow-hidden rounded-3xl border-1 border-border bg-table-row-dark px-6 py-8">
+    <div className="flex max-h-full min-h-0 flex-col gap-6 overflow-hidden rounded-xl border-1 border-border bg-table-row-dark p-6">
       <h2 className="font-serif text-[26px] font-normal leading-tight">Overview</h2>
       <div className="min-h-0 no-scrollbar flex flex-1 flex-col gap-4 overflow-y-auto pr-1">
         {reminders.length > 0 ? (

@@ -55,9 +55,10 @@ function MemberRoleBadge({ role }: { role: MemberRole | string }) {
   return (
     <Badge
       variant={isAdmin ? "info" : "success"}
-      size="sm"
+      size="md"
       icon={isAdmin ? <UserRoundCog className="h-4 w-4" /> : undefined}
-      className="shrink-0 capitalize"
+      shrink
+      textCase="capitalize"
     >
       {String(role)}
     </Badge>
@@ -157,9 +158,26 @@ type VolunteerPageFormProps = {
 };
 
 export default function VolunteerPageForm({ member, onOpenChange, onSaved, open }: VolunteerPageFormProps) {
-  const [memberForm, setMemberForm] = useState<MemberFormState>(() => createBlankMemberForm());
+  return (
+    <Modal open={open} onOpenChange={onOpenChange}>
+      {open && (
+        <VolunteerPageFormContent
+          key={member?.id ?? "new"}
+          member={member}
+          onOpenChange={onOpenChange}
+          onSaved={onSaved}
+        />
+      )}
+    </Modal>
+  );
+}
+
+function VolunteerPageFormContent({ member, onOpenChange, onSaved }: Omit<VolunteerPageFormProps, "open">) {
+  const [memberForm, setMemberForm] = useState<MemberFormState>(() =>
+    member ? memberToForm(member) : createBlankMemberForm(),
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(!member);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
@@ -192,29 +210,6 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
   );
 
   useEffect(() => {
-    if (!open) return;
-    /* eslint-disable react-hooks/set-state-in-effect -- reset form state when dialog opens */
-    setMemberForm(member ? memberToForm(member) : createBlankMemberForm());
-    setIsEditing(member ? false : true);
-    setFormError(null);
-    setDeleteError(null);
-    setAssignableTrees([]);
-    setAssignedTreesError(null);
-    setIsTreePickerOpen(false);
-    setDeleteConfirmationOpen(false);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [open, member]);
-
-  useEffect(() => {
-    if (!open) {
-      /* eslint-disable react-hooks/set-state-in-effect -- reset state when dialog closes */
-      setAssignableTrees([]);
-      setAssignedTreesError(null);
-      setAreAssignedTreesLoading(false);
-      /* eslint-enable react-hooks/set-state-in-effect */
-      return;
-    }
-
     let isMounted = true;
 
     async function loadAssignableTrees() {
@@ -247,7 +242,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
     return () => {
       isMounted = false;
     };
-  }, [open]);
+  }, []);
 
   const handleFormChange = (field: keyof MemberFormState) => {
     return (event: ChangeEvent<HTMLInputElement>) => {
@@ -366,268 +361,264 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
 
   return (
     <>
-      <Modal open={open} onOpenChange={onOpenChange}>
-        <ModalContent className="bg-off-white" closeOnOverlayClick={false} showCloseButton={false}>
-          <form onSubmit={handleMemberSubmit}>
-            <ModalHeader className="flex flex-col gap-y-4">
-              <div className="flex items-center justify-between gap-x-4">
-                <div className="flex gap-x-4 items-center">
-                  <h2 className="text-[1.75rem] text-text-dark font-serif font-extrabold capitalize">
-                    {displayedName}
-                  </h2>
-                  <MemberRoleBadge role={displayedRole} />
-                </div>
-                <div className="flex gap-x-2">
+      <ModalContent className="bg-off-white" closeOnOverlayClick={false} showCloseButton={false}>
+        <form onSubmit={handleMemberSubmit}>
+          <ModalHeader className="flex flex-col gap-y-4">
+            <div className="flex items-center justify-between gap-x-4">
+              <div className="flex gap-x-4 items-center">
+                <h2 className="text-[1.75rem] text-text-dark font-serif font-extrabold capitalize">{displayedName}</h2>
+                <MemberRoleBadge role={displayedRole} />
+              </div>
+              <div className="flex gap-x-2">
+                <button
+                  type="button"
+                  className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
+                  disabled={isAddingMember}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setIsEditing((currentIsEditing) => !currentIsEditing);
+                  }}
+                >
+                  {isEditing ? (
+                    <Undo2 className="w-5 h-5 text-text-muted" />
+                  ) : (
+                    <Pencil className="w-5 h-5 text-text-muted" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  className={appButtonClassName({ iconOnly: true, variant: "danger" })}
+                  disabled={isAddingMember}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setDeleteError(null);
+                    setDeleteConfirmationOpen(true);
+                  }}
+                >
+                  <Trash2 className="w-5 h-5 text-destructive" />
+                </button>
+                <ModalClose asChild>
                   <button
                     type="button"
                     className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
-                    disabled={isAddingMember}
                     onClick={(event) => {
                       event.stopPropagation();
-                      setIsEditing((currentIsEditing) => !currentIsEditing);
+                      onOpenChange(false);
                     }}
                   >
-                    {isEditing ? (
-                      <Undo2 className="w-5 h-5 text-text-muted" />
-                    ) : (
-                      <Pencil className="w-5 h-5 text-text-muted" />
-                    )}
+                    <X className="w-5 h-5 text-text-muted" />
                   </button>
-                  <button
-                    type="button"
-                    className={appButtonClassName({ iconOnly: true, variant: "danger" })}
-                    disabled={isAddingMember}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setDeleteError(null);
-                      setDeleteConfirmationOpen(true);
-                    }}
-                  >
-                    <Trash2 className="w-5 h-5 text-destructive" />
-                  </button>
-                  <ModalClose asChild>
-                    <button
-                      type="button"
-                      className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onOpenChange(false);
-                      }}
-                    >
-                      <X className="w-5 h-5 text-text-muted" />
-                    </button>
-                  </ModalClose>
-                </div>
+                </ModalClose>
               </div>
-              <div className="bg-border h-px w-full" />
-            </ModalHeader>
-            <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[70vh]">
-              <div className="bg-foreground p-4 border border-border rounded-xl">
-                <p className="text-lg font-serif font-bold text-text-dark pb-4">Contact Information</p>
-                <div className="flex flex-col gap-y-4">
-                  <div className="flex gap-x-4">
-                    <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-semibold">
-                        <span>First Name</span>
-                        {isEditing && <span className="text-destructive font-semibold"> *</span>}
-                      </p>
-                      {isEditing ? (
-                        <input
-                          className={cn(textFieldClassName, "bg-button-muted")}
-                          onChange={handleFormChange("firstname")}
-                          placeholder="John..."
-                          required
-                          value={memberForm.firstname}
-                        />
-                      ) : (
-                        <p className="text-text-dark font-medium capitalize">{memberForm.firstname}</p>
-                      )}
-                    </div>
-                    <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-semibold">
-                        <span>Last Name</span>
-                        {isEditing && <span className="text-destructive font-semibold"> *</span>}
-                      </p>
-                      {isEditing ? (
-                        <input
-                          className={cn(textFieldClassName, "bg-button-muted")}
-                          onChange={handleFormChange("lastname")}
-                          placeholder="Doe..."
-                          required
-                          value={memberForm.lastname}
-                        />
-                      ) : (
-                        <p className="text-text-dark font-medium capitalize">{memberForm.lastname}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-x-4">
-                    <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-semibold">Phone</p>
-                      {isEditing ? (
-                        <input
-                          className={cn(textFieldClassName, "bg-button-muted")}
-                          onChange={handleFormChange("phone")}
-                          placeholder="(123) 456-7890..."
-                          value={memberForm.phone}
-                        />
-                      ) : (
-                        <p className="text-text-dark font-medium">
-                          {memberForm.phone.length > 0 ? (
-                            memberForm.phone
-                          ) : (
-                            <span className="text-text-muted">None provided</span>
-                          )}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-semibold">
-                        <span>Role</span>
-                        {isEditing && <span className="text-destructive font-semibold"> *</span>}
-                      </p>
-                      {isEditing ? (
-                        <DropdownMenu open={roleMenuOpen} onOpenChange={setRoleMenuOpen}>
-                          <DropdownMenuTrigger className={cn(selectTriggerClassName, "bg-button-muted")}>
-                            <span>{memberForm.role}</span>
-                            <ChevronDown
-                              className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
-                                roleMenuOpen ? "rotate-180" : ""
-                              }`}
-                            />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start" className={dropdownContentClassName}>
-                            {memberRoleOptions.map((role) => (
-                              <DropdownMenuItem
-                                key={role}
-                                className={dropdownItemClassName}
-                                onClick={() => handleRoleChange(role)}
-                              >
-                                {role}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      ) : (
-                        <MemberRoleBadge role={displayedRole} />
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-start gap-y-1">
-                    <p className="text-text-muted font-semibold">Email</p>
+            </div>
+            <div className="bg-border h-px w-full" />
+          </ModalHeader>
+          <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[70vh]">
+            <div className="bg-foreground p-4 border border-border rounded-xl">
+              <p className="text-lg font-serif font-bold text-text-dark pb-4">Contact Information</p>
+              <div className="flex flex-col gap-y-4">
+                <div className="flex gap-x-4">
+                  <div className="flex-1 flex flex-col items-start gap-y-1">
+                    <p className="text-text-muted font-semibold">
+                      <span>First Name</span>
+                      {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                    </p>
                     {isEditing ? (
                       <input
-                        type="email"
                         className={cn(textFieldClassName, "bg-button-muted")}
-                        onChange={handleFormChange("email")}
-                        placeholder="john.doe@example.com..."
-                        value={memberForm.email}
+                        onChange={handleFormChange("firstname")}
+                        placeholder="John..."
+                        required
+                        value={memberForm.firstname}
+                      />
+                    ) : (
+                      <p className="text-text-dark font-medium capitalize">{memberForm.firstname}</p>
+                    )}
+                  </div>
+                  <div className="flex-1 flex flex-col items-start gap-y-1">
+                    <p className="text-text-muted font-semibold">
+                      <span>Last Name</span>
+                      {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                    </p>
+                    {isEditing ? (
+                      <input
+                        className={cn(textFieldClassName, "bg-button-muted")}
+                        onChange={handleFormChange("lastname")}
+                        placeholder="Doe..."
+                        required
+                        value={memberForm.lastname}
+                      />
+                    ) : (
+                      <p className="text-text-dark font-medium capitalize">{memberForm.lastname}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-x-4">
+                  <div className="flex-1 flex flex-col items-start gap-y-1">
+                    <p className="text-text-muted font-semibold">Phone</p>
+                    {isEditing ? (
+                      <input
+                        className={cn(textFieldClassName, "bg-button-muted")}
+                        onChange={handleFormChange("phone")}
+                        placeholder="(123) 456-7890..."
+                        value={memberForm.phone}
                       />
                     ) : (
                       <p className="text-text-dark font-medium">
-                        {memberForm.email.length > 0 ? (
-                          memberForm.email
+                        {memberForm.phone.length > 0 ? (
+                          memberForm.phone
                         ) : (
                           <span className="text-text-muted">None provided</span>
                         )}
                       </p>
                     )}
                   </div>
-                  <div className="flex flex-col items-start gap-y-1">
+                  <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
-                      <span>Joined Date</span>
+                      <span>Role</span>
                       {isEditing && <span className="text-destructive font-semibold"> *</span>}
                     </p>
                     {isEditing ? (
-                      <input
-                        type="date"
-                        className={cn(textFieldClassName, "bg-button-muted")}
-                        onChange={handleFormChange("joined")}
-                        required
-                        value={memberForm.joined}
-                      />
+                      <DropdownMenu open={roleMenuOpen} onOpenChange={setRoleMenuOpen}>
+                        <DropdownMenuTrigger className={cn(selectTriggerClassName, "bg-button-muted")}>
+                          <span>{memberForm.role}</span>
+                          <ChevronDown
+                            className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
+                              roleMenuOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className={dropdownContentClassName}>
+                          {memberRoleOptions.map((role) => (
+                            <DropdownMenuItem
+                              key={role}
+                              className={dropdownItemClassName}
+                              onClick={() => handleRoleChange(role)}
+                            >
+                              {role}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     ) : (
-                      <p className="text-text-dark font-medium">{memberForm.joined}</p>
+                      <MemberRoleBadge role={displayedRole} />
                     )}
                   </div>
                 </div>
-              </div>
-
-              <div className="bg-foreground p-4 border border-border rounded-xl">
-                <div className="flex items-center justify-between gap-x-3 pb-4">
-                  <p className="text-lg font-serif font-bold text-text-dark">{`Assigned Trees (${memberForm.assignedTreeEcosloNumbers.length})`}</p>
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-                    {isEditing ? (
-                      <button
-                        type="button"
-                        className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
-                        onClick={() => setIsTreePickerOpen(true)}
-                        aria-label="Add assigned tree"
-                      >
-                        <Plus className="h-5 w-5 text-text-muted" />
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-y-2">
-                  {memberForm.assignedTreeEcosloNumbers.length > 0 ? (
-                    <>
-                      {memberForm.assignedTreeEcosloNumbers.map((treeEcosloNumber) => (
-                        <div
-                          className="flex w-full items-center justify-between gap-x-3 rounded-lg border border-border bg-off-white p-1 pl-3"
-                          key={treeEcosloNumber}
-                        >
-                          <p className="text-text-dark font-medium">
-                            {areAssignedTreesLoading
-                              ? "Loading tree..."
-                              : `${assignedTreeLabelsByEcosloNumber[treeEcosloNumber] ?? "(No tree found)"} #${treeEcosloNumber}`}
-                          </p>
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-                            {isEditing ? (
-                              <button
-                                type="button"
-                                className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
-                                onClick={() => handleAssignedTreeRemove(treeEcosloNumber)}
-                                aria-label={`Remove assigned tree #${treeEcosloNumber}`}
-                              >
-                                <Trash2 className="h-5 w-5" />
-                              </button>
-                            ) : null}
-                          </div>
-                        </div>
-                      ))}
-                      {assignedTreesError ? <p className="text-destructive font-medium">{assignedTreesError}</p> : null}
-                    </>
+                <div className="flex flex-col items-start gap-y-1">
+                  <p className="text-text-muted font-semibold">Email</p>
+                  {isEditing ? (
+                    <input
+                      type="email"
+                      className={cn(textFieldClassName, "bg-button-muted")}
+                      onChange={handleFormChange("email")}
+                      placeholder="john.doe@example.com..."
+                      value={memberForm.email}
+                    />
                   ) : (
-                    <p className="text-text-muted font-medium">No trees assigned</p>
+                    <p className="text-text-dark font-medium">
+                      {memberForm.email.length > 0 ? (
+                        memberForm.email
+                      ) : (
+                        <span className="text-text-muted">None provided</span>
+                      )}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col items-start gap-y-1">
+                  <p className="text-text-muted font-semibold">
+                    <span>Joined Date</span>
+                    {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                  </p>
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      className={cn(textFieldClassName, "bg-button-muted")}
+                      onChange={handleFormChange("joined")}
+                      required
+                      value={memberForm.joined}
+                    />
+                  ) : (
+                    <p className="text-text-dark font-medium">{memberForm.joined}</p>
                   )}
                 </div>
               </div>
-              {formError ? <p className="text-destructive font-medium">{formError}</p> : null}
-            </ModalDescription>
-            <ModalFooter>
-              <div className="flex flex-col w-full gap-y-4">
-                <div className="bg-border h-px w-full" />
-                <div className="flex justify-end gap-x-4">
-                  <AppButton
-                    type="button"
-                    variant="secondary"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onOpenChange(false);
-                    }}
-                  >
-                    Cancel
-                  </AppButton>
-                  <AppButton disabled={isSubmitting || !hasFormChanges} type="submit">
-                    {isAddingMember ? "Add Member" : "Save Changes"}
-                  </AppButton>
+            </div>
+
+            <div className="bg-foreground p-4 border border-border rounded-xl">
+              <div className="flex items-center justify-between gap-x-3 pb-4">
+                <p className="text-lg font-serif font-bold text-text-dark">{`Assigned Trees (${memberForm.assignedTreeEcosloNumbers.length})`}</p>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+                  {isEditing ? (
+                    <button
+                      type="button"
+                      className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
+                      onClick={() => setIsTreePickerOpen(true)}
+                      aria-label="Add assigned tree"
+                    >
+                      <Plus className="h-5 w-5 text-text-muted" />
+                    </button>
+                  ) : null}
                 </div>
               </div>
-            </ModalFooter>
-          </form>
-        </ModalContent>
-      </Modal>
+              <div className="flex flex-col gap-y-2">
+                {memberForm.assignedTreeEcosloNumbers.length > 0 ? (
+                  <>
+                    {memberForm.assignedTreeEcosloNumbers.map((treeEcosloNumber) => (
+                      <div
+                        className="flex w-full items-center justify-between gap-x-3 rounded-lg border border-border bg-off-white p-1 pl-3"
+                        key={treeEcosloNumber}
+                      >
+                        <p className="text-text-dark font-medium">
+                          {areAssignedTreesLoading
+                            ? "Loading tree..."
+                            : `${assignedTreeLabelsByEcosloNumber[treeEcosloNumber] ?? "(No tree found)"} #${treeEcosloNumber}`}
+                        </p>
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+                          {isEditing ? (
+                            <button
+                              type="button"
+                              className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
+                              onClick={() => handleAssignedTreeRemove(treeEcosloNumber)}
+                              aria-label={`Remove assigned tree #${treeEcosloNumber}`}
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                    {assignedTreesError ? <p className="text-destructive font-medium">{assignedTreesError}</p> : null}
+                  </>
+                ) : (
+                  <p className="text-text-muted font-medium">No trees assigned</p>
+                )}
+              </div>
+            </div>
+            {formError ? <p className="text-destructive font-medium">{formError}</p> : null}
+          </ModalDescription>
+          <ModalFooter>
+            <div className="flex flex-col w-full gap-y-4">
+              <div className="bg-border h-px w-full" />
+              <div className="flex justify-end gap-x-4">
+                <AppButton
+                  type="button"
+                  variant="secondary"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onOpenChange(false);
+                  }}
+                >
+                  Cancel
+                </AppButton>
+                <AppButton disabled={isSubmitting || !hasFormChanges} type="submit">
+                  {isAddingMember ? "Add Member" : "Save Changes"}
+                </AppButton>
+              </div>
+            </div>
+          </ModalFooter>
+        </form>
+      </ModalContent>
 
       <Modal open={deleteConfirmationOpen} onOpenChange={setDeleteConfirmationOpen}>
         <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false} widthClassName="px-8">

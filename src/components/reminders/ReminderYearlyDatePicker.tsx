@@ -141,7 +141,7 @@ export default function ReminderYearlyDatePicker({
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1.5">
+      <div className="grid grid-cols-7 place-items-center gap-1.5">
         {/* Empty cells before the 1st */}
         {Array.from({ length: firstWeekday }).map((_, i) => (
           <div key={`pad-${i}`} className="h-9 w-9" aria-hidden="true" />

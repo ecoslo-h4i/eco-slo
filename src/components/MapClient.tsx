@@ -35,6 +35,12 @@ const center: [number, number] = [35.2828, -120.6596];
 const zoom = 13;
 const MIN_ZOOM = 8;
 const MAX_ZOOM = 18;
+const MARKER_SIZE = 44;
+const MARKER_ICON_SIZE = 15;
+const MARKER_ICON_LEFT = 14.5;
+const MARKER_ICON_TOP = 11;
+const MARKER_ANCHOR_X = 22;
+const MARKER_ANCHOR_Y = 40;
 
 const treesQuery = supabase.from("public_trees").select(`
   id,
@@ -71,32 +77,32 @@ function createTreeMarkerIcon(selected: boolean) {
         {
           style: {
             position: "relative",
-            width: "44px",
-            height: "44px",
+            width: `${MARKER_SIZE}px`,
+            height: `${MARKER_SIZE}px`,
             filter: `drop-shadow(0 2px 4px color-mix(in srgb, ${black} 18%, transparent))`,
           },
         },
         createElement(MapPin, {
           color: pin,
           fill: pin,
-          size: 44,
+          size: MARKER_SIZE,
           strokeWidth: 2.25,
           style: { boxShadow: ring, borderRadius: selected ? "999px" : undefined },
         }),
         createElement(TreeDeciduous, {
           color: white,
-          size: 15,
+          size: MARKER_ICON_SIZE,
           strokeWidth: 2.2,
           style: {
             position: "absolute",
-            left: "14.5px",
-            top: "11px",
+            left: `${MARKER_ICON_LEFT}px`,
+            top: `${MARKER_ICON_TOP}px`,
           },
         }),
       ),
     ),
-    iconSize: [44, 44],
-    iconAnchor: [22, 40],
+    iconSize: [MARKER_SIZE, MARKER_SIZE],
+    iconAnchor: [MARKER_ANCHOR_X, MARKER_ANCHOR_Y],
   });
 }
 
@@ -219,41 +225,45 @@ export default function MapClient() {
 
   return (
     <main className="flex-1 w-full min-h-screen bg-off-white">
-      <div className="relative h-screen w-full overflow-hidden bg-off-white">
-        <div className="absolute left-[88px] top-6 z-[999] w-[450px] rounded-[16px] bg-card px-[18px] py-[17px] shadow-map-control max-md:left-[78px] max-md:right-4 max-md:w-auto">
-          <MapControlPanel trees={locations} onFilter={setFilteredLocations} onCenter={handleCenter} />
-        </div>
-        <div ref={mapContainerRef} className="h-full w-full" />
+      <div className="isolate relative h-screen w-full overflow-hidden bg-off-white">
+        <div ref={mapContainerRef} className="absolute inset-0 z-0 h-full w-full" />
 
-        <div className="absolute left-5 top-6 z-[1000] flex items-start">
-          <div className="w-11 overflow-hidden rounded-[18px] bg-card shadow-map-control">
-            <button
-              type="button"
-              className="grid h-10 w-full place-items-center text-text transition hover:bg-off-white hover:cursor-pointer"
-              onClick={zoomIn}
-              aria-label="Zoom in"
-            >
-              <ZoomIn aria-hidden="true" className="h-4.5 w-4.5" strokeWidth={2} />
-            </button>
-            <div className="mx-3 h-px bg-border" />
-            <button
-              onClick={handleCenter}
-              className="grid h-10 w-full place-items-center text-text transition hover:bg-off-white hover:cursor-pointer"
-              aria-label="Reset map view"
-            >
-              <LocateFixed aria-hidden="true" className="h-4.5 w-4.5" strokeWidth={2} />
-            </button>
-            <div className="mx-3 h-px bg-border" />
-            <button
-              type="button"
-              className="grid h-10 w-full place-items-center text-text transition hover:bg-off-white hover:cursor-pointer"
-              onClick={zoomOut}
-              aria-label="Zoom out"
-            >
-              <ZoomOut aria-hidden="true" className="h-4.5 w-4.5" strokeWidth={2} />
-            </button>
+        <div className="pointer-events-none absolute inset-0 z-10 p-6 max-md:p-4">
+          <div className="flex items-start gap-4 max-md:gap-3">
+            <div className="pointer-events-auto w-11 shrink-0 overflow-hidden rounded-2xl bg-off-white border border-border shadow-map-control">
+              <button
+                type="button"
+                className="grid h-10 w-full place-items-center text-text transition hover:bg-off-white-3 hover:cursor-pointer"
+                onClick={zoomIn}
+                aria-label="Zoom in"
+              >
+                <ZoomIn aria-hidden="true" className="h-4.5 w-4.5" strokeWidth={2} />
+              </button>
+              <div className="mx-3 h-px bg-border" />
+              <button
+                onClick={handleCenter}
+                className="grid h-10 w-full place-items-center text-text transition hover:bg-off-white-3 hover:cursor-pointer"
+                aria-label="Reset map view"
+              >
+                <LocateFixed aria-hidden="true" className="h-4.5 w-4.5" strokeWidth={2} />
+              </button>
+              <div className="mx-3 h-px bg-border" />
+              <button
+                type="button"
+                className="grid h-10 w-full place-items-center text-text transition hover:bg-off-white-3 hover:cursor-pointer"
+                onClick={zoomOut}
+                aria-label="Zoom out"
+              >
+                <ZoomOut aria-hidden="true" className="h-4.5 w-4.5" strokeWidth={2} />
+              </button>
+            </div>
+
+            <div className="pointer-events-auto w-full max-w-md rounded-2xl border border-border bg-off-white px-5 py-4 shadow-map-control">
+              <MapControlPanel trees={locations} onFilter={setFilteredLocations} onCenter={handleCenter} />
+            </div>
           </div>
         </div>
+
         <MapPopout tree={selectedTree} onClose={() => setSelectedTree(null)} />
       </div>
     </main>

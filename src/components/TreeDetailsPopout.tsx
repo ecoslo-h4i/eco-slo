@@ -213,7 +213,7 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
             <Badge variant="danger" icon={<TriangleAlert aria-hidden="true" className="h-4 w-4" strokeWidth={2} />}>
               Issue Reported
             </Badge>
-            <Badge variant={treeStatusBadgeVariant(source.status)} className="capitalize">
+            <Badge variant={treeStatusBadgeVariant(source.status)} textCase="capitalize">
               {display(source.status)}
             </Badge>
             <Badge variant={source.is_public ? "info" : "muted"}>{source.is_public ? "Public" : "Private"}</Badge>

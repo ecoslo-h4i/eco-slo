@@ -60,7 +60,7 @@ function roleBadge(value: unknown) {
     <Badge
       variant={isAdmin ? "info" : "success"}
       icon={isAdmin ? <UserRoundCog className="h-4 w-4" /> : undefined}
-      className="capitalize"
+      textCase="capitalize"
     >
       {role}
     </Badge>
@@ -85,7 +85,7 @@ export const dashboardTreeColumns: ColumnDef<DashboardTreeSchema>[] = [
     accessorKey: "status",
     name: "Status",
     cell: (value) => (
-      <Badge variant={treeStatusBadgeVariant(value)} className="capitalize">
+      <Badge variant={treeStatusBadgeVariant(value)} textCase="capitalize">
         {String(value)}
       </Badge>
     ),
@@ -120,7 +120,7 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     name: "Status",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
-      <Badge variant={treeStatusBadgeVariant(value)} className="capitalize">
+      <Badge variant={treeStatusBadgeVariant(value)} textCase="capitalize">
         {String(value)}
       </Badge>
     ),
@@ -134,7 +134,7 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     name: "Condition",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
-      <Badge variant={conditionBadgeVariant(value)} icon={conditionBadgeIcon(value)} className="capitalize">
+      <Badge variant={conditionBadgeVariant(value)} icon={conditionBadgeIcon(value)} textCase="capitalize">
         {String(value)}
       </Badge>
     ),
@@ -215,7 +215,7 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     name: "Is Public",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
-      <Badge variant={value ? "info" : "muted"} className="capitalize">
+      <Badge variant={value ? "info" : "muted"} textCase="capitalize">
         {value ? "Public" : "Private"}
       </Badge>
     ),
@@ -277,7 +277,7 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     name: "Weekly Watering Status",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
-      <Badge variant={completionBadgeVariant(value)} icon={completionBadgeIcon(value)} className="capitalize">
+      <Badge variant={completionBadgeVariant(value)} icon={completionBadgeIcon(value)} textCase="capitalize">
         {String(value)}
       </Badge>
     ),
@@ -303,7 +303,7 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     name: "Yearly Mulching Status",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
-      <Badge variant={completionBadgeVariant(value)} icon={completionBadgeIcon(value)} className="capitalize">
+      <Badge variant={completionBadgeVariant(value)} icon={completionBadgeIcon(value)} textCase="capitalize">
         {String(value)}
       </Badge>
     ),
@@ -411,7 +411,7 @@ export const memberColumns: ColumnDef<MemberSchema>[] = [
         Array.isArray(value) && value.every((treeId): treeId is number => typeof treeId === "number") ? value : [];
 
       return (
-        <Badge className="rounded-lg" variant="muted">
+        <Badge shape="rounded" variant="muted">
           {treeIds.length > 0 ? (
             <span className="flex justify-between gap-x-2 max-w-48">
               <span className="truncate">{treeIds.map((id) => `#${id}`).join(", ")}</span>

@@ -299,7 +299,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 rounded-xl bg-off-white border border-border shadow-sm p-6 lg:p-8">
+    <div className="w-full flex flex-col gap-4 rounded-xl bg-off-white border border-border shadow-sm p-4 lg:p-6">
       <div className="flex flex-col gap-4 lg:flex-row">
         <div className="w-full lg:w-1/2">
           <ControlSearch

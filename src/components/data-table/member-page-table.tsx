@@ -91,7 +91,7 @@ function MemberPageTable({
                 key={i}
                 data={model.row}
                 onClick={onRowClick}
-                className={`${i % 2 === 0 ? "bg-table-row-light" : "bg-table-row-dark"} hover:bg-table-header cursor-pointer`}
+                className={`${i % 2 === 0 ? "bg-table-row-light" : "bg-table-row-dark"} hover:bg-light-green-2/25 cursor-pointer`}
               >
                 {model.cells.map(({ column, value, row }, j) => (
                   <TableCell

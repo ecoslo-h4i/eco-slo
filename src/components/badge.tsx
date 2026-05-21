@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 type BadgeVariant = "default" | "muted" | "success" | "warning" | "danger" | "info";
 type IconSide = "left" | "right";
 type BadgeSize = "sm" | "md";
+type BadgeShape = "pill" | "rounded";
+type BadgeTextCase = "none" | "capitalize";
 
 const badgeVariantClasses: Record<BadgeVariant, string> = {
   default: "border-primary-border bg-primary-soft text-primary-active",
@@ -14,21 +16,35 @@ const badgeVariantClasses: Record<BadgeVariant, string> = {
 };
 
 const badgeSizeClasses: Record<BadgeSize, string> = {
-  sm: "min-h-6 px-2.5 py-1.5 text-2xs",
+  sm: "h-6 min-h-0 px-2 py-0 text-[10px]",
   md: "min-h-8 px-3 py-1.5 text-sm",
 };
 
+const badgeShapeClasses: Record<BadgeShape, string> = {
+  pill: "rounded-full",
+  rounded: "rounded-lg",
+};
+
+const badgeTextCaseClasses: Record<BadgeTextCase, string> = {
+  none: "",
+  capitalize: "capitalize",
+};
+
 export default function Badge({
-  className,
   icon,
   iconSide = "left",
+  shape = "pill",
+  shrink = false,
+  textCase = "none",
   variant = "default",
   size = "md",
   children,
 }: {
-  className?: string;
   icon?: React.ReactNode;
   iconSide?: IconSide;
+  shape?: BadgeShape;
+  shrink?: boolean;
+  textCase?: BadgeTextCase;
   variant?: BadgeVariant;
   size?: BadgeSize;
   children?: React.ReactNode;
@@ -39,10 +55,12 @@ export default function Badge({
   return (
     <div
       className={cn(
-        "inline-flex w-fit max-w-full items-center justify-center gap-1.5 rounded-full border font-mulish font-semibold leading-none",
+        "inline-flex w-fit max-w-full items-center justify-center gap-1.5 border font-mulish font-semibold leading-none",
         badgeVariantClasses[variant],
         badgeSizeClasses[size],
-        className,
+        badgeShapeClasses[shape],
+        badgeTextCaseClasses[textCase],
+        shrink && "shrink-0",
       )}
     >
       {iconOnLeft ? icon : null}

@@ -109,9 +109,9 @@ export default function SideNavbar() {
   );
   const overflowButtons = useMemo(() => featureButtons.slice(visibleButtonCount), [featureButtons, visibleButtonCount]);
 
-  // Decide what to render in the top "action" slot — the area that holds
+  // Decide what to render in the bottom "action" slot — the area that holds
   // either the Login link, the Back-to-Map link, or the Logout button.
-  const topAction = (() => {
+  const bottomAction = (() => {
     // While the auth check is in flight, render nothing here. The logo
     // above still renders, so the layout doesn't jump. Once resolved,
     // the right button slots in.
@@ -139,8 +139,8 @@ export default function SideNavbar() {
   })();
 
   return (
-    <div className="sticky top-0 z-60 flex h-screen w-35 flex-col gap-6 bg-primary px-5 py-6">
-      <div className="flex flex-col items-center justify-center gap-5">
+    <div className="sticky top-0 z-60 flex h-screen w-35 flex-col bg-primary px-5 py-6">
+      <div className="flex flex-col items-center justify-center">
         <div className="w-24.5 h-24.5 flex items-center justify-center">
           <Image
             src="/icons/ecoslo-logo.png"
@@ -150,10 +150,9 @@ export default function SideNavbar() {
             className="h-full w-full object-contain"
           />
         </div>
-        {topAction}
       </div>
 
-      <div ref={navListRef} className="flex min-h-0 flex-grow flex-col items-center gap-4">
+      <div ref={navListRef} className="mt-6 flex min-h-0 flex-grow flex-col items-center gap-4">
         {visibleButtons.map((button) => (
           <NavbarButton key={button.label} {...button} />
         ))}
@@ -170,6 +169,8 @@ export default function SideNavbar() {
           </div>
         )}
       </div>
+
+      <div className="mt-6 flex shrink-0 justify-center">{bottomAction}</div>
     </div>
   );
 }

@@ -90,6 +90,11 @@
 }
 
 @layer utilities {
+  .eco-tree-marker {
+    background: transparent;
+    border: 0;
+  }
+
   .text-2xs {
     font-size: var(--text-2xs);
     line-height: var(--text-2xs--line-height);

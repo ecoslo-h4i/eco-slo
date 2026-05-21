@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { ControlFilterDropdown, ControlSearch, ControlStatusPills } from "@/components/ControlPanel";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 import {
+  appButtonClassName,
   controlLabelClassName,
   dropdownContentClassName,
   dropdownItemClassName,
@@ -39,58 +40,82 @@ export function TasksControlPanel(props: TasksControlPanelProps) {
 
   const QUERY_DELAY = 0;
 
+  const resetFilters = () => {
+    setSearchQuery("");
+    setStatusActiveIndex(0);
+    setSurveyActiveIndex(0);
+    props.searchFunction("");
+    props.setStatusFunction(CONTROL_STATUS_OPTIONS[0]);
+    props.setSurveyFunction(SURVEY_OPTIONS[0]);
+    props.setAssigneesFunction([]);
+  };
+
   return (
-    <div className="w-full">
-      <div className="flex w-full flex-col justify-center rounded-[24px] sm:rounded-[32px] bg-inherit px-4 sm:px-6 lg:px-8 py-6 gap-6">
-        <ControlSearch
-          query={searchQuery}
-          onQueryChange={setSearchQuery}
-          searchDelay={QUERY_DELAY}
-          searchFunction={(query: string) => {
-            const trimmedQuery = query.trimStart();
-            props.searchFunction(trimmedQuery);
-          }}
-          placeholder="Search tasks, messages, or assignees..."
-        />
-
-        <div className="w-full">
-          <div className="flex flex-col gap-4 w-full">
-            <div className="flex flex-col gap-4 w-full xl:flex-row xl:items-end">
-              <div className="w-full xl:w-auto">
-                <ControlStatusPills
-                  buttonClassName="w-full min-w-0 xl:w-[250px]"
-                  activeIndex={statusActiveIndex}
-                  onActiveIndexChange={setStatusActiveIndex}
-                  text="Status"
-                  options={CONTROL_STATUS_OPTIONS}
-                  delay={QUERY_DELAY}
-                  delayFunction={(status: string) => props.setStatusFunction(status)}
-                />
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 w-full min-w-0">
-                <Select
-                  className="w-full min-w-0 sm:flex-1 xl:w-[320px]"
-                  triggerClassName="w-full min-w-0"
-                  label="Assignees"
-                  options={ASSIGNEE_STATUS_OPTIONS}
-                  selectedItems={props.selectedAssignees}
-                  onSelectedItemsChange={props.setAssigneesFunction}
-                  checkedIcon={<Check className="h-4 w-4" />}
-                />
-                <ControlFilterDropdown
-                  triggerClassName="w-full min-w-0 sm:flex-1 xl:w-[320px]"
-                  label="Surveys"
-                  activeIndex={surveysActiveIndex}
-                  onActiveIndexChange={setSurveyActiveIndex}
-                  dropDown={SURVEY_OPTIONS}
-                  delay={QUERY_DELAY}
-                  delayFunction={(status: string) => props.setSurveyFunction(status)}
-                />
-              </div>
-            </div>
-          </div>
+    <div className="w-full flex flex-col gap-4 rounded-xl bg-off-white border border-border shadow-sm p-4 lg:p-6">
+      <div className="flex flex-col gap-4 lg:flex-row">
+        <div className="w-full lg:w-1/2">
+          <ControlSearch
+            query={searchQuery}
+            onQueryChange={setSearchQuery}
+            searchDelay={QUERY_DELAY}
+            searchFunction={(query: string) => {
+              const trimmedQuery = query.trimStart();
+              props.searchFunction(trimmedQuery);
+            }}
+            placeholder="Search tasks, messages, or assignees..."
+          />
         </div>
+        <ControlStatusPills
+          className="flex-1"
+          containerClassName="w-full h-full"
+          buttonClassName="flex-1 min-w-0"
+          activeIndex={statusActiveIndex}
+          onActiveIndexChange={setStatusActiveIndex}
+          options={CONTROL_STATUS_OPTIONS}
+          delay={QUERY_DELAY}
+          delayFunction={(status: string) => props.setStatusFunction(status)}
+        />
+      </div>
+
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <div className="grid min-w-0 flex-1 grid-cols-1 gap-4 md:grid-cols-2">
+          <Select
+            triggerClassName="w-full"
+            label="Assignees"
+            options={ASSIGNEE_STATUS_OPTIONS}
+            selectedItems={props.selectedAssignees}
+            onSelectedItemsChange={props.setAssigneesFunction}
+            checkedIcon={<Check className="h-4 w-4" />}
+          />
+          <ControlFilterDropdown
+            triggerClassName="w-full"
+            label="Surveys"
+            activeIndex={surveysActiveIndex}
+            onActiveIndexChange={setSurveyActiveIndex}
+            dropDown={SURVEY_OPTIONS}
+            delay={QUERY_DELAY}
+            delayFunction={(status: string) => props.setSurveyFunction(status)}
+          />
+        </div>
+
+        {(searchQuery !== "" ||
+          statusActiveIndex !== 0 ||
+          surveysActiveIndex !== 0 ||
+          props.selectedAssignees.length > 0) && (
+          <button
+            type="button"
+            className={appButtonClassName({
+              className: "self-start px-2 md:px-3 xl:self-end",
+              radius: "small",
+              size: "sm",
+              variant: "ghost",
+            })}
+            onClick={resetFilters}
+          >
+            <X className="w-4 h-4" />
+            <span className="text-sm lg:text-md">Clear Filters</span>
+          </button>
+        )}
       </div>
     </div>
   );

@@ -99,16 +99,14 @@ export default function Tasks() {
         <div className="flex min-h-[570px] w-full items-center justify-center text-danger">{error}</div>
       ) : (
         <>
-          <div className="rounded-xl border-[1px] border-border drop-shadow-sm bg-muted-card-bg w-full min-w-0">
-            <TasksControlPanel
-              setStatusFunction={setStatus}
-              setSurveyFunction={setSurveys}
-              searchFunction={setSearchQuery}
-              assignees={allAssignees}
-              setAssigneesFunction={setAssignees}
-              selectedAssignees={assignees}
-            />
-          </div>
+          <TasksControlPanel
+            setStatusFunction={setStatus}
+            setSurveyFunction={setSurveys}
+            searchFunction={setSearchQuery}
+            assignees={allAssignees}
+            setAssigneesFunction={setAssignees}
+            selectedAssignees={assignees}
+          />
 
           <div className="flex flex-col rounded-xl border-[1px] border-border drop-shadow-sm bg-muted-card-bg w-auto h-[570px] overflow-hidden">
             <div className="flex-1 overflow-y-scroll no-scrollbar p-[15px]">

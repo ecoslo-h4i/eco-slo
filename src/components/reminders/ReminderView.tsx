@@ -186,7 +186,7 @@ export default function ReminderView({
   const nextSendLabel = useMemo(() => getNextSendLabel(form), [form]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-6 overflow-auto no-scrollbar rounded-3xl border-1 border-border bg-table-row-dark px-6 py-8">
+    <div className="flex h-full min-h-0 flex-col gap-6 overflow-auto no-scrollbar rounded-xl border-1 border-border bg-table-row-dark p-6">
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-col gap-2">
           <h1 className="font-serif text-[26px] font-normal leading-tight">{headerTitle}</h1>
