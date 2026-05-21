@@ -1,19 +1,22 @@
 "use client";
 
-import { Modal, ModalClose, ModalContent, ModalDescription, ModalHeader } from "@/components/modal";
-import { SearchField, appButtonClassName } from "@/components/ui/form-controls";
+import { Modal, ModalClose, ModalContent, ModalDescription, ModalFooter, ModalHeader } from "@/components/modal";
+import { AppButton, SearchField, appButtonClassName } from "@/components/ui/form-controls";
 import Fuse from "fuse.js";
-import { X } from "lucide-react";
+import { ArrowRightLeft, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export type AssignableTree = {
   common_name?: string | null;
   ecoslo_num: number;
   species_name?: string | null;
+  tree_keeper_id?: number | null;
+  tree_keeper?: { firstname: string; lastname: string } | null;
 };
 
 type AssignedTreePickerModalProps = {
   assignedTreeEcosloNumbers: number[];
+  currentMemberId: number | null;
   isLoading: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectTree: (treeEcosloNumber: number) => void;
@@ -30,6 +33,7 @@ function getTreeDisplayName(tree: AssignableTree) {
 
 export default function AssignedTreePickerModal({
   assignedTreeEcosloNumbers,
+  currentMemberId,
   isLoading,
   onOpenChange,
   onSelectTree,
@@ -48,6 +52,7 @@ export default function AssignedTreePickerModal({
       >
         <AssignedTreePickerModalBody
           assignedTreeSet={assignedTreeSet}
+          currentMemberId={currentMemberId}
           isLoading={isLoading}
           onOpenChange={onOpenChange}
           onSelectTree={onSelectTree}
@@ -60,20 +65,28 @@ export default function AssignedTreePickerModal({
 
 type AssignedTreePickerModalBodyProps = {
   assignedTreeSet: Set<number>;
+  currentMemberId: number | null;
   isLoading: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectTree: (treeEcosloNumber: number) => void;
   trees: AssignableTree[];
 };
 
+function getKeeperName(tree: AssignableTree) {
+  if (!tree.tree_keeper) return null;
+  return `${tree.tree_keeper.firstname} ${tree.tree_keeper.lastname}`.trim() || null;
+}
+
 function AssignedTreePickerModalBody({
   assignedTreeSet,
+  currentMemberId,
   isLoading,
   onOpenChange,
   onSelectTree,
   trees,
 }: AssignedTreePickerModalBodyProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [transferConfirmTree, setTransferConfirmTree] = useState<AssignableTree | null>(null);
   const fuse = useMemo(
     () =>
       new Fuse(trees, {
@@ -92,8 +105,23 @@ function AssignedTreePickerModalBody({
     return [...trees].sort((firstTree, secondTree) => firstTree.ecoslo_num - secondTree.ecoslo_num);
   }, [fuse, searchQuery, trees]);
 
-  const handleTreeSelect = (treeEcosloNumber: number) => {
-    onSelectTree(treeEcosloNumber);
+  const handleTreeSelect = (tree: AssignableTree) => {
+    const isOwnedByAnother = tree.tree_keeper_id != null && tree.tree_keeper_id !== currentMemberId;
+
+    if (isOwnedByAnother) {
+      setTransferConfirmTree(tree);
+      return;
+    }
+
+    onSelectTree(tree.ecoslo_num);
+    onOpenChange(false);
+    setSearchQuery("");
+  };
+
+  const handleTransferConfirm = () => {
+    if (!transferConfirmTree) return;
+    onSelectTree(transferConfirmTree.ecoslo_num);
+    setTransferConfirmTree(null);
     onOpenChange(false);
     setSearchQuery("");
   };
@@ -125,6 +153,8 @@ function AssignedTreePickerModalBody({
           ) : filteredTrees.length > 0 ? (
             filteredTrees.map((tree) => {
               const isAssigned = assignedTreeSet.has(tree.ecoslo_num);
+              const otherKeeperName =
+                tree.tree_keeper_id != null && tree.tree_keeper_id !== currentMemberId ? getKeeperName(tree) : null;
 
               return (
                 <button
@@ -136,10 +166,14 @@ function AssignedTreePickerModalBody({
                   })}
                   disabled={isAssigned}
                   key={tree.ecoslo_num}
-                  onClick={() => handleTreeSelect(tree.ecoslo_num)}
+                  onClick={() => handleTreeSelect(tree)}
                 >
-                  <span>{`${getTreeDisplayName(tree)} #${tree.ecoslo_num}`}</span>
-                  {isAssigned ? <span className="text-sm text-text-muted ml-auto">Assigned</span> : null}
+                  <span className="flex-1">{`${getTreeDisplayName(tree)} #${tree.ecoslo_num}`}</span>
+                  {isAssigned ? (
+                    <span className="text-sm text-text-muted ml-auto shrink-0">Assigned</span>
+                  ) : otherKeeperName ? (
+                    <span className="text-sm text-info ml-auto shrink-0">{otherKeeperName}</span>
+                  ) : null}
                 </button>
               );
             })
@@ -150,6 +184,33 @@ function AssignedTreePickerModalBody({
           )}
         </div>
       </ModalDescription>
+
+      <Modal open={transferConfirmTree !== null} onOpenChange={() => setTransferConfirmTree(null)}>
+        <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false} widthClassName="px-8">
+          <ModalHeader>
+            <div className="flex items-center justify-between gap-x-4">
+              <h2 className="w-full text-center text-2xl text-text-dark font-serif font-extrabold">Transfer Tree</h2>
+            </div>
+          </ModalHeader>
+          <ModalDescription className="flex flex-col gap-y-4 pt-1 pb-4">
+            <p className="w-full text-center text-text-muted">
+              {transferConfirmTree
+                ? `This tree is currently assigned to ${getKeeperName(transferConfirmTree) ?? "another member"}. Assigning it will transfer it from them.`
+                : ""}
+            </p>
+          </ModalDescription>
+          <ModalFooter>
+            <div className="w-full flex justify-center gap-x-4">
+              <AppButton type="button" variant="secondary" onClick={() => setTransferConfirmTree(null)}>
+                Cancel
+              </AppButton>
+              <AppButton icon={ArrowRightLeft} onClick={handleTransferConfirm} type="button">
+                Transfer
+              </AppButton>
+            </div>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

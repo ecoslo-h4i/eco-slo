@@ -1,4 +1,4 @@
-import { createServerLevelClient } from "@/lib/supabase/server";
+import { createServerLevelClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 
@@ -56,6 +56,17 @@ export async function GET(req: NextRequest, { params }: IParams) {
 export async function PUT(req: NextRequest, { params }: IParams) {
   try {
     const supabase = await createServerLevelClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    const { data: isAdminRow } = await supabase.rpc("is_admin");
+    if (!isAdminRow) {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
+
     const { id } = await params;
     const body = await req.json();
 
@@ -88,12 +99,53 @@ export async function PUT(req: NextRequest, { params }: IParams) {
 export async function DELETE(req: NextRequest, { params }: IParams) {
   try {
     const supabase = await createServerLevelClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    const { data: isAdminRow } = await supabase.rpc("is_admin");
+    if (!isAdminRow) {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
+
     const { id } = await params;
     const { data, error } = await supabase.from("trees").delete().eq("id", id).limit(1).select().single();
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
       return NextResponse.json({ message: error.message }, { status: status });
+    }
+
+    if (data && typeof data.ecoslo_num === "number") {
+      const adminClient = await createServiceRoleClient();
+      const ecosloNum = data.ecoslo_num;
+
+      const { data: affectedMembers, error: lookupError } = await adminClient
+        .from("members")
+        .select("id, trees_assigned")
+        .contains("trees_assigned", [ecosloNum]);
+
+      if (lookupError) {
+        console.error("[trees DELETE] failed to find members with deleted tree:", lookupError);
+      } else if (affectedMembers) {
+        for (const member of affectedMembers) {
+          const currentTrees: number[] = Array.isArray(member.trees_assigned)
+            ? member.trees_assigned.filter((n: unknown): n is number => typeof n === "number")
+            : [];
+          const cleaned = currentTrees.filter((n) => n !== ecosloNum);
+
+          const { error: cleanupError } = await adminClient
+            .from("members")
+            .update({ trees_assigned: cleaned, trees_count: cleaned.length })
+            .eq("id", member.id);
+
+          if (cleanupError) {
+            console.error("[trees DELETE] failed to clean up member", member.id, cleanupError);
+          }
+        }
+      }
     }
 
     return NextResponse.json({ message: data }, { status: 200 });

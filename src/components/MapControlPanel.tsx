@@ -97,6 +97,7 @@ function ControlStatusPills(props: ControlStatusPillsInterface) {
   return (
     <PillGroup
       activeValue={props.activeFilter}
+      className="flex-nowrap"
       options={props.options.map((option) => ({ label: option.label, value: option.value }))}
       onChange={(_, index) => handleSelect(index)}
     />
@@ -176,7 +177,7 @@ export default function ControlPanel(props: ControlPanelProps) {
         <ControlStatusPills
           options={[
             { label: "Active", value: Status.Active },
-            { label: "Off-boarded", value: Status.Graduated },
+            { label: "Graduated", value: Status.Graduated },
           ]}
           delay={0}
           delayFunction={(option) => {

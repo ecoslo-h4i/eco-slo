@@ -189,6 +189,7 @@ interface SelectProps {
   tableRef: MutableRefObject<Table<TreeSchema> | null>;
   onCheckedItem: (item: string) => void;
   triggerClassName?: string;
+  tableVersion?: number;
 }
 
 type SelectItem = {
@@ -221,8 +222,8 @@ function Select(props: SelectProps) {
     setItems((prev) => prev.map((entry) => (entry.id === item ? { ...entry, checked: !entry.checked } : entry)));
   };
 
-  const columnItems = items.length > 0 ? items : getItemsFromTable();
-  const hiddenCount = columnItems.filter((item) => !item.checked).length;
+  const freshItems = getItemsFromTable();
+  const hiddenCount = freshItems.filter((item) => !item.checked).length;
   const triggerLabel = hiddenCount === 0 ? "All Columns" : `${hiddenCount} Hidden`;
 
   return (
@@ -273,9 +274,10 @@ function Select(props: SelectProps) {
 
 interface ControlPanelProps {
   tableRef: MutableRefObject<Table<TreeSchema> | null>;
+  tableVersion?: number;
 }
 
-export default function ControlPanel({ tableRef }: ControlPanelProps) {
+export default function ControlPanel({ tableRef, tableVersion }: ControlPanelProps) {
   void tableRef;
 
   const CONTROL_STATUS_OPTIONS = ["All", "Active", "Graduated"];
@@ -354,6 +356,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
           <Select
             label="Columns"
             tableRef={tableRef}
+            tableVersion={tableVersion}
             triggerClassName="w-full"
             checkedIcon={<Check />}
             onCheckedItem={(item: string) => tableRef.current?.setColumnVisibility(item, (visible) => !visible)}

@@ -5,11 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  BarChart3,
+  ListChecks,
   Calendar,
   Ellipsis,
   LayoutDashboard,
+  LogIn,
+  LogOut,
   Map,
+  MapPin,
   NotebookPen,
   TreeDeciduous,
   UsersRound,
@@ -30,9 +33,9 @@ const allFeatureButtons: FeatureButton[] = [
   { icon: TreeDeciduous, label: "Trees", link: "/trees" },
   { icon: UsersRound, label: "Members", link: "/members", adminOnly: true },
   { icon: Calendar, label: "Reminders", link: "/reminders", adminOnly: true },
-  { icon: BarChart3, label: "Tasks", link: "/tasks" },
+  { icon: ListChecks, label: "Tasks", link: "/tasks" },
   { icon: NotebookPen, label: "Surveys", link: "/survey" },
-  { icon: Map, label: "Map", link: "/map" },
+  { icon: MapPin, label: "Map", link: "/map" },
 ];
 
 const NAV_ITEM_HEIGHT = 88;
@@ -118,7 +121,12 @@ export default function SideNavbar() {
     if (loading) return null;
 
     if (member) {
-      return <LogoutButton className={appButtonClassName({ className: "w-28", size: "sm", variant: "secondary" })} />;
+      return (
+        <LogoutButton className={appButtonClassName({ className: "w-28", size: "sm", variant: "secondary" })}>
+          <LogOut aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+          <span>Logout</span>
+        </LogoutButton>
+      );
     }
 
     if (pathname === "/login") {
@@ -133,7 +141,8 @@ export default function SideNavbar() {
     // Default for logged-out users on any other public page (notably /map).
     return (
       <Link href="/login" className={appButtonClassName({ className: "w-28", size: "sm", variant: "secondary" })}>
-        Login
+        <LogIn aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+        <span>Login</span>
       </Link>
     );
   })();

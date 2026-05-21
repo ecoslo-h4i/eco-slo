@@ -38,11 +38,7 @@ type AssignedTreeResponse = {
 function isAssignableTree(value: unknown): value is AssignableTree {
   if (!value || typeof value !== "object") return false;
 
-  const tree = value as {
-    ecoslo_num?: number | null;
-    species_name?: string | null;
-    common_name?: string | null;
-  };
+  const tree = value as Record<string, unknown>;
 
   return typeof tree.ecoslo_num === "number";
 }
@@ -367,7 +363,6 @@ function VolunteerPageFormContent({ member, onOpenChange, onSaved }: Omit<Volunt
             <div className="flex items-center justify-between gap-x-4">
               <div className="flex gap-x-4 items-center">
                 <h2 className="text-[1.75rem] text-text-dark font-serif font-extrabold capitalize">{displayedName}</h2>
-                <MemberRoleBadge role={displayedRole} />
               </div>
               <div className="flex gap-x-2">
                 <button
@@ -387,7 +382,10 @@ function VolunteerPageFormContent({ member, onOpenChange, onSaved }: Omit<Volunt
                 </button>
                 <button
                   type="button"
-                  className={appButtonClassName({ iconOnly: true, variant: "danger" })}
+                  className={appButtonClassName({
+                    iconOnly: true,
+                    variant: "ghost",
+                  })}
                   disabled={isAddingMember}
                   onClick={(event) => {
                     event.stopPropagation();
@@ -415,7 +413,7 @@ function VolunteerPageFormContent({ member, onOpenChange, onSaved }: Omit<Volunt
           </ModalHeader>
           <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[70vh]">
             <div className="bg-foreground p-4 border border-border rounded-xl">
-              <p className="text-lg font-serif font-bold text-text-dark pb-4">Contact Information</p>
+              <p className="text-lg font-serif font-bold text-text-dark pb-2">Contact Information</p>
               <div className="flex flex-col gap-y-4">
                 <div className="flex gap-x-4">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
@@ -582,7 +580,7 @@ function VolunteerPageFormContent({ member, onOpenChange, onSaved }: Omit<Volunt
                               onClick={() => handleAssignedTreeRemove(treeEcosloNumber)}
                               aria-label={`Remove assigned tree #${treeEcosloNumber}`}
                             >
-                              <Trash2 className="h-5 w-5" />
+                              <Trash2 className="h-5 w-5 text-destructive" />
                             </button>
                           ) : null}
                         </div>
@@ -636,13 +634,7 @@ function VolunteerPageFormContent({ member, onOpenChange, onSaved }: Omit<Volunt
               <AppButton type="button" variant="secondary" onClick={() => setDeleteConfirmationOpen(false)}>
                 Cancel
               </AppButton>
-              <AppButton
-                icon={Trash2}
-                variant="danger"
-                disabled={isDeleting}
-                onClick={handleDeleteVolunteer}
-                type="button"
-              >
+              <AppButton variant="danger" disabled={isDeleting} onClick={handleDeleteVolunteer} type="button">
                 {isDeleting ? "Deleting..." : "Delete Member"}
               </AppButton>
             </div>
@@ -652,6 +644,7 @@ function VolunteerPageFormContent({ member, onOpenChange, onSaved }: Omit<Volunt
 
       <VolunteerAssignedTreePickerModal
         assignedTreeEcosloNumbers={memberForm.assignedTreeEcosloNumbers}
+        currentMemberId={member?.id ?? null}
         isLoading={areAssignedTreesLoading}
         onOpenChange={setIsTreePickerOpen}
         onSelectTree={handleAssignedTreeAdd}

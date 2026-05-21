@@ -7,7 +7,7 @@ interface LogoutButtonProps {
   children?: React.ReactNode;
 }
 
-export function LogoutButton({ className, children = "Log out" }: LogoutButtonProps) {
+export function LogoutButton({ className, children = "Logout" }: LogoutButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {

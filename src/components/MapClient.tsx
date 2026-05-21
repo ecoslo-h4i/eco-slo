@@ -65,9 +65,6 @@ function createTreeMarkerIcon(selected: boolean) {
   const pin = "var(--color-primary)";
   const white = "var(--color-card)";
   const black = "var(--color-text)";
-  const ring = selected
-    ? `0 0 0 4px ${white}, 0 5px 14px color-mix(in srgb, ${black} 28%, transparent)`
-    : `0 2px 6px color-mix(in srgb, ${black} 18%, transparent)`;
 
   return L.divIcon({
     className: "eco-tree-marker",
@@ -79,7 +76,6 @@ function createTreeMarkerIcon(selected: boolean) {
             position: "relative",
             width: `${MARKER_SIZE}px`,
             height: `${MARKER_SIZE}px`,
-            filter: `drop-shadow(0 2px 4px color-mix(in srgb, ${black} 18%, transparent))`,
           },
         },
         createElement(MapPin, {
@@ -87,7 +83,12 @@ function createTreeMarkerIcon(selected: boolean) {
           fill: pin,
           size: MARKER_SIZE,
           strokeWidth: 2.25,
-          style: { boxShadow: ring, borderRadius: selected ? "999px" : undefined },
+          style: selected
+            ? {
+                boxShadow: `0 0 0 4px ${white}, 0 5px 14px color-mix(in srgb, ${black} 28%, transparent)`,
+                borderRadius: "999px",
+              }
+            : undefined,
         }),
         createElement(TreeDeciduous, {
           color: white,
@@ -258,7 +259,7 @@ export default function MapClient() {
               </button>
             </div>
 
-            <div className="pointer-events-auto w-full max-w-md rounded-2xl border border-border bg-off-white px-5 py-4 shadow-map-control">
+            <div className="pointer-events-auto w-fit rounded-2xl border border-border bg-off-white px-5 py-4 shadow-map-control">
               <MapControlPanel trees={locations} onFilter={setFilteredLocations} onCenter={handleCenter} />
             </div>
           </div>

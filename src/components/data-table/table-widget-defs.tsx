@@ -331,8 +331,23 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     accessorKey: "survey_logs",
     name: "Survey Logs",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canSort={false} />,
-    cell: (value) => <p className="max-w-64 truncate">{String(value)}</p>,
-    canSearch: true,
+    cell: (value) => {
+      const surveyIds = Array.isArray(value) && value.every((id): id is number => typeof id === "number") ? value : [];
+
+      return (
+        <Badge shape="rounded" variant="muted">
+          {surveyIds.length > 0 ? (
+            <span className="flex justify-between gap-x-2 max-w-48">
+              <span className="truncate">{surveyIds.join(", ")}</span>
+              {surveyIds.length >= 5 && <span className="font-extrabold">{surveyIds.length}</span>}
+            </span>
+          ) : (
+            "None"
+          )}
+        </Badge>
+      );
+    },
+    canSearch: false,
   },
 ];
 
