@@ -4,9 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  BarChart3,
+  Calendar,
+  Ellipsis,
+  LayoutDashboard,
+  Map,
+  NotebookPen,
+  TreeDeciduous,
+  UsersRound,
+} from "lucide-react";
 import NavbarButton, { NavbarButtonProps } from "./SideNavbarButton";
 import { LogoutButton } from "../LogoutButton";
 import { useCurrentMember } from "@/hooks/useCurrentProvider";
+import { appButtonClassName } from "@/components/ui/form-controls";
 
 // All possible feature buttons. Filtered by role at render time.
 // `adminOnly` flags entries hidden from Tree Keepers because RLS prevents
@@ -15,13 +26,13 @@ import { useCurrentMember } from "@/hooks/useCurrentProvider";
 type FeatureButton = NavbarButtonProps & { adminOnly?: boolean };
 
 const allFeatureButtons: FeatureButton[] = [
-  { icon: "/icons/home.svg", label: "Dashboard", link: "/dashboard" },
-  { icon: "/icons/tree.svg", label: "Trees", link: "/trees" },
-  { icon: "/icons/volunteers.svg", label: "Members", link: "/members", adminOnly: true },
-  { icon: "/icons/calendar.svg", label: "Reminders", link: "/reminders", adminOnly: true },
-  { icon: "/icons/analytics.svg", label: "Tasks", link: "/tasks" },
-  { icon: "/icons/pen-paper.svg", label: "Surveys", link: "/survey" },
-  { icon: "/icons/map.svg", label: "Map", link: "/map" },
+  { icon: LayoutDashboard, label: "Dashboard", link: "/dashboard" },
+  { icon: TreeDeciduous, label: "Trees", link: "/trees" },
+  { icon: UsersRound, label: "Members", link: "/members", adminOnly: true },
+  { icon: Calendar, label: "Reminders", link: "/reminders", adminOnly: true },
+  { icon: BarChart3, label: "Tasks", link: "/tasks" },
+  { icon: NotebookPen, label: "Surveys", link: "/survey" },
+  { icon: Map, label: "Map", link: "/map" },
 ];
 
 const NAV_ITEM_HEIGHT = 88;
@@ -98,27 +109,22 @@ export default function SideNavbar() {
   );
   const overflowButtons = useMemo(() => featureButtons.slice(visibleButtonCount), [featureButtons, visibleButtonCount]);
 
-  // Decide what to render in the top "action" slot — the area that holds
+  // Decide what to render in the bottom "action" slot — the area that holds
   // either the Login link, the Back-to-Map link, or the Logout button.
-  const topAction = (() => {
+  const bottomAction = (() => {
     // While the auth check is in flight, render nothing here. The logo
     // above still renders, so the layout doesn't jump. Once resolved,
     // the right button slots in.
     if (loading) return null;
 
     if (member) {
-      return (
-        <LogoutButton className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer" />
-      );
+      return <LogoutButton className={appButtonClassName({ className: "w-28", size: "sm", variant: "secondary" })} />;
     }
 
     if (pathname === "/login") {
       return (
-        <Link
-          href="/map"
-          className="flex items-center justify-center gap-2 bg-white text-black rounded-full w-28 h-[39px] px-3 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
-        >
-          <Image src="/icons/black-map.svg" width={16} height={16} alt="" />
+        <Link href="/map" className={appButtonClassName({ className: "w-28", size: "sm", variant: "secondary" })}>
+          <Map aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
           <span>Map</span>
         </Link>
       );
@@ -126,18 +132,15 @@ export default function SideNavbar() {
 
     // Default for logged-out users on any other public page (notably /map).
     return (
-      <Link
-        href="/login"
-        className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-avenir font-normal hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
-      >
+      <Link href="/login" className={appButtonClassName({ className: "w-28", size: "sm", variant: "secondary" })}>
         Login
       </Link>
     );
   })();
 
   return (
-    <div className="sticky top-0 z-60 flex h-screen w-35 flex-col gap-6 bg-primary px-5 py-6">
-      <div className="flex flex-col items-center justify-center gap-5">
+    <div className="sticky top-0 z-60 flex h-screen w-35 flex-col bg-primary px-5 py-6">
+      <div className="flex flex-col items-center justify-center">
         <div className="w-24.5 h-24.5 flex items-center justify-center">
           <Image
             src="/icons/ecoslo-logo.png"
@@ -147,26 +150,27 @@ export default function SideNavbar() {
             className="h-full w-full object-contain"
           />
         </div>
-        {topAction}
       </div>
 
-      <div ref={navListRef} className="flex min-h-0 flex-grow flex-col items-center gap-4">
+      <div ref={navListRef} className="mt-6 flex min-h-0 flex-grow flex-col items-center gap-4">
         {visibleButtons.map((button) => (
           <NavbarButton key={button.label} {...button} />
         ))}
         {overflowButtons.length > 0 && (
           <div ref={moreMenuRef} className="relative">
             {isMoreOpen && (
-              <div className="fixed bottom-6 left-35 z-60 ml-3 flex max-h-[calc(100dvh-48px)] flex-col gap-4 overflow-y-auto rounded-2xl border border-white/20 bg-primary p-3">
+              <div className="fixed bottom-6 left-35 z-60 ml-3 flex max-h-[calc(100dvh-48px)] flex-col gap-4 overflow-y-auto rounded-2xl border border-card/20 bg-primary p-3">
                 {overflowButtons.map((button) => (
                   <NavbarButton key={button.label} {...button} />
                 ))}
               </div>
             )}
-            <NavbarButton icon="/icons/ellipsis.svg" label="More" onClick={() => setIsMoreOpen((open) => !open)} />
+            <NavbarButton icon={Ellipsis} label="More" onClick={() => setIsMoreOpen((open) => !open)} />
           </div>
         )}
       </div>
+
+      <div className="mt-6 flex shrink-0 justify-center">{bottomAction}</div>
     </div>
   );
 }

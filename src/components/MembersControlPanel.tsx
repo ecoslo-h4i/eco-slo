@@ -13,10 +13,10 @@ export default function MembersControlPanel({ tableRef }: { tableRef: MutableRef
   const [roleActiveIndex, setRoleActiveIndex] = useState(0);
 
   return (
-    <div className="w-full flex flex-col lg:flex-row gap-4 rounded-xl bg-card border border-border shadow-sm p-6 lg:p-8">
+    <div className="w-full flex flex-col lg:flex-row gap-4 rounded-xl bg-off-white border border-border shadow-sm p-4 lg:p-6">
       <div className="w-full lg:w-1/2">
         <ControlSearch
-          placeholder="Search for volunteer fields..."
+          placeholder="Search for member fields..."
           query={searchQuery}
           onQueryChange={setSearchQuery}
           searchDelay={QUERY_DELAY}

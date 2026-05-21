@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
+import { ClipboardList, UsersRound } from "lucide-react";
 
 interface DashboardWidgetButton {
   name: string;
@@ -10,7 +12,7 @@ interface DashboardWidgetButton {
 
 export interface DashboardWidgetProps {
   name: string;
-  iconPath: string;
+  Icon: LucideIcon;
   pageRoute: string;
   buttons: DashboardWidgetButton[] | null;
 }
@@ -18,17 +20,18 @@ export interface DashboardWidgetProps {
 export function SimpleDashboardWidget(props: DashboardWidgetProps) {
   const buttonsArray = Array.isArray(props.buttons) ? props.buttons : props.buttons ? [props.buttons] : [];
   const hasButtons = buttonsArray.length > 0;
+  const Icon = props.Icon;
 
   return (
     <div className="flex flex-col h-full w-full p-8 justify-between">
       <div className="flex flex-col justify-center flex-grow">
         <div
-          className={`flex items-end justify-between border-b-2 border-black pt-4 pb-4 ${hasButtons ? "mb-10" : "mb-0"}`}
+          className={`flex items-end justify-between border-b-2 border-border-strong pt-4 pb-4 ${hasButtons ? "mb-10" : "mb-0"}`}
         >
           <Link href={props.pageRoute}>
-            <h2 className="text-4xl font-avenir text-black leading-none">{props.name}</h2>
+            <h2 className="text-4xl font-mulish text-text leading-none">{props.name}</h2>
           </Link>
-          <img src={props.iconPath} alt="" className="w-12 h-12 object-contain select-none pointer-events-none" />
+          <Icon aria-hidden="true" className="h-12 w-12 text-text select-none pointer-events-none" strokeWidth={2} />
         </div>
 
         <div className="flex flex-col gap-6 mt-0 mb-px">
@@ -36,11 +39,11 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
             <button
               key={index}
               onClick={button.handler}
-              className={`bg-[#758656] hover:bg-[#8A9573] text-white px-4 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer ${
+              className={`bg-primary hover:bg-primary-hover text-on-primary px-4 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer ${
                 index === buttonsArray.length - 1 ? "py-7" : "py-5"
               }`}
             >
-              <p className="font-avenir">{button.name}</p>
+              <p className="font-mulish">{button.name}</p>
             </button>
           ))}
         </div>
@@ -53,7 +56,7 @@ export function ReminderWidget() {
   const router = useRouter();
   const props: DashboardWidgetProps = {
     name: "Reminders",
-    iconPath: "/icons/reminder.svg",
+    Icon: ClipboardList,
     pageRoute: "/reminders",
     buttons: [
       { name: "Open Dashboard →", handler: () => router.push("/reminders") },
@@ -70,11 +73,11 @@ export function ReminderWidget() {
 export function VolunteerWidget() {
   const router = useRouter();
   const props: DashboardWidgetProps = {
-    name: "Volunteers",
-    iconPath: "/icons/people.svg",
-    pageRoute: "/volunteers",
+    name: "Members",
+    Icon: UsersRound,
+    pageRoute: "/members",
     buttons: [
-      { name: "Open Dashboard →", handler: () => router.push("/volunteers") },
+      { name: "Open Dashboard →", handler: () => router.push("/members") },
       { name: "Send Message", handler: () => console.log("Tried to send message") },
     ],
   };

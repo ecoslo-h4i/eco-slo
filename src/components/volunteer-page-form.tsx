@@ -5,9 +5,18 @@ import { MemberSchema } from "@/components/data-table/table-widget-defs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/dropdown-menu";
 import { Modal, ModalClose, ModalContent, ModalDescription, ModalFooter, ModalHeader } from "@/components/modal";
 import VolunteerAssignedTreePickerModal, { AssignableTree } from "@/components/assigned-tree-picker-modal";
+import {
+  AppButton,
+  appButtonClassName,
+  dropdownContentClassName,
+  dropdownItemClassName,
+  selectTriggerClassName,
+  textFieldClassName,
+} from "@/components/ui/form-controls";
 import { Database } from "@/database/database.types";
 import { ChevronDown, Pencil, Plus, Trash2, Undo2, UserRoundCog, X } from "lucide-react";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 
 type MemberRole = Database["public"]["Enums"]["MemberType"];
 
@@ -39,6 +48,22 @@ function isAssignableTree(value: unknown): value is AssignableTree {
 }
 
 const memberRoleOptions: MemberRole[] = ["Tree Keeper", "Admin"];
+
+function MemberRoleBadge({ role }: { role: MemberRole | string }) {
+  const isAdmin = String(role).toLowerCase() === "admin";
+
+  return (
+    <Badge
+      variant={isAdmin ? "info" : "success"}
+      size="md"
+      icon={isAdmin ? <UserRoundCog className="h-4 w-4" /> : undefined}
+      shrink
+      textCase="capitalize"
+    >
+      {String(role)}
+    </Badge>
+  );
+}
 
 function getCurrentDateInputValue() {
   const today = new Date();
@@ -133,9 +158,26 @@ type VolunteerPageFormProps = {
 };
 
 export default function VolunteerPageForm({ member, onOpenChange, onSaved, open }: VolunteerPageFormProps) {
-  const [memberForm, setMemberForm] = useState<MemberFormState>(() => createBlankMemberForm());
+  return (
+    <Modal open={open} onOpenChange={onOpenChange}>
+      {open && (
+        <VolunteerPageFormContent
+          key={member?.id ?? "new"}
+          member={member}
+          onOpenChange={onOpenChange}
+          onSaved={onSaved}
+        />
+      )}
+    </Modal>
+  );
+}
+
+function VolunteerPageFormContent({ member, onOpenChange, onSaved }: Omit<VolunteerPageFormProps, "open">) {
+  const [memberForm, setMemberForm] = useState<MemberFormState>(() =>
+    member ? memberToForm(member) : createBlankMemberForm(),
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(!member);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
@@ -154,7 +196,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
 
   const isAddingMember = member === null;
   const displayedName =
-    `${memberForm.firstname} ${memberForm.lastname}`.trim() || (isAddingMember ? "Add Volunteer" : "Volunteer");
+    `${memberForm.firstname} ${memberForm.lastname}`.trim() || (isAddingMember ? "Add Member" : "Member");
   const displayedRole = memberForm.role;
   const assignedTreeLabelsByEcosloNumber = useMemo(
     () =>
@@ -168,26 +210,6 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
   );
 
   useEffect(() => {
-    if (!open) return;
-
-    setMemberForm(member ? memberToForm(member) : createBlankMemberForm());
-    setIsEditing(member ? false : true);
-    setFormError(null);
-    setDeleteError(null);
-    setAssignableTrees([]);
-    setAssignedTreesError(null);
-    setIsTreePickerOpen(false);
-    setDeleteConfirmationOpen(false);
-  }, [open, member]);
-
-  useEffect(() => {
-    if (!open) {
-      setAssignableTrees([]);
-      setAssignedTreesError(null);
-      setAreAssignedTreesLoading(false);
-      return;
-    }
-
     let isMounted = true;
 
     async function loadAssignableTrees() {
@@ -220,7 +242,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
     return () => {
       isMounted = false;
     };
-  }, [open]);
+  }, []);
 
   const handleFormChange = (field: keyof MemberFormState) => {
     return (event: ChangeEvent<HTMLInputElement>) => {
@@ -273,7 +295,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
             ? responseBody.message
             : typeof responseBody?.error === "string"
               ? responseBody.error
-              : "Failed to delete volunteer";
+              : "Failed to delete member";
 
         throw new Error(errorMessage);
       }
@@ -282,7 +304,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
       onSaved();
       onOpenChange(false);
     } catch (error) {
-      setDeleteError(error instanceof Error ? error.message : "Failed to delete volunteer");
+      setDeleteError(error instanceof Error ? error.message : "Failed to delete member");
     } finally {
       setIsDeleting(false);
     }
@@ -323,7 +345,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
             ? responseBody.message
             : typeof responseBody?.error === "string"
               ? responseBody.error
-              : "Failed to save volunteer";
+              : "Failed to save member";
 
         throw new Error(errorMessage);
       }
@@ -331,7 +353,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
       onSaved();
       onOpenChange(false);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Failed to save volunteer");
+      setFormError(error instanceof Error ? error.message : "Failed to save member");
     } finally {
       setIsSubmitting(false);
     }
@@ -339,300 +361,270 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
 
   return (
     <>
-      <Modal open={open} onOpenChange={onOpenChange}>
-        <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false}>
-          <form onSubmit={handleMemberSubmit}>
-            <ModalHeader className="flex flex-col gap-y-4">
-              <div className="flex items-center justify-between gap-x-4">
-                <div className="flex gap-x-4 items-center">
-                  <h2 className="text-[1.75rem] text-text-dark font-[Constantia] font-extrabold capitalize">
-                    {displayedName}
-                  </h2>
-                  {String(displayedRole).toLowerCase() === "admin" ? (
-                    <Badge
-                      variant="muted"
-                      icon={<UserRoundCog className="w-4 h-4" />}
-                      className="shrink-0 capitalize h-8"
-                    >
-                      {String(displayedRole)}
-                    </Badge>
-                  ) : (
-                    <Badge variant="default" className="shrink-0 capitalize h-8">
-                      {String(displayedRole)}
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex gap-x-2">
-                  <button
-                    type="button"
-                    className="flex items-center justify-center w-8 h-8 bg-transparent hover:bg-black/5 transition-colors duration-100 rounded-md disabled:hidden block"
-                    disabled={isAddingMember}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setIsEditing((currentIsEditing) => !currentIsEditing);
-                    }}
-                  >
-                    {isEditing ? (
-                      <Undo2 className="w-5 h-5 text-text-muted" />
-                    ) : (
-                      <Pencil className="w-5 h-5 text-text-muted" />
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    className="flex items-center justify-center w-8 h-8 bg-transparent hover:bg-destructive/15 rounded-md transition-colors duration-100 disabled:hidden block"
-                    disabled={isAddingMember}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setDeleteError(null);
-                      setDeleteConfirmationOpen(true);
-                    }}
-                  >
-                    <Trash2 className="w-5 h-5 text-destructive" />
-                  </button>
-                  <ModalClose asChild>
-                    <button
-                      type="button"
-                      className="flex items-center justify-center w-8 h-8 bg-transparent hover:bg-black/5 transition-colors duration-100 rounded-md"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onOpenChange(false);
-                      }}
-                    >
-                      <X className="w-5 h-5 text-text-muted" />
-                    </button>
-                  </ModalClose>
-                </div>
+      <ModalContent className="bg-off-white" closeOnOverlayClick={false} showCloseButton={false}>
+        <form onSubmit={handleMemberSubmit}>
+          <ModalHeader className="flex flex-col gap-y-4">
+            <div className="flex items-center justify-between gap-x-4">
+              <div className="flex gap-x-4 items-center">
+                <h2 className="text-[1.75rem] text-text-dark font-serif font-extrabold capitalize">{displayedName}</h2>
+                <MemberRoleBadge role={displayedRole} />
               </div>
-              <div className="bg-border h-px w-full" />
-            </ModalHeader>
-            <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[70vh]">
-              <div className="bg-foreground p-4 border border-border rounded-xl">
-                <p className="text-lg font-[Constantia] font-bold text-text-dark pb-4">Contact Information</p>
-                <div className="flex flex-col gap-y-4">
-                  <div className="flex gap-x-4">
-                    <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-medium">
-                        <span>First Name</span>
-                        {isEditing && <span className="text-destructive font-semibold"> *</span>}
-                      </p>
-                      {isEditing ? (
-                        <input
-                          className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100"
-                          onChange={handleFormChange("firstname")}
-                          placeholder="John..."
-                          required
-                          value={memberForm.firstname}
-                        />
-                      ) : (
-                        <p className="text-text-dark font-medium capitalize">{memberForm.firstname}</p>
-                      )}
-                    </div>
-                    <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-medium">
-                        <span>Last Name</span>
-                        {isEditing && <span className="text-destructive font-semibold"> *</span>}
-                      </p>
-                      {isEditing ? (
-                        <input
-                          className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100"
-                          onChange={handleFormChange("lastname")}
-                          placeholder="Doe..."
-                          required
-                          value={memberForm.lastname}
-                        />
-                      ) : (
-                        <p className="text-text-dark font-medium capitalize">{memberForm.lastname}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-x-4">
-                    <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-medium">Phone</p>
-                      {isEditing ? (
-                        <input
-                          className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100"
-                          onChange={handleFormChange("phone")}
-                          placeholder="(123) 456-7890..."
-                          value={memberForm.phone}
-                        />
-                      ) : (
-                        <p className="text-text-dark font-medium">
-                          {memberForm.phone.length > 0 ? (
-                            memberForm.phone
-                          ) : (
-                            <span className="text-text-muted">None provided</span>
-                          )}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-medium">
-                        <span>Role</span>
-                        {isEditing && <span className="text-destructive font-semibold"> *</span>}
-                      </p>
-                      {isEditing ? (
-                        <DropdownMenu open={roleMenuOpen} onOpenChange={setRoleMenuOpen}>
-                          <DropdownMenuTrigger className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100 flex items-center justify-between">
-                            <span>{memberForm.role}</span>
-                            <ChevronDown
-                              className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
-                                roleMenuOpen ? "rotate-180" : ""
-                              }`}
-                            />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start" className="w-48">
-                            {memberRoleOptions.map((role) => (
-                              <DropdownMenuItem
-                                key={role}
-                                className="font-medium"
-                                onClick={() => handleRoleChange(role)}
-                              >
-                                {role}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      ) : String(displayedRole).toLowerCase() === "admin" ? (
-                        <Badge
-                          variant="muted"
-                          icon={<UserRoundCog className="w-4 h-4" />}
-                          className="shrink-0 capitalize h-8"
-                        >
-                          {String(displayedRole)}
-                        </Badge>
-                      ) : (
-                        <Badge variant="default" className="shrink-0 capitalize h-8">
-                          {String(displayedRole)}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-start gap-y-1">
-                    <p className="text-text-muted font-medium">Email</p>
+              <div className="flex gap-x-2">
+                <button
+                  type="button"
+                  className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
+                  disabled={isAddingMember}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setIsEditing((currentIsEditing) => !currentIsEditing);
+                  }}
+                >
+                  {isEditing ? (
+                    <Undo2 className="w-5 h-5 text-text-muted" />
+                  ) : (
+                    <Pencil className="w-5 h-5 text-text-muted" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  className={appButtonClassName({ iconOnly: true, variant: "danger" })}
+                  disabled={isAddingMember}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setDeleteError(null);
+                    setDeleteConfirmationOpen(true);
+                  }}
+                >
+                  <Trash2 className="w-5 h-5 text-destructive" />
+                </button>
+                <ModalClose asChild>
+                  <button
+                    type="button"
+                    className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onOpenChange(false);
+                    }}
+                  >
+                    <X className="w-5 h-5 text-text-muted" />
+                  </button>
+                </ModalClose>
+              </div>
+            </div>
+            <div className="bg-border h-px w-full" />
+          </ModalHeader>
+          <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[70vh]">
+            <div className="bg-foreground p-4 border border-border rounded-xl">
+              <p className="text-lg font-serif font-bold text-text-dark pb-4">Contact Information</p>
+              <div className="flex flex-col gap-y-4">
+                <div className="flex gap-x-4">
+                  <div className="flex-1 flex flex-col items-start gap-y-1">
+                    <p className="text-text-muted font-semibold">
+                      <span>First Name</span>
+                      {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                    </p>
                     {isEditing ? (
                       <input
-                        type="email"
-                        className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100"
-                        onChange={handleFormChange("email")}
-                        placeholder="john.doe@example.com..."
-                        value={memberForm.email}
+                        className={cn(textFieldClassName, "bg-button-muted")}
+                        onChange={handleFormChange("firstname")}
+                        placeholder="John..."
+                        required
+                        value={memberForm.firstname}
+                      />
+                    ) : (
+                      <p className="text-text-dark font-medium capitalize">{memberForm.firstname}</p>
+                    )}
+                  </div>
+                  <div className="flex-1 flex flex-col items-start gap-y-1">
+                    <p className="text-text-muted font-semibold">
+                      <span>Last Name</span>
+                      {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                    </p>
+                    {isEditing ? (
+                      <input
+                        className={cn(textFieldClassName, "bg-button-muted")}
+                        onChange={handleFormChange("lastname")}
+                        placeholder="Doe..."
+                        required
+                        value={memberForm.lastname}
+                      />
+                    ) : (
+                      <p className="text-text-dark font-medium capitalize">{memberForm.lastname}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-x-4">
+                  <div className="flex-1 flex flex-col items-start gap-y-1">
+                    <p className="text-text-muted font-semibold">Phone</p>
+                    {isEditing ? (
+                      <input
+                        className={cn(textFieldClassName, "bg-button-muted")}
+                        onChange={handleFormChange("phone")}
+                        placeholder="(123) 456-7890..."
+                        value={memberForm.phone}
                       />
                     ) : (
                       <p className="text-text-dark font-medium">
-                        {memberForm.email.length > 0 ? (
-                          memberForm.email
+                        {memberForm.phone.length > 0 ? (
+                          memberForm.phone
                         ) : (
                           <span className="text-text-muted">None provided</span>
                         )}
                       </p>
                     )}
                   </div>
-                  <div className="flex flex-col items-start gap-y-1">
-                    <p className="text-text-muted font-medium">
-                      <span>Joined Date</span>
+                  <div className="flex-1 flex flex-col items-start gap-y-1">
+                    <p className="text-text-muted font-semibold">
+                      <span>Role</span>
                       {isEditing && <span className="text-destructive font-semibold"> *</span>}
                     </p>
                     {isEditing ? (
-                      <input
-                        type="date"
-                        className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100"
-                        onChange={handleFormChange("joined")}
-                        required
-                        value={memberForm.joined}
-                      />
+                      <DropdownMenu open={roleMenuOpen} onOpenChange={setRoleMenuOpen}>
+                        <DropdownMenuTrigger className={cn(selectTriggerClassName, "bg-button-muted")}>
+                          <span>{memberForm.role}</span>
+                          <ChevronDown
+                            className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
+                              roleMenuOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className={dropdownContentClassName}>
+                          {memberRoleOptions.map((role) => (
+                            <DropdownMenuItem
+                              key={role}
+                              className={dropdownItemClassName}
+                              onClick={() => handleRoleChange(role)}
+                            >
+                              {role}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     ) : (
-                      <p className="text-text-dark font-medium">{memberForm.joined}</p>
+                      <MemberRoleBadge role={displayedRole} />
                     )}
                   </div>
                 </div>
-              </div>
-
-              <div className="bg-foreground p-4 border border-border rounded-xl">
-                <div className="flex items-center justify-between gap-x-3 pb-4">
-                  <p className="text-lg font-[Constantia] font-bold text-text-dark">{`Assigned Trees (${memberForm.assignedTreeEcosloNumbers.length})`}</p>
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-                    {isEditing ? (
-                      <button
-                        type="button"
-                        className="flex h-8 w-8 items-center justify-center rounded-md bg-transparent text-text-muted transition-colors duration-100 hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border"
-                        onClick={() => setIsTreePickerOpen(true)}
-                        aria-label="Add assigned tree"
-                      >
-                        <Plus className="h-5 w-5 text-text-muted" />
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-y-2">
-                  {memberForm.assignedTreeEcosloNumbers.length > 0 ? (
-                    <>
-                      {memberForm.assignedTreeEcosloNumbers.map((treeEcosloNumber) => (
-                        <div
-                          className="flex w-full items-center justify-between gap-x-3 rounded-lg border border-border bg-button-muted p-1 pl-3"
-                          key={treeEcosloNumber}
-                        >
-                          <p className="text-text-dark font-medium">
-                            {areAssignedTreesLoading
-                              ? "Loading tree..."
-                              : `${assignedTreeLabelsByEcosloNumber[treeEcosloNumber] ?? "(No tree found)"} #${treeEcosloNumber}`}
-                          </p>
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-                            {isEditing ? (
-                              <button
-                                type="button"
-                                className="flex h-8 w-8 items-center justify-center rounded-md bg-transparent text-text-muted transition-colors duration-100 hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border"
-                                onClick={() => handleAssignedTreeRemove(treeEcosloNumber)}
-                                aria-label={`Remove assigned tree #${treeEcosloNumber}`}
-                              >
-                                <Trash2 className="h-5 w-5" />
-                              </button>
-                            ) : null}
-                          </div>
-                        </div>
-                      ))}
-                      {assignedTreesError ? <p className="text-destructive font-medium">{assignedTreesError}</p> : null}
-                    </>
+                <div className="flex flex-col items-start gap-y-1">
+                  <p className="text-text-muted font-semibold">Email</p>
+                  {isEditing ? (
+                    <input
+                      type="email"
+                      className={cn(textFieldClassName, "bg-button-muted")}
+                      onChange={handleFormChange("email")}
+                      placeholder="john.doe@example.com..."
+                      value={memberForm.email}
+                    />
                   ) : (
-                    <p className="text-text-muted font-medium">No trees assigned</p>
+                    <p className="text-text-dark font-medium">
+                      {memberForm.email.length > 0 ? (
+                        memberForm.email
+                      ) : (
+                        <span className="text-text-muted">None provided</span>
+                      )}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col items-start gap-y-1">
+                  <p className="text-text-muted font-semibold">
+                    <span>Joined Date</span>
+                    {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                  </p>
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      className={cn(textFieldClassName, "bg-button-muted")}
+                      onChange={handleFormChange("joined")}
+                      required
+                      value={memberForm.joined}
+                    />
+                  ) : (
+                    <p className="text-text-dark font-medium">{memberForm.joined}</p>
                   )}
                 </div>
               </div>
-              {formError ? <p className="text-destructive font-medium">{formError}</p> : null}
-            </ModalDescription>
-            <ModalFooter>
-              <div className="flex flex-col w-full gap-y-4">
-                <div className="bg-border h-px w-full" />
-                <div className="flex justify-end gap-x-4">
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-text-dark bg-transparent border border-border rounded-full hover:bg-black/5 transition-colors duration-100"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onOpenChange(false);
-                    }}
-                  >
-                    <span className="font-medium">Cancel</span>
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-primary text-text-light border border-border text-text-dark rounded-full hover:bg-primary/90 transition-colors duration-100 disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={isSubmitting || !hasFormChanges}
-                    type="submit"
-                  >
-                    <span className="font-medium">{isAddingMember ? "Add Member" : "Save Changes"}</span>
-                  </button>
+            </div>
+
+            <div className="bg-foreground p-4 border border-border rounded-xl">
+              <div className="flex items-center justify-between gap-x-3 pb-4">
+                <p className="text-lg font-serif font-bold text-text-dark">{`Assigned Trees (${memberForm.assignedTreeEcosloNumbers.length})`}</p>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+                  {isEditing ? (
+                    <button
+                      type="button"
+                      className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
+                      onClick={() => setIsTreePickerOpen(true)}
+                      aria-label="Add assigned tree"
+                    >
+                      <Plus className="h-5 w-5 text-text-muted" />
+                    </button>
+                  ) : null}
                 </div>
               </div>
-            </ModalFooter>
-          </form>
-        </ModalContent>
-      </Modal>
+              <div className="flex flex-col gap-y-2">
+                {memberForm.assignedTreeEcosloNumbers.length > 0 ? (
+                  <>
+                    {memberForm.assignedTreeEcosloNumbers.map((treeEcosloNumber) => (
+                      <div
+                        className="flex w-full items-center justify-between gap-x-3 rounded-lg border border-border bg-off-white p-1 pl-3"
+                        key={treeEcosloNumber}
+                      >
+                        <p className="text-text-dark font-medium">
+                          {areAssignedTreesLoading
+                            ? "Loading tree..."
+                            : `${assignedTreeLabelsByEcosloNumber[treeEcosloNumber] ?? "(No tree found)"} #${treeEcosloNumber}`}
+                        </p>
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+                          {isEditing ? (
+                            <button
+                              type="button"
+                              className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
+                              onClick={() => handleAssignedTreeRemove(treeEcosloNumber)}
+                              aria-label={`Remove assigned tree #${treeEcosloNumber}`}
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                    {assignedTreesError ? <p className="text-destructive font-medium">{assignedTreesError}</p> : null}
+                  </>
+                ) : (
+                  <p className="text-text-muted font-medium">No trees assigned</p>
+                )}
+              </div>
+            </div>
+            {formError ? <p className="text-destructive font-medium">{formError}</p> : null}
+          </ModalDescription>
+          <ModalFooter>
+            <div className="flex flex-col w-full gap-y-4">
+              <div className="bg-border h-px w-full" />
+              <div className="flex justify-end gap-x-4">
+                <AppButton
+                  type="button"
+                  variant="secondary"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onOpenChange(false);
+                  }}
+                >
+                  Cancel
+                </AppButton>
+                <AppButton disabled={isSubmitting || !hasFormChanges} type="submit">
+                  {isAddingMember ? "Add Member" : "Save Changes"}
+                </AppButton>
+              </div>
+            </div>
+          </ModalFooter>
+        </form>
+      </ModalContent>
 
       <Modal open={deleteConfirmationOpen} onOpenChange={setDeleteConfirmationOpen}>
         <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false} widthClassName="px-8">
           <ModalHeader>
             <div className="flex items-center justify-between gap-x-4">
-              <h2 className="w-full text-center text-2xl text-text-dark font-[Constantia] font-extrabold">{`Delete ${displayedName}`}</h2>
+              <h2 className="w-full text-center text-2xl text-text-dark font-serif font-extrabold">{`Delete ${displayedName}`}</h2>
             </div>
           </ModalHeader>
           <ModalDescription className="flex flex-col gap-y-4 pt-1 pb-4">
@@ -641,22 +633,18 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
           </ModalDescription>
           <ModalFooter>
             <div className="w-full flex justify-center gap-x-4">
-              <button
-                type="button"
-                className="px-4 py-2 text-text-dark bg-transparent border border-border rounded-full hover:bg-black/5 transition-colors duration-100"
-                onClick={() => setDeleteConfirmationOpen(false)}
-              >
-                <span className="font-medium">Cancel</span>
-              </button>
-              <button
-                className="flex gap-x-2 items-center px-4 py-2 bg-destructive text-text-light rounded-full hover:bg-destructive/90 transition-colors duration-100 disabled:opacity-60"
+              <AppButton type="button" variant="secondary" onClick={() => setDeleteConfirmationOpen(false)}>
+                Cancel
+              </AppButton>
+              <AppButton
+                icon={Trash2}
+                variant="danger"
                 disabled={isDeleting}
                 onClick={handleDeleteVolunteer}
                 type="button"
               >
-                <Trash2 className="w-5 h-5" />
-                <span className="font-medium">{isDeleting ? "Deleting..." : "Delete Volunteer"}</span>
-              </button>
+                {isDeleting ? "Deleting..." : "Delete Member"}
+              </AppButton>
             </div>
           </ModalFooter>
         </ModalContent>

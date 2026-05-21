@@ -60,12 +60,12 @@ function TreePageTable({
   return (
     <Table
       className={`${className} rounded-xl shadow-sm`}
-      tableClassName="bg-table-row-light text-text-dark"
+      tableClassName="bg-off-white text-text-dark"
       footer={true}
-      footerClassName="bg-table-header h-16"
+      footerClassName="bg-off-white h-16"
       footerContent={<PaginationControls table={table} itemNamePlural="trees" />}
     >
-      <TableHeader className="bg-table-header">
+      <TableHeader className="bg-off-white">
         <TableRow>
           {table.getColumns().map((col, i) => (
             <TableHead key={i} position={col.headPosition} columnWidth={col.columnWidth} className="px-4 h-16 text-sm">
@@ -91,7 +91,7 @@ function TreePageTable({
                 key={i}
                 data={model.row}
                 onClick={onRowClick}
-                className={`${i % 2 === 0 ? "bg-table-row-light" : "bg-table-row-dark"} hover:bg-table-header cursor-pointer`}
+                className={`${i % 2 === 0 ? "bg-table-row-light" : "bg-table-row-dark"} hover:bg-light-green-2/25 cursor-pointer`}
               >
                 {model.cells.map(({ column, value, row }, j) => (
                   <TableCell

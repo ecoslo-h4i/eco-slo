@@ -1,3 +1,5 @@
+import { reminderFieldLabelClass, reminderTextareaClass } from "./reminderInputStyles";
+
 interface ReminderLongTextInputProps {
   disabled?: boolean;
   label: string;
@@ -11,10 +13,10 @@ interface ReminderLongTextInputProps {
 export default function ReminderTextInput(props: ReminderLongTextInputProps) {
   return (
     <div className="flex flex-col w-full">
-      <span className="font-avenir text-m text-text-dark">{props.label}</span>
-      <span className="font-avenir text-sm text-text-muted">{props.sublabel}</span>
+      {props.label && <span className={reminderFieldLabelClass}>{props.label}</span>}
+      {props.sublabel && <span className="font-mulish text-sm text-text-muted">{props.sublabel}</span>}
       <textarea
-        className="w-full min-h-30 rounded-3xl bg-white p-4 font-avenir text-m font-normal focus:outline-none mt-2 disabled:bg-table-header disabled:text-text-dark disabled:opacity-100"
+        className={`${reminderTextareaClass} mt-2 min-h-30`}
         defaultValue={props.value === undefined ? props.initialValue || "" : undefined}
         value={props.value}
         disabled={props.disabled}

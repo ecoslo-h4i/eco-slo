@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 import { dashboardTreeColumns, TreeSchema } from "./data-table/table-widget-defs";
 import TreeDashboardTable from "./data-table/tree-dashboard-table";
 import { getAdminTrees } from "@/lib/get-admin-trees";
+import { TreeDeciduous } from "lucide-react";
 
 function TreeDashboardWidget({ className }: { className?: string }) {
   const [trees, setTrees] = useState<TreeSchema[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -37,19 +38,19 @@ function TreeDashboardWidget({ className }: { className?: string }) {
     <div className={`${className} p-8`}>
       <div className="w-full h-full flex flex-col gap-y-6">
         <div className="flex justify-between shrink-0">
-          <h2 className="text-5xl font-[Constantia]">Trees</h2>
+          <h2 className="text-5xl font-serif">Trees</h2>
           <Link
             href="/trees"
             aria-label="Go to Trees page"
-            className="rounded-full size-14 bg-transparent transition-all duration-200 ease-out hover:bg-black/10 cursor-pointer flex justify-center items-center items-center"
+            className="rounded-full size-14 bg-transparent transition-all duration-200 ease-out hover:bg-text/10 cursor-pointer flex justify-center items-center items-center"
           >
-            <img src="/icons/tree.svg" alt="To Tree Page" className="size-10 invert" />
+            <TreeDeciduous aria-hidden="true" className="size-10 text-text" strokeWidth={2} />
           </Link>
         </div>
-        <div className="h-[0.1rem] w-full bg-black"></div>
+        <div className="h-[0.1rem] w-full bg-border-strong"></div>
         <div className="flex-1 min-h-0 flex flex-col">
           {error ? (
-            <div className="w-full h-full flex justify-center items-center text-red-500">{error}</div>
+            <div className="w-full h-full flex justify-center items-center text-danger">{error}</div>
           ) : (
             <TreeDashboardTable className="w-full" data={trees} cols={dashboardTreeColumns} />
           )}

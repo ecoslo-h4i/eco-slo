@@ -1,6 +1,6 @@
 import type { SurveyTreeOption } from "@/types/survey";
+import { SelectField } from "@/components/ui/form-controls";
 import FormSection from "./FormSection";
-import { surveyFieldClass } from "./formStyles";
 
 export type { SurveyTreeOption };
 
@@ -21,26 +21,19 @@ export default function TreeSelectSection({ trees, value, onChange, disabled, er
   return (
     <FormSection title="Tree" titleId="survey-heading-tree">
       <div>
-        <select
+        <SelectField
           id="survey-tree"
-          className={surveyFieldClass}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={onChange}
           disabled={disabled}
-          aria-labelledby="survey-heading-tree"
-          aria-invalid={!!error}
-          aria-describedby={error ? "survey-err-tree" : undefined}
+          ariaInvalid={!!error}
+          ariaDescribedBy={error ? "survey-err-tree" : undefined}
+          placeholder="Select a tree..."
           required
-        >
-          <option value="">Select a tree…</option>
-          {trees.map((t) => (
-            <option key={t.ecoslo_num} value={String(t.ecoslo_num)}>
-              {formatTreeLabel(t)}
-            </option>
-          ))}
-        </select>
+          options={trees.map((tree) => ({ label: formatTreeLabel(tree), value: String(tree.ecoslo_num) }))}
+        />
         {error ? (
-          <p id="survey-err-tree" className="mt-2 text-sm text-red-700" role="alert">
+          <p id="survey-err-tree" className="mt-2 text-sm text-danger" role="alert">
             {error}
           </p>
         ) : null}

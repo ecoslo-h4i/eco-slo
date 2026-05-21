@@ -15,7 +15,7 @@ export default function ToggleSwitch(props: ToggleSwitchProps) {
       disabled={props.disabled}
       onClick={() => props.onChange?.(!props.checked)}
       className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full border transition-colors duration-200 focus:outline-none hover:cursor-pointer ${
-        props.checked ? "border-[#5d7a35] bg-primary" : "border-border bg-inactive-pill"
+        props.checked ? "border-primary bg-primary" : "border-border bg-inactive-pill"
       } disabled:cursor-default disabled:opacity-75`}
     >
       <span

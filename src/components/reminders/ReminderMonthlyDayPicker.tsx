@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { reminderElevationHoverClass } from "./reminderInputStyles";
 
 interface ReminderMonthlyDayPickerProps {
   /** Day of month, 1-31. `null` means nothing selected yet. */
@@ -29,8 +30,8 @@ export default function ReminderMonthlyDayPicker({
   className,
 }: ReminderMonthlyDayPickerProps) {
   return (
-    <div className={cn("rounded-3xl bg-white p-4", disabled && "bg-table-header", className)}>
-      <div className="grid grid-cols-7 gap-1.5">
+    <div className={cn("rounded-3xl bg-card p-4", disabled && "bg-table-header", className)}>
+      <div className="grid grid-cols-7 place-items-center gap-1.5">
         {DAYS.map((day) => {
           const isSelected = value === day;
 
@@ -43,11 +44,10 @@ export default function ReminderMonthlyDayPicker({
               aria-pressed={isSelected}
               onClick={() => onChange(day)}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-full font-avenir text-sm transition-colors duration-150",
+                "flex h-9 w-9 items-center justify-center rounded-full font-mulish text-sm transition-colors duration-150",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
                 isSelected ? "bg-primary text-text-light" : "text-text-dark",
-                !disabled && isSelected && "hover:bg-primary-light",
-                !disabled && !isSelected && "hover:bg-active-pill",
+                !disabled && !isSelected && reminderElevationHoverClass,
                 disabled && !isSelected && "opacity-50",
                 disabled ? "cursor-default" : "cursor-pointer",
               )}
@@ -59,7 +59,7 @@ export default function ReminderMonthlyDayPicker({
       </div>
 
       {value !== null && value >= 29 && (
-        <p className="mt-3 font-avenir text-xs text-text-muted">
+        <p className="mt-3 font-mulish text-xs text-text-muted">
           {value === 31
             ? "Note: months with fewer than 31 days (Feb, Apr, Jun, Sep, Nov) will be skipped."
             : value === 30

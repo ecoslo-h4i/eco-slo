@@ -1,4 +1,5 @@
 import { Clock } from "lucide-react";
+import { reminderFieldLabelClass, reminderInputClass } from "./reminderInputStyles";
 
 interface ReminderTimePickerProps {
   disabled?: boolean;
@@ -12,11 +13,11 @@ interface ReminderTimePickerProps {
 export default function ReminderTimePicker(props: ReminderTimePickerProps) {
   return (
     <div className="flex flex-col gap-1 w-full">
-      <span className="font-avenir text-m font-normal">{props.label}</span>
+      <span className={reminderFieldLabelClass}>{props.label}</span>
       <div className="relative w-full">
         <input
           type="time"
-          className="w-full h-10 rounded-full bg-white px-4 pr-11 font-avenir text-m font-normal text-text-dark selection:bg-primary selection:text-text-light focus:outline-none disabled:bg-table-header disabled:text-text-dark disabled:opacity-100 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+          className={`${reminderInputClass} pr-11 selection:bg-table-header selection:text-text-dark [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none`}
           disabled={props.disabled}
           value={props.value}
           defaultValue={props.defaultValue}

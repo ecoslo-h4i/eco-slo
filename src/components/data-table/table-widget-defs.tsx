@@ -2,7 +2,7 @@ import { ColumnDef } from "./table/column-def";
 import HeadControls from "./head-controls";
 import { Database } from "@/database/database.types";
 import Badge from "../badge";
-import { CircleAlert, CircleCheck, CircleMinus, Clock, TreeDeciduous, UserRoundCog } from "lucide-react";
+import { CircleAlert, CircleCheck, CircleMinus, Clock, UserRoundCog } from "lucide-react";
 
 export type TreekeeperSchema = {
   tree_keeper: {
@@ -22,6 +22,51 @@ export type DashboardTreeSchema = TreeSchema & {
 
 export type MemberSchema = Database["public"]["Tables"]["members"]["Row"] & { name: string };
 
+function treeStatusBadgeVariant(value: unknown) {
+  return String(value).toLowerCase() === "active" ? "success" : "muted";
+}
+
+function conditionBadgeVariant(value: unknown) {
+  const condition = String(value).toLowerCase();
+  if (condition === "good") return "success";
+  if (condition === "fair") return "warning";
+  return "danger";
+}
+
+function conditionBadgeIcon(value: unknown) {
+  const condition = String(value).toLowerCase();
+  if (condition === "good") return <CircleCheck className="h-4 w-4" />;
+  if (condition === "fair") return <CircleMinus className="h-4 w-4" />;
+  return <CircleAlert className="h-4 w-4" />;
+}
+
+function completionBadgeVariant(value: unknown) {
+  return String(value).toLowerCase() === "completed" ? "success" : "muted";
+}
+
+function completionBadgeIcon(value: unknown) {
+  return String(value).toLowerCase() === "completed" ? (
+    <CircleCheck className="h-4 w-4" />
+  ) : (
+    <Clock className="h-4 w-4" />
+  );
+}
+
+function roleBadge(value: unknown) {
+  const role = String(value);
+  const isAdmin = role.toLowerCase() === "admin";
+
+  return (
+    <Badge
+      variant={isAdmin ? "info" : "success"}
+      icon={isAdmin ? <UserRoundCog className="h-4 w-4" /> : undefined}
+      textCase="capitalize"
+    >
+      {role}
+    </Badge>
+  );
+}
+
 export const dashboardTreeColumns: ColumnDef<DashboardTreeSchema>[] = [
   {
     id: "ecoslo_num",
@@ -40,7 +85,7 @@ export const dashboardTreeColumns: ColumnDef<DashboardTreeSchema>[] = [
     accessorKey: "status",
     name: "Status",
     cell: (value) => (
-      <Badge variant={value == "Active" ? "default" : "muted"} className="capitalize">
+      <Badge variant={treeStatusBadgeVariant(value)} textCase="capitalize">
         {String(value)}
       </Badge>
     ),
@@ -75,7 +120,7 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     name: "Status",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
-      <Badge variant={String(value).toLowerCase() == "active" ? "default" : "muted"} className="capitalize">
+      <Badge variant={treeStatusBadgeVariant(value)} textCase="capitalize">
         {String(value)}
       </Badge>
     ),
@@ -89,25 +134,7 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     name: "Condition",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
-      <Badge
-        variant={
-          String(value).toLowerCase() == "good"
-            ? "default"
-            : String(value).toLowerCase() == "fair"
-              ? "warning"
-              : "destructive"
-        }
-        icon={
-          String(value).toLowerCase() == "good" ? (
-            <CircleCheck className="w-4 h-4" />
-          ) : String(value).toLowerCase() == "fair" ? (
-            <CircleMinus className="w-4 h-4" />
-          ) : (
-            <CircleAlert className="w-4 h-4" />
-          )
-        }
-        className="capitalize"
-      >
+      <Badge variant={conditionBadgeVariant(value)} icon={conditionBadgeIcon(value)} textCase="capitalize">
         {String(value)}
       </Badge>
     ),
@@ -188,7 +215,7 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     name: "Is Public",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
-      <Badge variant={value ? "default" : "muted"} className="capitalize">
+      <Badge variant={value ? "info" : "muted"} textCase="capitalize">
         {value ? "Public" : "Private"}
       </Badge>
     ),
@@ -250,17 +277,7 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     name: "Weekly Watering Status",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
-      <Badge
-        variant={String(value).toLowerCase() == "completed" ? "default" : "muted"}
-        icon={
-          String(value).toLowerCase() == "completed" ? (
-            <CircleCheck className="w-4 h-4" />
-          ) : (
-            <Clock className="w-4 h-4" />
-          )
-        }
-        className="capitalize"
-      >
+      <Badge variant={completionBadgeVariant(value)} icon={completionBadgeIcon(value)} textCase="capitalize">
         {String(value)}
       </Badge>
     ),
@@ -286,17 +303,7 @@ export const treeColumns: ColumnDef<TreeSchema>[] = [
     name: "Yearly Mulching Status",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
     cell: (value) => (
-      <Badge
-        variant={String(value).toLowerCase() == "completed" ? "default" : "muted"}
-        icon={
-          String(value).toLowerCase() == "completed" ? (
-            <CircleCheck className="w-4 h-4" />
-          ) : (
-            <Clock className="w-4 h-4" />
-          )
-        }
-        className="capitalize"
-      >
+      <Badge variant={completionBadgeVariant(value)} icon={completionBadgeIcon(value)} textCase="capitalize">
         {String(value)}
       </Badge>
     ),
@@ -375,16 +382,7 @@ export const memberColumns: ColumnDef<MemberSchema>[] = [
     accessorKey: "role",
     name: "Role",
     head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canHide={false} />,
-    cell: (value) =>
-      String(value).toLowerCase() === "admin" ? (
-        <Badge variant="muted" icon={<UserRoundCog className="w-4 h-4" />} className="capitalize">
-          {String(value)}
-        </Badge>
-      ) : (
-        <Badge variant="default" className="capitalize">
-          {String(value)}
-        </Badge>
-      ),
+    cell: (value) => roleBadge(value),
     comparator: (a, b) => String(a).localeCompare(String(b)),
     cellId: (value) => String(value).toLowerCase(),
     canSearch: true,
@@ -413,7 +411,7 @@ export const memberColumns: ColumnDef<MemberSchema>[] = [
         Array.isArray(value) && value.every((treeId): treeId is number => typeof treeId === "number") ? value : [];
 
       return (
-        <Badge className="rounded-sm" variant="muted">
+        <Badge shape="rounded" variant="muted">
           {treeIds.length > 0 ? (
             <span className="flex justify-between gap-x-2 max-w-48">
               <span className="truncate">{treeIds.map((id) => `#${id}`).join(", ")}</span>

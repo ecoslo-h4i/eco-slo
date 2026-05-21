@@ -3,8 +3,10 @@
 import RemindersList from "@/components/reminders/RemindersList";
 import ReminderView from "@/components/reminders/ReminderView";
 import type { Tables } from "@/database/database.types";
-import Image from "next/image";
+import { AppButton } from "@/components/ui/form-controls";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { AdminPageShell } from "@/components/admin-page-shell";
 
 type Member = Tables<"members">;
 type Reminder = Tables<"reminders">;
@@ -78,18 +80,17 @@ export default function Reminders() {
   };
 
   return (
-    <main className="flex h-screen flex-1 flex-col overflow-hidden bg-background px-8 py-10">
-      <header className="flex flex-row items-center justify-between pt-5">
-        <h1 className="text-[56px] font-[Constantia] font-semibold leading-none">Automated Reminders</h1>
-        <button
-          className="h-10 w-40 bg-primary rounded-full text-white font-avenir flex flex-row items-center justify-center hover:bg-primary-light transition-colors duration-200 cursor-pointer"
-          onClick={handleCreateReminder}
-        >
-          <span>New Reminder</span>
-          <Image src="/icons/plus.svg" alt="Plus Icon" width={20} height={20} className="ml-2" />
-        </button>
-      </header>
-      <div className="mt-10 flex min-h-0 flex-1 flex-row gap-8">
+    <AdminPageShell
+      title="Reminders"
+      className="h-screen overflow-hidden"
+      contentClassName="h-full min-h-0"
+      actions={
+        <AppButton icon={Plus} radius="small" onClick={handleCreateReminder}>
+          New Reminder
+        </AppButton>
+      }
+    >
+      <div className="flex min-h-0 flex-1 flex-row gap-8">
         <div className="min-h-0 basis-1/3">
           <RemindersList
             reminders={reminders}
@@ -113,7 +114,7 @@ export default function Reminders() {
           />
         </div>
       </div>
-    </main>
+    </AdminPageShell>
   );
 }
 
@@ -149,7 +150,7 @@ function getAssigneeLabels(reminders: Reminder[], members: Member[]) {
 
   return Object.fromEntries(
     reminders.map((reminder) => {
-      const roles = reminder.assignees.map((id) => `${membersById.get(id)?.role ?? "General Volunteer"}s`);
+      const roles = reminder.assignees.map((id) => `${membersById.get(id)?.role ?? "General Member"}s`);
 
       return [reminder.id, [...new Set(roles)].join(", ")] as const;
     }),
