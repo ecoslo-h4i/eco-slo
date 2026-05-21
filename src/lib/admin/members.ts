@@ -4,6 +4,83 @@ type UpdateMemberEmailResult =
   | { success: true }
   | { success: false; error: string; code: "not_found" | "email_taken" | "auth_failed" | "members_failed" };
 
+type SyncTreeAssignmentsResult = { success: true } | { success: false; error: string };
+
+/**
+ * Syncs `trees.tree_keeper_id` and other members' `trees_assigned` arrays
+ * to reflect a change in this member's assigned trees.
+ *
+ * For removed trees: nullifies `tree_keeper_id`.
+ * For added trees: sets `tree_keeper_id` to this member, and removes
+ * the tree from any other member that previously had it.
+ */
+export async function syncTreeAssignments(
+  memberId: number,
+  oldTreeEcosloNumbers: number[],
+  newTreeEcosloNumbers: number[],
+): Promise<SyncTreeAssignmentsResult> {
+  const oldSet = new Set(oldTreeEcosloNumbers);
+  const newSet = new Set(newTreeEcosloNumbers);
+
+  const removed = oldTreeEcosloNumbers.filter((n) => !newSet.has(n));
+  const added = newTreeEcosloNumbers.filter((n) => !oldSet.has(n));
+
+  if (removed.length === 0 && added.length === 0) return { success: true };
+
+  const supabase = await createServiceRoleClient();
+
+  if (removed.length > 0) {
+    const { error } = await supabase.from("trees").update({ tree_keeper_id: null }).in("ecoslo_num", removed);
+
+    if (error) {
+      console.error("[syncTreeAssignments] failed to nullify tree_keeper_id for removed trees:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  if (added.length > 0) {
+    const { error: setKeeperError } = await supabase
+      .from("trees")
+      .update({ tree_keeper_id: memberId })
+      .in("ecoslo_num", added);
+
+    if (setKeeperError) {
+      console.error("[syncTreeAssignments] failed to set tree_keeper_id for added trees:", setKeeperError);
+      return { success: false, error: setKeeperError.message };
+    }
+
+    const { data: affectedMembers, error: lookupError } = await supabase
+      .from("members")
+      .select("id, trees_assigned")
+      .neq("id", memberId)
+      .overlaps("trees_assigned", added);
+
+    if (lookupError) {
+      console.error("[syncTreeAssignments] failed to find other members with overlapping trees:", lookupError);
+      return { success: false, error: lookupError.message };
+    }
+
+    const addedSet = new Set(added);
+    for (const other of affectedMembers ?? []) {
+      const currentTrees: number[] = Array.isArray(other.trees_assigned)
+        ? other.trees_assigned.filter((n): n is number => typeof n === "number")
+        : [];
+      const cleaned = currentTrees.filter((n) => !addedSet.has(n));
+
+      const { error: cleanupError } = await supabase
+        .from("members")
+        .update({ trees_assigned: cleaned, trees_count: cleaned.length })
+        .eq("id", other.id);
+
+      if (cleanupError) {
+        console.error("[syncTreeAssignments] failed to clean up member", other.id, cleanupError);
+      }
+    }
+  }
+
+  return { success: true };
+}
+
 /**
  * Updates a member's email, keeping auth.users.email in sync if the
  * member has already signed in (i.e., has a linked user_id).

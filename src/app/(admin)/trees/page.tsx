@@ -1,10 +1,9 @@
 "use client";
 import TreePageTableWidget from "@/components/TreePageTableWidget";
 import ControlPanel from "@/components/ControlPanel";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { TreeSchema } from "@/components/data-table/table-widget-defs";
-import TreeDetailsPopout from "@/components/TreeDetailsPopout";
-import { useRef } from "react";
+import TreeDetailModal from "@/components/tree-detail-modal";
 import { Table } from "@/components/data-table/table/table-types";
 import { Download, Plus } from "lucide-react";
 import { downloadTreeCSV, dataToCSV } from "./utils/csv";
@@ -12,23 +11,30 @@ import { AppButton } from "@/components/ui/form-controls";
 import { AdminPageShell } from "@/components/admin-page-shell";
 
 export default function Trees() {
-  const [currentTree, setCurrentTree] = useState<TreeSchema | null>(null);
   const tableRef = useRef<Table<TreeSchema> | null>(null);
+  const refetchRef = useRef<(() => void) | null>(null);
+  const [treeModalOpen, setTreeModalOpen] = useState(false);
+  const [modalTree, setModalTree] = useState<TreeSchema | null>(null);
+  const [tableVersion, setTableVersion] = useState(0);
+
+  const handleTableReady = useCallback((table: Table<TreeSchema>) => {
+    tableRef.current = table;
+    setTableVersion((v) => v + 1);
+  }, []);
+
+  const handleAddTreeClick = () => {
+    setModalTree(null);
+    setTreeModalOpen(true);
+  };
+
+  const handleModalOpenChange = (open: boolean) => {
+    setTreeModalOpen(open);
+    if (!open) setModalTree(null);
+  };
 
   return (
     <AdminPageShell
       title="Trees"
-      onClick={() => setCurrentTree(null)}
-      beforeContent={
-        <div className="fixed top-3 -right-100 h-auto w-auto z-30 ">
-          <TreeDetailsPopout
-            key={currentTree != null ? String(currentTree.id) : "closed"}
-            admin={true}
-            tree={currentTree != null ? currentTree : undefined}
-            onClose={() => setCurrentTree(null)}
-          />
-        </div>
-      }
       actions={
         <>
           <AppButton
@@ -52,24 +58,28 @@ export default function Trees() {
           >
             Export CSV
           </AppButton>
-          <AppButton radius="small" icon={Plus}>
+          <AppButton radius="small" icon={Plus} onClick={handleAddTreeClick}>
             Add Tree
           </AppButton>
         </>
       }
     >
-      {/* control panel placeholder */}
-      <ControlPanel tableRef={tableRef} />
-      {/* trees table placeholder */}
+      <ControlPanel tableRef={tableRef} tableVersion={tableVersion} />
       <TreePageTableWidget
+        refetchRef={refetchRef}
         onRowClick={(event, tree) => {
           event.stopPropagation();
-          setCurrentTree(tree);
+          setModalTree(tree);
+          setTreeModalOpen(true);
         }}
-        onTableReady={(table) => {
-          tableRef.current = table;
-        }}
+        onTableReady={handleTableReady}
         className="w-full max-w-full"
+      />
+      <TreeDetailModal
+        tree={modalTree}
+        open={treeModalOpen}
+        onOpenChange={handleModalOpenChange}
+        onSaved={() => refetchRef.current?.()}
       />
     </AdminPageShell>
   );

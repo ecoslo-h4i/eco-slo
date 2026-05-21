@@ -39,10 +39,6 @@ function displayValue(value: string | null | undefined) {
   return value?.trim() ? value : "Not available";
 }
 
-function displayStatus(status: string) {
-  return status === "Graduated" ? "Off-boarded" : status;
-}
-
 function statusBadgeVariant(status: string) {
   return status === "Active" ? "success" : "muted";
 }
@@ -168,7 +164,7 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="font-serif text-3xl font-normal leading-none text-text">#{tree.id}</h2>
             <Badge variant={statusBadgeVariant(tree.status)} size="md">
-              {displayStatus(tree.status)}
+              {tree.status}
             </Badge>
           </div>
         </div>

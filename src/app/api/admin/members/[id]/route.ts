@@ -1,7 +1,7 @@
 import { createServerLevelClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
-import { updateMemberEmail } from "@/lib/admin/members";
+import { syncTreeAssignments, updateMemberEmail } from "@/lib/admin/members";
 
 type IParams = {
   params: Promise<{
@@ -91,11 +91,31 @@ export async function PUT(request: NextRequest, { params }: IParams) {
       }
     }
 
-    // Non-email fields: use the user-level client so RLS still validates
-    // the caller is an admin. (The is_admin check above is redundant with
-    // RLS but provides a cleaner 403 instead of "0 rows updated.")
+    const adminClient = await createServiceRoleClient();
+
+    // If trees_assigned changed, sync tree_keeper_id on affected trees.
+    if (rest.trees_assigned !== undefined) {
+      const { data: oldMember } = await adminClient
+        .from("members")
+        .select("trees_assigned")
+        .eq("id", memberId)
+        .single();
+
+      const oldTrees: number[] = Array.isArray(oldMember?.trees_assigned)
+        ? oldMember.trees_assigned.filter((n: unknown): n is number => typeof n === "number")
+        : [];
+      const newTrees: number[] = Array.isArray(rest.trees_assigned)
+        ? rest.trees_assigned.filter((n: unknown): n is number => typeof n === "number")
+        : [];
+
+      const syncResult = await syncTreeAssignments(memberId, oldTrees, newTrees);
+      if (!syncResult.success) {
+        return NextResponse.json({ message: syncResult.error }, { status: 500 });
+      }
+    }
+
+    // Non-email fields: update the member row.
     if (Object.keys(rest).length > 0) {
-      const adminClient = await createServiceRoleClient();
       const { data, error } = await adminClient.from("members").update(rest).eq("id", memberId).select().single();
 
       if (error) {
@@ -105,7 +125,6 @@ export async function PUT(request: NextRequest, { params }: IParams) {
     }
 
     // Email-only update: re-fetch to return the updated row.
-    const adminClient = await createServiceRoleClient();
     const { data } = await adminClient.from("members").select("*").eq("id", memberId).single();
 
     return NextResponse.json({ data }, { status: 200 });

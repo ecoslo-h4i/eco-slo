@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type MutableRefObject, useEffect, useState } from "react";
 import { MemberSchema, memberColumns } from "./data-table/table-widget-defs";
 import { Table } from "./data-table/table/table-types";
 import MemberPageTable from "./data-table/member-page-table";
@@ -31,10 +31,12 @@ function MemberPageTableWidget({
   className,
   onRowClick,
   onTableReady,
+  refetchRef,
 }: {
   className?: string;
   onRowClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, member: MemberSchema) => void;
   onTableReady?: (table: Table<MemberSchema>) => void;
+  refetchRef?: MutableRefObject<(() => void) | null>;
 }) {
   const [members, setMembers] = useState<MemberSchema[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +53,7 @@ function MemberPageTableWidget({
           setError(null);
         }
       } catch (err) {
-        if (mounted) setError(err instanceof Error ? err.message : "Failed to load trees");
+        if (mounted) setError(err instanceof Error ? err.message : "Failed to load members");
       } finally {
         if (mounted) setIsLoading(false);
       }
@@ -61,6 +63,14 @@ function MemberPageTableWidget({
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!refetchRef) return;
+    refetchRef.current = async () => {
+      const data = await getAdminMembers();
+      setMembers(data);
+    };
+  }, [refetchRef]);
 
   return (
     <div className={`min-w-0 flex flex-col ${className || ""}`}>

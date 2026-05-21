@@ -115,7 +115,7 @@ export default function LoginPage() {
       <LoginShell>
         <LoginCard>
           <h1 className="mb-5 text-center font-serif text-[24px] font-normal leading-tight text-text">{LOGIN_TITLE}</h1>
-          <label htmlFor="login-email" className="mb-2 block font-mulish text-[12px] font-bold text-text">
+          <label htmlFor="login-email" className="mb-2 block font-mulish text-[12px] font-bold text-text-muted">
             {EMAIL_LABEL}
           </label>
           <TextField
@@ -136,17 +136,19 @@ export default function LoginPage() {
           >
             {isSubmitting ? "Sending..." : CONFIRM_BUTTON_TEXT}
           </AppButton>
-          <AppButton
-            type="button"
-            className="mx-auto mt-4"
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              window.location.href = "/map";
-            }}
-          >
-            Back to Public Map
-          </AppButton>
+          <div className="w-full flex flex-row justify-center">
+            <AppButton
+              type="button"
+              className="mt-4"
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                window.location.href = "/map";
+              }}
+            >
+              Back to Public Map
+            </AppButton>
+          </div>
         </LoginCard>
       </LoginShell>
     );

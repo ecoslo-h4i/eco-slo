@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type MutableRefObject, useEffect, useState } from "react";
 import { treeColumns, TreeSchema } from "./data-table/table-widget-defs";
 import { Table } from "./data-table/table/table-types";
 import TreePageTable from "./data-table/tree-page-table";
@@ -10,10 +10,12 @@ function TreePageTableWidget({
   className,
   onRowClick,
   onTableReady,
+  refetchRef,
 }: {
   className?: string;
   onRowClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, tree: TreeSchema) => void;
   onTableReady?: (table: Table<TreeSchema>) => void;
+  refetchRef?: MutableRefObject<(() => void) | null>;
 }) {
   const [trees, setTrees] = useState<TreeSchema[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,6 +42,14 @@ function TreePageTableWidget({
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!refetchRef) return;
+    refetchRef.current = async () => {
+      const data = await getAdminTrees();
+      setTrees(data);
+    };
+  }, [refetchRef]);
 
   return (
     <div className={`min-w-0 flex flex-col ${className || ""}`}>

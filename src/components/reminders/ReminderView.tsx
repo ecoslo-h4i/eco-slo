@@ -11,6 +11,7 @@ import { useMemo, useState } from "react";
 import ReminderLongTextInput from "./ReminderLongTextInput";
 import ReminderToggleArea from "./ReminderToggleArea";
 import { reminderFieldLabelClass } from "./reminderInputStyles";
+import { Modal, ModalContent, ModalDescription, ModalFooter, ModalHeader } from "@/components/modal";
 import {
   createCronExpression,
   cronExpressionToFormValues,
@@ -95,6 +96,7 @@ export default function ReminderView({
   const [deleteError, setDeleteError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const isCreateMode = mode === "create";
   const isEditMode = mode === "edit";
   const isViewMode = mode === "view";
@@ -105,6 +107,7 @@ export default function ReminderView({
     ? assigneeLabel || "No assignees"
     : "Set up a new automated message for members";
   const submitLabel = isEditMode ? "Save Changes" : "Create Reminder";
+  const displayedReminderName = reminder?.name || form.name || "Reminder";
 
   const updateForm = <K extends keyof ReminderFormState>(key: K, value: ReminderFormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -160,6 +163,7 @@ export default function ReminderView({
 
     try {
       await deleteReminder(reminder.id);
+      setDeleteConfirmationOpen(false);
       onDeleted?.(reminder.id);
     } catch (error) {
       setDeleteError(error instanceof Error ? error.message : "Unable to delete reminder.");
@@ -199,7 +203,10 @@ export default function ReminderView({
               iconOnly
               variant="ghost"
               disabled={isDeleting}
-              onClick={handleDelete}
+              onClick={() => {
+                setDeleteError("");
+                setDeleteConfirmationOpen(true);
+              }}
               type="button"
             >
               Delete reminder
@@ -232,7 +239,7 @@ export default function ReminderView({
       )}
       {!isViewMode && (
         <div className="flex flex-row gap-4">
-          <div className="flex basis-1/2  text-text-dark">
+          <div className="flex min-w-0 basis-1/2 text-text-dark">
             <ReminderDropdown
               disabled={isReadOnly}
               label="Type"
@@ -242,7 +249,7 @@ export default function ReminderView({
               onOptionClick={handleTemplateSelect}
             />
           </div>
-          <div className="flex flex-grow text-text-dark">
+          <div className="flex min-w-0 basis-1/2 text-text-dark">
             <ReminderNestedMultiSelectDropdown
               disabled={isReadOnly}
               label="Assignees"
@@ -387,6 +394,32 @@ export default function ReminderView({
           {submitError && <span className="font-mulish text-sm text-danger">{submitError}</span>}
         </>
       )}
+
+      <Modal open={deleteConfirmationOpen} onOpenChange={setDeleteConfirmationOpen}>
+        <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false} widthClassName="px-8">
+          <ModalHeader>
+            <div className="flex items-center justify-between gap-x-4">
+              <h2 className="w-full text-center text-2xl text-text-dark font-serif font-extrabold">
+                {`Delete ${displayedReminderName}`}
+              </h2>
+            </div>
+          </ModalHeader>
+          <ModalDescription className="flex flex-col gap-y-4 pt-1 pb-4">
+            <p className="w-full text-center text-text-muted">This action cannot be undone.</p>
+            {deleteError ? <p className="text-destructive font-medium">{deleteError}</p> : null}
+          </ModalDescription>
+          <ModalFooter>
+            <div className="w-full flex justify-center gap-x-4">
+              <AppButton type="button" variant="secondary" onClick={() => setDeleteConfirmationOpen(false)}>
+                Cancel
+              </AppButton>
+              <AppButton variant="danger" disabled={isDeleting} onClick={handleDelete} type="button">
+                {isDeleting ? "Deleting..." : "Delete Reminder"}
+              </AppButton>
+            </div>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

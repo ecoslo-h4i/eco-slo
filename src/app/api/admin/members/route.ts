@@ -2,6 +2,7 @@ import { createServerLevelClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/database/database.types";
 import { hasOnlyAllowedKeys, isDate, isEmail, isPhone, postgrestErrorToHttpStatus } from "@/database/utils";
+import { syncTreeAssignments } from "@/lib/admin/members";
 
 type VolunteerRow = Database["public"]["Tables"]["members"]["Row"];
 type VolunteerInsert = Database["public"]["Tables"]["members"]["Insert"];
@@ -54,6 +55,10 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.log("Supabase error creating volunteer:", error.message);
       return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
+    }
+
+    if (data && Array.isArray(body.trees_assigned) && body.trees_assigned.length > 0) {
+      await syncTreeAssignments(data.id, [], body.trees_assigned);
     }
 
     return NextResponse.json({ message: data }, { status: 201 });
