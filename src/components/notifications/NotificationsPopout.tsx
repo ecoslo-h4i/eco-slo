@@ -27,19 +27,19 @@ export default function NotificationsPopout(props: NotificationPopoutProps) {
       <div className="flex flex-row items-center mt-4 mb-2.5 gap-2.5">
         <button
           onClick={() => setReadFilter(READ_FILTER_ALL)}
-          className={`${readFilter != READ_FILTER_ALL ? "bg-muted-card-bg" : "bg-primary text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-2.5 gap-2 text-sm cursor-pointer`}
+          className={`${readFilter != READ_FILTER_ALL ? "bg-muted-card-bg" : "bg-primary text-on-primary"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-2.5 gap-2 text-sm cursor-pointer`}
         >
           All
         </button>
         <button
           onClick={() => setReadFilter(READ_FILTER_UNREAD)}
-          className={`${readFilter != READ_FILTER_UNREAD ? "bg-muted-card-bg" : "bg-primary text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-2.5 gap-2 text-sm cursor-pointer`}
+          className={`${readFilter != READ_FILTER_UNREAD ? "bg-muted-card-bg" : "bg-primary text-on-primary"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-2.5 gap-2 text-sm cursor-pointer`}
         >
           Unread
         </button>
         <button
           onClick={() => setReadFilter(READ_FILTER_READ)}
-          className={`${readFilter != READ_FILTER_READ ? "bg-muted-card-bg" : "bg-primary text-white"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-2.5 gap-2 text-sm cursor-pointer`}
+          className={`${readFilter != READ_FILTER_READ ? "bg-muted-card-bg" : "bg-primary text-on-primary"} flex justify-center items-center w-[80px] h-[39px] rounded-3xl p-2.5 gap-2 text-sm cursor-pointer`}
         >
           Read
         </button>

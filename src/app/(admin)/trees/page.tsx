@@ -8,6 +8,7 @@ import { useRef } from "react";
 import { Table } from "@/components/data-table/table/table-types";
 import { Download, Plus } from "lucide-react";
 import { downloadTreeCSV, dataToCSV } from "./utils/csv";
+import { AppButton } from "@/components/ui/form-controls";
 
 export default function Trees() {
   const [currentTree, setCurrentTree] = useState<TreeSchema | null>(null);
@@ -28,8 +29,11 @@ export default function Trees() {
         <header className="w-full flex items-center justify-between pb-2">
           <h1 className="text-5xl font-serif font-semibold leading-none">Trees</h1>
           <div className="flex gap-4 items-center">
-            <button
-              className="flex items-center gap-x-2 px-4 py-2 text-text-dark bg-button-light border border-border shadow-xs rounded-full hover:bg-button-light/60 transition-colors duration-100"
+            <AppButton
+              variant="secondary"
+              size="md"
+              radius="small"
+              icon={Download}
               onClick={() => {
                 downloadTreeCSV(
                   dataToCSV(
@@ -44,13 +48,11 @@ export default function Trees() {
                 );
               }}
             >
-              <span className="font-medium">Export CSV</span>
-              <Download className="w-4 h-4" />
-            </button>
-            <button className="flex items-center gap-x-2 px-4 py-2 bg-primary text-text-light border border-border text-text-dark rounded-full hover:bg-primary/90 transition-colors duration-100">
-              <span className="font-medium">Add Tree</span>
-              <Plus className="w-4 h-4" />
-            </button>
+              Export CSV
+            </AppButton>
+            <AppButton radius="small" icon={Plus}>
+              Add Tree
+            </AppButton>
           </div>
         </header>
         {/* control panel placeholder */}

@@ -18,6 +18,7 @@ import {
   getNextCronOccurrence,
 } from "@/lib/cron_utils";
 import type { NestedMultiSelectValue } from "./ReminderNestedMultiSelectDropdown";
+import { AppButton } from "@/components/ui/form-controls";
 
 type MemberEnum = Enums<"MemberType">;
 type Member = Tables<"members">;
@@ -102,7 +103,7 @@ export default function ReminderView({
   const headerTitle = isExistingReminderMode ? reminder?.name || form.name : "Create New Reminder";
   const headerSubtitle = isExistingReminderMode
     ? assigneeLabel || "No assignees"
-    : "Set up a new automated message for volunteers";
+    : "Set up a new automated message for members";
   const submitLabel = isEditMode ? "Save Changes" : "Create Reminder";
 
   const updateForm = <K extends keyof ReminderFormState>(key: K, value: ReminderFormState[K]) => {
@@ -182,42 +183,42 @@ export default function ReminderView({
     [members],
   );
   const templateOptions = useMemo(() => templates.map((template) => template.name), [templates]);
-  const nextSendLabel = useMemo(
-    () => getNextSendLabel(form),
-    // Listing schedule-relevant fields keeps this stable when name/message/etc. change.
-    [form.repeat, form.dayOfWeek, form.dayOfMonth, form.yearlyDate, form.time],
-  );
+  const nextSendLabel = useMemo(() => getNextSendLabel(form), [form]);
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-6 overflow-auto no-scrollbar rounded-3xl border-1 border-border bg-table-row-dark px-6 py-8">
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-col gap-2">
           <h1 className="font-serif text-[26px] font-normal leading-tight">{headerTitle}</h1>
-          <span className="font-lato text-m font-normal text-text-muted">{headerSubtitle}</span>
+          <span className="font-mulish text-m font-normal text-text-muted">{headerSubtitle}</span>
         </div>
         <div className="flex flex-row items-center gap-4">
           {(isViewMode || isEditMode) && (
-            <button
-              className="flex items-center justify-center h-9 w-9 rounded-full font-lato transition-colors duration-200 hover:cursor-pointer hover:bg-border disabled:cursor-default disabled:opacity-60"
+            <AppButton
+              icon={<Trash2 size={20} className="text-danger" />}
+              iconOnly
+              variant="ghost"
               disabled={isDeleting}
               onClick={handleDelete}
               type="button"
             >
-              <Trash2 size={24} className="text-danger" />
-            </button>
+              Delete reminder
+            </AppButton>
           )}
           {isViewMode && (
-            <button
-              className="flex items-center justify-center h-9 w-9 rounded-full font-lato transition-colors duration-200 hover:cursor-pointer hover:bg-border"
+            <AppButton
+              icon={<SquarePen size={20} className="text-text-muted" />}
+              iconOnly
+              variant="ghost"
               onClick={onEdit}
             >
-              <SquarePen size={24} className="text-text-muted" />
-            </button>
+              Edit reminder
+            </AppButton>
           )}
         </div>
       </div>
       <hr className="border-0 border-t border-text-muted w-full"></hr>
-      {deleteError && <span className="font-lato text-sm text-danger">{deleteError}</span>}
+      {deleteError && <span className="font-mulish text-sm text-danger">{deleteError}</span>}
       {isCreateMode && (
         <div className="text-text-dark">
           <ReminderTextInput
@@ -290,9 +291,9 @@ export default function ReminderView({
             </div>
             <div className="flex basis-1/2 items-center gap-4 rounded-lg bg-table-header px-4 py-3 self-end">
               <div className="flex items-center rounded-lg bg-primary p-2">
-                <Calendar className="text-white" size={24} />
+                <Calendar className="text-on-primary" size={24} />
               </div>
-              <div className="flex flex-col gap-1 font-lato text-m">
+              <div className="flex flex-col gap-1 font-mulish text-m">
                 <span className="font-semibold text-text-dark">Starts</span>
                 <span className="text-text-muted">{nextSendLabel}</span>
               </div>
@@ -324,9 +325,9 @@ export default function ReminderView({
         {form.repeat !== "weekly" && (
           <div className="flex items-center gap-4 rounded-lg bg-table-header px-4 py-3">
             <div className="flex items-center rounded-lg bg-primary p-2">
-              <Calendar className="text-white" size={24} />
+              <Calendar className="text-on-primary" size={24} />
             </div>
-            <div className="flex flex-col gap-1 font-lato text-m">
+            <div className="flex flex-col gap-1 font-mulish text-m">
               <span className="font-semibold text-text-dark">Starts</span>
               <span className="text-text-muted">{nextSendLabel}</span>
             </div>
@@ -376,21 +377,14 @@ export default function ReminderView({
         <>
           <hr className="border-0 border-t border-text-muted w-full"></hr>
           <div className="flex flex-row gap-4">
-            <button
-              className="basis-1/2 flex items-center justify-center rounded-full bg-primary text-text-light h-10 hover:cursor-pointer transition-colors duration-250 hover:bg-primary-light disabled:cursor-default disabled:opacity-70"
-              disabled={isSubmitting}
-              onClick={handleSubmit}
-            >
+            <AppButton className="basis-1/2" disabled={isSubmitting} onClick={handleSubmit}>
               {isSubmitting ? "Saving..." : submitLabel}
-            </button>
-            <button
-              className="basis-1/2 flex items-center justify-center rounded-full bg-button text-text-dark border-1 border-border h-10 transition-colors duration-250 hover:cursor-pointer hover:bg-button-muted"
-              onClick={onCancel}
-            >
+            </AppButton>
+            <AppButton className="basis-1/2" variant="secondary" onClick={onCancel}>
               Cancel
-            </button>
+            </AppButton>
           </div>
-          {submitError && <span className="font-lato text-sm text-danger">{submitError}</span>}
+          {submitError && <span className="font-mulish text-sm text-danger">{submitError}</span>}
         </>
       )}
     </div>

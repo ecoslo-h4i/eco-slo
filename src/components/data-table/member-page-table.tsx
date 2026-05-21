@@ -63,7 +63,7 @@ function MemberPageTable({
       tableClassName="bg-table-row-light text-text-dark"
       footer={true}
       footerClassName="bg-table-header h-16"
-      footerContent={<PaginationControls table={table} itemNamePlural="volunteers" />}
+      footerContent={<PaginationControls table={table} itemNamePlural="members" />}
     >
       <TableHeader className="bg-table-header">
         <TableRow>
@@ -79,7 +79,7 @@ function MemberPageTable({
           <>
             <TableRow>
               <TableCell className="h-16" columnSpan={cols.length}>
-                <p className="sticky left-1/2 -translate-x-1/2 w-max">Loading volunteers...</p>
+                <p className="sticky left-1/2 -translate-x-1/2 w-max">Loading members...</p>
               </TableCell>
             </TableRow>
             {renderPlaceholderRows(4, 1)}

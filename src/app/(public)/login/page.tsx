@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { AppButton, TextField } from "@/components/ui/form-controls";
+import { type ReactNode, useState } from "react";
 
 const LOGIN_STATE = {
   INPUT: "input",
@@ -12,8 +13,8 @@ type LoginState = (typeof LOGIN_STATE)[keyof typeof LOGIN_STATE];
 
 const LOGIN_TITLE = "Log In";
 const EMAIL_LABEL = "Email Address";
-const PLACEHOLDER_EMAIL = "Input your registered email address...";
-const CONFIRM_BUTTON_TEXT = "Confirm";
+const PLACEHOLDER_EMAIL = "admin@ecoslo.org";
+const CONFIRM_BUTTON_TEXT = "Send Magic Link";
 const CONFIRMATION_HEADING = "Check Your Email";
 const CONFIRMATION_MESSAGE_START = "A log-in link has been sent to";
 const CONFIRMATION_MESSAGE_END = "Click the link to continue. It will expire in 24 hours.";
@@ -30,6 +31,18 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isValidEmail(email: string): boolean {
   return EMAIL_REGEX.test(email.trim());
+}
+
+function LoginShell({ children }: { children: ReactNode }) {
+  return (
+    <main className="flex min-h-screen w-full flex-1 items-center justify-center bg-off-white px-6 py-10">
+      {children}
+    </main>
+  );
+}
+
+function LoginCard({ children }: { children: ReactNode }) {
+  return <section className="w-full max-w-[430px] rounded-[16px] bg-card px-8 py-7 shadow-soft">{children}</section>;
 }
 
 export default function LoginPage() {
@@ -99,86 +112,79 @@ export default function LoginPage() {
 
   if (loginState === LOGIN_STATE.INPUT) {
     return (
-      <div className="flex flex-1 flex-col bg-app-bg" style={{ width: "100vw" }}>
-        <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
-          <div className="w-full max-w-xl rounded-xl border border-primary px-12 py-12 shadow-sm bg-card">
-            <h1 className="mb-6 text-[44px] font-normal leading-tight text-text font-serif">{LOGIN_TITLE}</h1>
-            <label htmlFor="login-email" className="mb-2 block text-[16px] font-bold text-text font-lato">
-              {EMAIL_LABEL}
-            </label>
-            <input
-              id="login-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={PLACEHOLDER_EMAIL}
-              className="mb-6 w-full rounded-lg border-0 px-4 py-3 text-[16px] text-text placeholder:text-[13px] placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-primary bg-off-white-2 font-lato"
-              aria-label="Email address"
-            />
-            <button
-              type="button"
-              onClick={handleConfirm}
-              disabled={!email.trim() || !isValidEmail(email.trim()) || isSubmitting}
-              className="w-full rounded-full px-4 py-3 text-[16px] font-medium text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 bg-primary font-lato"
-            >
-              {isSubmitting ? "Sending..." : CONFIRM_BUTTON_TEXT}
-            </button>
-          </div>
-        </div>
-      </div>
+      <LoginShell>
+        <LoginCard>
+          <h1 className="mb-5 text-center font-serif text-[24px] font-normal leading-tight text-text">{LOGIN_TITLE}</h1>
+          <label htmlFor="login-email" className="mb-2 block font-mulish text-[12px] font-bold text-text">
+            {EMAIL_LABEL}
+          </label>
+          <TextField
+            id="login-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={PLACEHOLDER_EMAIL}
+            className="mb-5 bg-off-white"
+            aria-label="Email address"
+          />
+          <AppButton
+            type="button"
+            onClick={handleConfirm}
+            disabled={!email.trim() || !isValidEmail(email.trim()) || isSubmitting}
+            className="w-full"
+            size="lg"
+          >
+            {isSubmitting ? "Sending..." : CONFIRM_BUTTON_TEXT}
+          </AppButton>
+          <AppButton
+            type="button"
+            className="mx-auto mt-4"
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              window.location.href = "/map";
+            }}
+          >
+            Back to Public Map
+          </AppButton>
+        </LoginCard>
+      </LoginShell>
     );
   }
 
   if (loginState === LOGIN_STATE.CONFIRMATION) {
     return (
-      <div className="flex flex-1 flex-col bg-app-bg" style={{ width: "100vw" }}>
-        <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
-          <div className="w-full max-w-xl rounded-xl border border-primary px-12 py-12 shadow-sm bg-card">
-            <h1 className="mb-4 text-center text-[44px] font-normal leading-tight text-text font-serif">
-              {CONFIRMATION_HEADING}
-            </h1>
-            <p className="mb-6 text-center text-[16px] leading-snug text-text font-lato">
-              {CONFIRMATION_MESSAGE_START} <strong>{submittedEmail}</strong>. {CONFIRMATION_MESSAGE_END}
-            </p>
-            <div className="flex flex-col gap-3">
-              <button
-                type="button"
-                onClick={handleResendLink}
-                disabled={isSubmitting}
-                className="w-full rounded-full px-4 py-3 text-[16px] font-bold text-white transition-colors hover:opacity-90 bg-primary font-lato"
-              >
-                {isSubmitting ? "Sending..." : RESEND_LINK_TEXT}
-              </button>
-              <button
-                type="button"
-                onClick={handleTryAnotherEmail}
-                className="text-left text-[14px] underline hover:opacity-80 text-text-muted font-lato"
-              >
-                {TRY_ANOTHER_EMAIL_TEXT}
-              </button>
-            </div>
+      <LoginShell>
+        <LoginCard>
+          <h1 className="mb-4 text-center font-serif text-[24px] font-normal leading-tight text-text">
+            {CONFIRMATION_HEADING}
+          </h1>
+          <p className="mb-5 text-center font-mulish text-[12px] leading-snug text-text">
+            {CONFIRMATION_MESSAGE_START} <strong>{submittedEmail}</strong>. {CONFIRMATION_MESSAGE_END}
+          </p>
+          <div className="flex flex-col gap-3">
+            <AppButton type="button" onClick={handleResendLink} disabled={isSubmitting} className="w-full" size="lg">
+              {isSubmitting ? "Sending..." : RESEND_LINK_TEXT}
+            </AppButton>
+            <AppButton type="button" onClick={handleTryAnotherEmail} className="mx-auto" size="sm" variant="ghost">
+              {TRY_ANOTHER_EMAIL_TEXT}
+            </AppButton>
           </div>
-        </div>
-      </div>
+        </LoginCard>
+      </LoginShell>
     );
   }
 
   // Error state
   return (
-    <div className="flex flex-1 flex-col bg-app-bg" style={{ width: "100vw" }}>
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
-        <div className="w-full max-w-xl rounded-xl border border-primary px-12 py-12 shadow-sm bg-card">
-          <h1 className="mb-4 text-[44px] font-normal leading-tight text-text font-serif">{ERROR_HEADING}</h1>
-          <p className="mb-6 text-[15px] leading-snug text-text font-lato">{errorMessage}</p>
-          <button
-            type="button"
-            onClick={handleTryAnotherEmail}
-            className="text-left text-[14px] underline hover:opacity-80 text-text-muted font-lato"
-          >
-            {ERROR_TRY_ANOTHER_TEXT}
-          </button>
-        </div>
-      </div>
-    </div>
+    <LoginShell>
+      <LoginCard>
+        <h1 className="mb-4 text-center font-serif text-[24px] font-normal leading-tight text-text">{ERROR_HEADING}</h1>
+        <p className="mb-5 text-center font-mulish text-[12px] leading-snug text-text">{errorMessage}</p>
+        <AppButton type="button" onClick={handleTryAnotherEmail} className="mx-auto" size="sm" variant="ghost">
+          {ERROR_TRY_ANOTHER_TEXT}
+        </AppButton>
+      </LoginCard>
+    </LoginShell>
   );
 }

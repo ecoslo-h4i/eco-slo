@@ -50,7 +50,7 @@ export default function Dash() {
                   setNotifPopout(true);
                 }}
               >
-                <Bell aria-hidden="true" className="h-9 w-9 text-white" strokeWidth={2} />
+                <Bell aria-hidden="true" className="h-9 w-9 text-on-primary" strokeWidth={2} />
               </button>
               {/*notes*/}
               <button
@@ -61,7 +61,7 @@ export default function Dash() {
                       hover:bg-primary-hover cursor-pointer`}
                 aria-label="Notes"
               >
-                <NotebookPen aria-hidden="true" className="h-9 w-9 text-white" strokeWidth={2} />
+                <NotebookPen aria-hidden="true" className="h-9 w-9 text-on-primary" strokeWidth={2} />
               </button>
             </div>
           </header>

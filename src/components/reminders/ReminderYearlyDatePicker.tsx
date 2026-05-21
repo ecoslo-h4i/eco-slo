@@ -97,7 +97,7 @@ export default function ReminderYearlyDatePicker({
   const showLeapWarning = value?.month === 2 && value?.day === 29;
 
   return (
-    <div className={cn("rounded-3xl bg-white p-4", disabled && "bg-table-header", className)}>
+    <div className={cn("rounded-3xl bg-card p-4", disabled && "bg-table-header", className)}>
       <div className="mb-3 flex items-center justify-between">
         <button
           type="button"
@@ -113,7 +113,7 @@ export default function ReminderYearlyDatePicker({
           <ChevronLeft className="h-4 w-4 text-text-dark" />
         </button>
 
-        <span className="font-lato text-m font-medium text-text-dark">{MONTH_NAMES[viewMonth - 1]}</span>
+        <span className="font-mulish text-m font-medium text-text-dark">{MONTH_NAMES[viewMonth - 1]}</span>
 
         <button
           type="button"
@@ -134,7 +134,7 @@ export default function ReminderYearlyDatePicker({
         {WEEKDAY_LABELS.map((label, idx) => (
           <span
             key={`${label}-${idx}`}
-            className="flex h-6 items-center justify-center font-lato text-xs text-text-muted"
+            className="flex h-6 items-center justify-center font-mulish text-xs text-text-muted"
           >
             {label}
           </span>
@@ -159,7 +159,7 @@ export default function ReminderYearlyDatePicker({
               aria-pressed={isSelected}
               onClick={() => handleSelect(day)}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-full font-lato text-sm transition-colors duration-150",
+                "flex h-9 w-9 items-center justify-center rounded-full font-mulish text-sm transition-colors duration-150",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
                 isSelected ? "bg-primary text-text-light" : "text-text-dark",
                 !disabled && !isSelected && reminderElevationHoverClass,
@@ -174,7 +174,7 @@ export default function ReminderYearlyDatePicker({
       </div>
 
       {showLeapWarning && (
-        <p className="mt-3 font-lato text-xs text-text-muted">
+        <p className="mt-3 font-mulish text-xs text-text-muted">
           Note: February 29 only exists in leap years — this reminder will fire once every four years.
         </p>
       )}

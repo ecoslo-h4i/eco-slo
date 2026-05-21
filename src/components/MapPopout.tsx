@@ -1,7 +1,9 @@
 "use client";
 
 import { Flag, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
+import { AppButton, TextField, TextAreaField, appButtonClassName } from "@/components/ui/form-controls";
+import Badge from "@/components/badge";
 
 type Member = {
   id: number;
@@ -32,6 +34,29 @@ type MapPopoutProps = {
   tree: Tree | null;
   onClose: () => void;
 };
+
+function displayValue(value: string | null | undefined) {
+  return value?.trim() ? value : "Not available";
+}
+
+function displayStatus(status: string) {
+  return status === "Graduated" ? "Off-boarded" : status;
+}
+
+function statusBadgeVariant(status: string) {
+  return status === "Active" ? "success" : "muted";
+}
+
+function InfoBlock({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <section className="min-h-[86px] rounded-[14px] bg-off-white px-4 py-4">
+      <h3 className="mb-2 font-serif text-[15px] font-bold uppercase leading-none tracking-normal text-text">
+        {label}
+      </h3>
+      <div className="font-mulish text-[13px] font-normal leading-snug text-text">{children}</div>
+    </section>
+  );
+}
 
 export default function MapPopout({ tree, onClose }: MapPopoutProps) {
   const [isReporting, setIsReporting] = useState(false);
@@ -139,148 +164,129 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
   if (!tree) return null;
 
   return (
-    <aside className="absolute right-0 top-0 z-[3000] h-full w-[405px] overflow-y-auto flex-col bg-card px-8 py-10">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h2 className="text-[30px] font-serif leading-none text-black">ECOSLO #{tree.id}</h2>
-          <span className="rounded-full bg-off-white-2 px-3 py-1 text-[11px] text-black/50">{tree.status}</span>
+    <aside className="absolute right-0 top-0 z-[3000] flex h-full w-[405px] flex-col bg-card px-[29px] py-9 shadow-panel max-md:bottom-0 max-md:top-auto max-md:h-[76%] max-md:w-full max-md:rounded-t-[24px] max-md:px-5">
+      <div className="mb-7 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="font-serif text-[30px] font-normal leading-none text-text">ECOSLO #{tree.id}</h2>
+            <Badge variant={statusBadgeVariant(tree.status)} size="sm">
+              {displayStatus(tree.status)}
+            </Badge>
+          </div>
         </div>
         <button
           type="button"
           onClick={onClose}
           aria-label="Close panel"
-          className="flex h-6 w-6 items-center justify-center text-black/70 cursor-pointer transition-all duration-200 hover:text-black/60"
+          className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
         >
           <X aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
         </button>
       </div>
-      <div className="space-y-5">
-        <div className="px-4 py-3 rounded-2xl bg-off-white-2">
-          <p className="mb-1 text-[12px] font-semibold text-black">Species</p>
-          <p className="text-[14px] text-black font-semibold">{tree.species_name}</p>
-          <p className="text-[12px] mt-1 text-black/70 font-semibold">{tree.common_name}</p>
-        </div>
-        <div className="px-4 py-3 rounded-2xl bg-off-white-2">
-          <p className="mb-1 text-[12px] font-semibold text-black">Location</p>
-          <p className="text-[14px] text-black font-semibold">{tree.address}</p>
-          <p className="text-[12px] mt-1 text-black/70 font-semibold">
+
+      <div className="min-h-0 flex-1 space-y-[19px] overflow-y-auto pr-1">
+        <InfoBlock label="Species">
+          <p>{displayValue(tree.species_name)}</p>
+          <p className="mt-1 text-[12px] text-text-muted">{displayValue(tree.common_name)}</p>
+        </InfoBlock>
+        <InfoBlock label="Location">
+          <p>{displayValue(tree.address)}</p>
+          <p className="mt-1 text-[12px] text-text-muted">
             {tree.latitude}, {tree.longitude}
           </p>
-        </div>
-        <div className="px-4 py-3 rounded-2xl bg-off-white-2">
-          <p className="mb-1 text-[12px] font-semibold text-black">Tree Keeper</p>
-          <p className="text-[14px] text-black font-semibold">
-            {tree.member?.firstname} {tree.member?.lastname}
-          </p>
-        </div>
-        <div className="px-4 py-3 rounded-2xl bg-off-white-2">
-          <p className="mb-1 text-[12px] font-semibold text-black">Visibility</p>
-          <p className="text-[14px] text-black font-semibold">{tree.is_public ? "Public" : "Private"}</p>
-        </div>
-        <div className="px-4 py-3 rounded-2xl bg-off-white-2">
-          <p className="mb-1 text-[12px] font-semibold text-black">Notes</p>
-          <p className="text-[14px] text-black font-semibold">{tree.notes}</p>
-        </div>
+        </InfoBlock>
+        <InfoBlock label="Tree Keeper">
+          <p>{tree.member ? `${tree.member.firstname} ${tree.member.lastname}` : "Not assigned"}</p>
+        </InfoBlock>
+        <InfoBlock label="Visibility">
+          <p>{tree.is_public ? "Public" : "Private"}</p>
+        </InfoBlock>
+        <InfoBlock label="Notes">
+          <p>{displayValue(tree.notes)}</p>
+        </InfoBlock>
       </div>
-      <div className="mt-8 border-t border-border pt-6">
-        <button
-          type="button"
-          className="w-[337px] flex items-center justify-center gap-3 rounded-full bg-primary px-6 py-2 mb-4 text-white cursor-pointer transition-all duration-200 hover:bg-primary-hover"
-          onClick={openReportModal}
-        >
-          <Flag aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
-          <span>Report an Issue</span>
-        </button>
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-[337px] flex items-center justify-center gap-3 rounded-full bg-off-white-2 px-6 py-2 text-black font-semibold cursor-pointer border border-black/10 transition-all duration-200 hover:bg-off-white-3"
-        >
-          <span>Close</span>
-        </button>
+
+      <div className="mt-7 border-t border-border pt-[22px]">
+        <AppButton type="button" className="mb-3 w-full" icon={Flag} onClick={openReportModal}>
+          Report an Issue
+        </AppButton>
+        <AppButton type="button" onClick={onClose} className="w-full" variant="secondary">
+          Close
+        </AppButton>
       </div>
       {isReporting ? (
-        <div className="fixed inset-0 z-[4000] flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-2xl overflow-hidden rounded-[28px] bg-white p-6 shadow-2xl">
+        <div className="fixed inset-0 z-[4000] flex items-center justify-center bg-text/45 px-4">
+          <div className="w-full max-w-xl overflow-hidden rounded-[24px] bg-card p-8 shadow-2xl">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-[24px] font-semibold">Report an Issue</h2>
-                <p className="mt-1 text-sm text-text-muted">Tell us what&apos;s wrong with this tree.</p>
+                <h2 className="font-serif text-[28px] font-normal leading-none text-text">Report an Issue</h2>
               </div>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-semibold" htmlFor="report-message">
-                    Message
-                  </label>
-                  <button
-                    type="button"
-                    onClick={closeReportModal}
-                    aria-label="Close report form"
-                    className="flex h-6 w-6 items-center justify-center text-black/70 cursor-pointer transition-all duration-200 hover:text-black/60"
-                  >
-                    <X aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-                  </button>
-                </div>
-                <textarea
+              <button
+                type="button"
+                onClick={closeReportModal}
+                aria-label="Close report form"
+                className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
+              >
+                <X aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <label className="block">
+                <span className="font-mulish text-sm font-bold">Message</span>
+                <TextAreaField
                   id="report-message"
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   rows={5}
-                  className="mt-2 w-full resize-none rounded-2xl border border-border bg-off-white-2 p-4 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="mt-2 resize-none bg-off-white-2"
                   placeholder="Let us know what's wrong with this tree"
                 />
-                <div className="grid gap-4 md:grid-cols-2">
-                  <label className="block">
-                    <span className="text-sm font-semibold">Your Name (optional)</span>
-                    <input
-                      type="text"
-                      value={reporterName}
-                      onChange={(event) => setReporterName(event.target.value)}
-                      className="mt-2 w-full rounded-2xl border border-border bg-off-white-2 p-3 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-text"
-                      placeholder="Enter your name"
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm font-semibold">Phone (optional)</span>
-                    <input
-                      type="tel"
-                      value={reporterPhone}
-                      onChange={(event) => setReporterPhone(event.target.value)}
-                      className="mt-2 w-full rounded-2xl border border-border bg-off-white-2 p-3 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                      placeholder="Phone number"
-                    />
-                  </label>
-                  <label className="block md:col-span-2">
-                    <span className="text-sm font-semibold">Email (optional)</span>
-                    <input
-                      type="email"
-                      value={reporterEmail}
-                      onChange={(event) => setReporterEmail(event.target.value)}
-                      className="mt-2 w-full rounded-2xl border border-border bg-off-white-2 p-3 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                      placeholder="Email address"
-                    />
-                  </label>
-                </div>
-                {submitError ? <p className="text-sm text-danger">{submitError}</p> : null}
-                {submitSuccess ? <p className="text-sm text-success">{submitSuccess}</p> : null}
-                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-                  <button
-                    type="button"
-                    onClick={closeReportModal}
-                    className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-text transition hover:bg-off-white-2 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-off-white-3 cursor-pointer"
-                  >
-                    {isSubmitting ? "Submitting..." : "Submit"}
-                  </button>
-                </div>
-                <p className="text-xs text-text-muted">This report will create a task for the ECOSLO admin team.</p>
+              </label>
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="block">
+                  <span className="font-mulish text-sm font-bold">Your Name (optional)</span>
+                  <TextField
+                    type="text"
+                    value={reporterName}
+                    onChange={(event) => setReporterName(event.target.value)}
+                    className="mt-2 bg-off-white-2"
+                    placeholder="Enter your name"
+                  />
+                </label>
+                <label className="block">
+                  <span className="font-mulish text-sm font-bold">Phone (optional)</span>
+                  <TextField
+                    type="tel"
+                    value={reporterPhone}
+                    onChange={(event) => setReporterPhone(event.target.value)}
+                    className="mt-2 bg-off-white-2"
+                    placeholder="Phone number"
+                  />
+                </label>
+                <label className="block md:col-span-2">
+                  <span className="font-mulish text-sm font-bold">Email (optional)</span>
+                  <TextField
+                    type="email"
+                    value={reporterEmail}
+                    onChange={(event) => setReporterEmail(event.target.value)}
+                    className="mt-2 bg-off-white-2"
+                    placeholder="Email address"
+                  />
+                </label>
               </div>
+              {submitError ? <p className="font-mulish text-sm text-danger">{submitError}</p> : null}
+              {submitSuccess ? <p className="font-mulish text-sm text-success">{submitSuccess}</p> : null}
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <AppButton type="button" onClick={closeReportModal} variant="secondary">
+                  Cancel
+                </AppButton>
+                <AppButton type="button" onClick={handleSubmit} disabled={isSubmitting}>
+                  {isSubmitting ? "Submitting..." : "Submit"}
+                </AppButton>
+              </div>
+              <p className="font-mulish text-xs text-text-muted">
+                This report will create a task for the ECOSLO admin team.
+              </p>
             </div>
           </div>
         </div>

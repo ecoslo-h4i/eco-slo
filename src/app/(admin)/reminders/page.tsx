@@ -3,6 +3,7 @@
 import RemindersList from "@/components/reminders/RemindersList";
 import ReminderView from "@/components/reminders/ReminderView";
 import type { Tables } from "@/database/database.types";
+import { AppButton } from "@/components/ui/form-controls";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -81,13 +82,9 @@ export default function Reminders() {
     <main className="flex h-screen flex-1 flex-col overflow-hidden bg-background px-8 py-10">
       <header className="flex flex-row items-center justify-between pt-5">
         <h1 className="text-[56px] font-serif font-semibold leading-none">Reminders</h1>
-        <button
-          className="h-11 px-4 bg-primary rounded-lg text-white font-lato flex flex-row items-center justify-center gap-3 hover:bg-primary-light transition-colors duration-200 cursor-pointer"
-          onClick={handleCreateReminder}
-        >
-          <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
-          <span>New Reminder</span>
-        </button>
+        <AppButton icon={Plus} radius="small" onClick={handleCreateReminder}>
+          New Reminder
+        </AppButton>
       </header>
       <div className="mt-10 flex min-h-0 flex-1 flex-row gap-8">
         <div className="min-h-0 basis-1/3">
@@ -149,7 +146,7 @@ function getAssigneeLabels(reminders: Reminder[], members: Member[]) {
 
   return Object.fromEntries(
     reminders.map((reminder) => {
-      const roles = reminder.assignees.map((id) => `${membersById.get(id)?.role ?? "General Volunteer"}s`);
+      const roles = reminder.assignees.map((id) => `${membersById.get(id)?.role ?? "General Member"}s`);
 
       return [reminder.id, [...new Set(roles)].join(", ")] as const;
     }),

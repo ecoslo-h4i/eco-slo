@@ -1,5 +1,6 @@
 "use client";
-import { ChangeEvent, type MutableRefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { PillGroup, SearchField } from "@/components/ui/form-controls";
 
 type Member = {
   id: number;
@@ -31,41 +32,32 @@ export enum Status {
   Graduated = "Graduated",
 }
 
+type FilterOption = {
+  label: string;
+  value: Status | Visibility | "All";
+};
+
 interface ControlSearchProps {
   searchDelay: number;
   searchFunction: (status: string) => void;
 }
 
-function ControlSearch(props: ControlSearchProps) {
+function ControlSearch({ searchDelay, searchFunction }: ControlSearchProps) {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      props.searchFunction(query);
-    }, props.searchDelay);
+      searchFunction(query);
+    }, searchDelay);
 
     return () => {
       clearTimeout(handler);
     };
-  }, [query, props.searchDelay, props.searchFunction]);
+  }, [query, searchDelay, searchFunction]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const next = e.target.value;
-    setQuery(next);
-  };
+  const handleChange = (next: string) => setQuery(next);
 
-  return (
-    <div className="h-[44px] flex itesm-center rounded-2xl bg-white border solid border-border">
-      <input
-        type="text"
-        id="query"
-        placeholder="Search by address"
-        value={query}
-        onChange={handleChange}
-        className="w-full px-[24px] py-[12px] text-lg text-text placeholder:text-text-muted outline-none bg-transparent"
-      />
-    </div>
-  );
+  return <SearchField id="query" placeholder="Search location..." value={query} onQueryChange={handleChange} />;
 }
 
 interface ControlPanelProps {
@@ -75,10 +67,9 @@ interface ControlPanelProps {
 }
 
 interface ControlStatusPillsInterface {
-  text: string;
-  options: string[];
+  options: FilterOption[];
   delay: number; // Delay in ms before calling delayFunction
-  delayFunction: (status: string) => void;
+  delayFunction: (status: FilterOption["value"]) => void;
   activeFilter: string;
 }
 
@@ -99,30 +90,16 @@ function ControlStatusPills(props: ControlStatusPillsInterface) {
     }
 
     timeoutRef.current = setTimeout(() => {
-      props.delayFunction(props.options[index]);
+      props.delayFunction(props.options[index].value);
     }, props.delay);
   };
 
   return (
-    <div className="flex flex-col gap-1.5 select-none">
-      <h2 className="text-lg font-medium text-text">{props.text}</h2>
-      <div className="flex gap-2 flex-wrap">
-        {props.options.map((option, index) => (
-          <button
-            key={option}
-            type="button"
-            className={`h-9 rounded-xl cursor-pointer flex items-center justify-center px-3 transition-colors text-sm ${
-              option === props.activeFilter
-                ? "bg-primary text-on-primary border-none"
-                : "bg-off-white-2 text-text border border-border"
-            }`}
-            onClick={() => handleSelect(index)}
-          >
-            <p className="font-medium text-lg whitespace-nowrap">{option}</p>
-          </button>
-        ))}
-      </div>
-    </div>
+    <PillGroup
+      activeValue={props.activeFilter}
+      options={props.options.map((option) => ({ label: option.label, value: option.value }))}
+      onChange={(_, index) => handleSelect(index)}
+    />
   );
 }
 
@@ -135,16 +112,17 @@ export default function ControlPanel(props: ControlPanelProps) {
     setSearchQuery(query);
     applyFilters(visibilityFilter, statusFilter, query);
   };
+
   const handleVisibilityFilter = (filter: Visibility) => {
-    const newFilter = visibilityFilter === filter ? null : filter; // Toggle filter
+    const newFilter = visibilityFilter === filter ? null : filter;
     setVisibilityFilter(newFilter);
-    applyFilters(visibilityFilter, statusFilter, searchQuery);
+    applyFilters(newFilter, statusFilter, searchQuery);
   };
 
   const handleStatusFilter = (filter: Status) => {
-    const newFilter = statusFilter === filter ? null : filter; // Toggle filter
+    const newFilter = statusFilter === filter ? null : filter;
     setStatusFilter(newFilter);
-    applyFilters(visibilityFilter, statusFilter, searchQuery);
+    applyFilters(visibilityFilter, newFilter, searchQuery);
   };
 
   const handleClearFilters = () => {
@@ -186,33 +164,36 @@ export default function ControlPanel(props: ControlPanelProps) {
   };
 
   return (
-    <div className="w-full h-full p-2 flex flex-col gap-4">
+    <div className="flex w-full flex-col gap-3">
       <ControlSearch searchDelay={300} searchFunction={handleSearch} />
       <div className="flex flex-row flex-wrap items-center gap-2">
         <ControlStatusPills
-          text=""
-          options={["All"]}
+          options={[{ label: "All Trees", value: "All" }]}
           delay={0}
           delayFunction={handleClearFilters}
           activeFilter={!visibilityFilter && !statusFilter ? "All" : ""}
         />
         <ControlStatusPills
-          text=""
-          options={[Visibility.Public, Visibility.Private]}
+          options={[
+            { label: "Active", value: Status.Active },
+            { label: "Off-boarded", value: Status.Graduated },
+          ]}
           delay={0}
-          delayFunction={(option: string) => {
-            handleVisibilityFilter(option as Visibility);
-          }}
-          activeFilter={visibilityFilter ?? ""}
-        />
-        <ControlStatusPills
-          text=""
-          options={[Status.Active, Status.Graduated]}
-          delay={0}
-          delayFunction={(option: string) => {
+          delayFunction={(option) => {
             handleStatusFilter(option as Status);
           }}
           activeFilter={statusFilter ?? ""}
+        />
+        <ControlStatusPills
+          options={[
+            { label: "Public", value: Visibility.Public },
+            { label: "Private", value: Visibility.Private },
+          ]}
+          delay={0}
+          delayFunction={(option) => {
+            handleVisibilityFilter(option as Visibility);
+          }}
+          activeFilter={visibilityFilter ?? ""}
         />
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { SURVEY_ISSUE_OPTIONS, type SurveyIssueValue } from "@/types/survey";
+import { SelectField } from "@/components/ui/form-controls";
 import FormSection from "./FormSection";
-import { surveyFieldClass, surveyLabelClass } from "./formStyles";
+import { surveyLabelClass, surveyTextareaClass } from "./formStyles";
 
 type IssueSectionProps = {
   issue: SurveyIssueValue;
@@ -27,20 +28,14 @@ export default function IssueSection({
         <label htmlFor="survey-issue" className={surveyLabelClass}>
           Issue type
         </label>
-        <select
+        <SelectField
           id="survey-issue"
-          className={surveyFieldClass}
           value={issue}
-          onChange={(e) => onIssueChange(e.target.value as SurveyIssueValue)}
+          onChange={(value) => onIssueChange(value as SurveyIssueValue)}
           disabled={disabled}
           required
-        >
-          {SURVEY_ISSUE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+          options={SURVEY_ISSUE_OPTIONS.map((option) => ({ label: option.label, value: option.value }))}
+        />
       </div>
 
       {showOther ? (
@@ -50,7 +45,7 @@ export default function IssueSection({
           </label>
           <textarea
             id="survey-issue-other"
-            className={`${surveyFieldClass} min-h-[100px] resize-y`}
+            className={`${surveyTextareaClass} min-h-[100px] resize-y`}
             value={issueOther}
             onChange={(e) => onIssueOtherChange(e.target.value)}
             disabled={disabled}

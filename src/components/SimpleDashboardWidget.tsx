@@ -29,9 +29,9 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
           className={`flex items-end justify-between border-b-2 border-border-strong pt-4 pb-4 ${hasButtons ? "mb-10" : "mb-0"}`}
         >
           <Link href={props.pageRoute}>
-            <h2 className="text-4xl font-lato text-black leading-none">{props.name}</h2>
+            <h2 className="text-4xl font-mulish text-text leading-none">{props.name}</h2>
           </Link>
-          <Icon aria-hidden="true" className="h-12 w-12 text-black select-none pointer-events-none" strokeWidth={2} />
+          <Icon aria-hidden="true" className="h-12 w-12 text-text select-none pointer-events-none" strokeWidth={2} />
         </div>
 
         <div className="flex flex-col gap-6 mt-0 mb-px">
@@ -39,11 +39,11 @@ export function SimpleDashboardWidget(props: DashboardWidgetProps) {
             <button
               key={index}
               onClick={button.handler}
-              className={`bg-primary hover:bg-primary-hover text-white px-4 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer ${
+              className={`bg-primary hover:bg-primary-hover text-on-primary px-4 rounded-2xl text-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer ${
                 index === buttonsArray.length - 1 ? "py-7" : "py-5"
               }`}
             >
-              <p className="font-lato">{button.name}</p>
+              <p className="font-mulish">{button.name}</p>
             </button>
           ))}
         </div>
@@ -73,11 +73,11 @@ export function ReminderWidget() {
 export function VolunteerWidget() {
   const router = useRouter();
   const props: DashboardWidgetProps = {
-    name: "Volunteers",
+    name: "Members",
     Icon: UsersRound,
-    pageRoute: "/volunteers",
+    pageRoute: "/members",
     buttons: [
-      { name: "Open Dashboard →", handler: () => router.push("/volunteers") },
+      { name: "Open Dashboard →", handler: () => router.push("/members") },
       { name: "Send Message", handler: () => console.log("Tried to send message") },
     ],
   };

@@ -8,7 +8,7 @@ export function TaskCard({ task }: TaskCardProps) {
   return (
     <div className="flex flex-col rounded-xl bg-card w-auto h-fit p-4">
       <div className="flex flex-col gap-2.5 mb-4">
-        <p className="text-black text-[16px] font-serif font-semibold">{task.title}</p>
+        <p className="text-text text-[16px] font-serif font-semibold">{task.title}</p>
         <p className="text-text-muted text-[16px] font-serif">{task.message}</p>
       </div>
 

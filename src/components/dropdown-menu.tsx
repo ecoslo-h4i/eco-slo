@@ -318,6 +318,7 @@ const DropdownMenuContent = forwardRef<HTMLDivElement, DropdownMenuContentProps>
         : Math.min(triggerRect.bottom + sideOffset, window.innerHeight - contentRect.height - viewportPadding);
 
       Object.assign(contentNode.style, {
+        ["--dropdown-trigger-width" as string]: `${triggerRect.width}px`,
         left: `${left}px`,
         position: "fixed",
         top: `${top}px`,

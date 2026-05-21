@@ -1,11 +1,21 @@
-type BadgeVariant = "default" | "muted" | "warning" | "destructive";
+import { cn } from "@/lib/utils";
+
+type BadgeVariant = "default" | "muted" | "success" | "warning" | "danger" | "info";
 type IconSide = "left" | "right";
+type BadgeSize = "sm" | "md";
 
 const badgeVariantClasses: Record<BadgeVariant, string> = {
-  default: "text-primary bg-primary/25 border border-primary/30",
-  muted: "text-text-muted bg-text-muted/20 border border-text-muted/25",
-  warning: "text-warning bg-warning/15 border border-warning/30",
-  destructive: "text-destructive bg-destructive/15 border border-destructive/25",
+  default: "border-primary-border bg-primary-soft text-primary-active",
+  muted: "border-border bg-off-white-2 text-text-muted",
+  success: "border-success-border bg-success-bg text-success",
+  warning: "border-border-strong bg-off-white-2 text-text-muted",
+  danger: "border-danger-border bg-danger-bg text-danger",
+  info: "border-info-border bg-info-bg text-info",
+};
+
+const badgeSizeClasses: Record<BadgeSize, string> = {
+  sm: "min-h-6 px-2.5 py-1.5 text-2xs",
+  md: "min-h-8 px-3 py-1.5 text-sm",
 };
 
 export default function Badge({
@@ -13,12 +23,14 @@ export default function Badge({
   icon,
   iconSide = "left",
   variant = "default",
+  size = "md",
   children,
 }: {
   className?: string;
   icon?: React.ReactNode;
   iconSide?: IconSide;
   variant?: BadgeVariant;
+  size?: BadgeSize;
   children?: React.ReactNode;
 }) {
   const iconOnLeft = icon && iconSide === "left";
@@ -26,7 +38,12 @@ export default function Badge({
 
   return (
     <div
-      className={`${badgeVariantClasses[variant]} ${className || ""} inline-flex items-center gap-1 px-2 py-1 text-sm font-semibold rounded-full`}
+      className={cn(
+        "inline-flex w-fit max-w-full items-center justify-center gap-1.5 rounded-full border font-mulish font-semibold leading-none",
+        badgeVariantClasses[variant],
+        badgeSizeClasses[size],
+        className,
+      )}
     >
       {iconOnLeft ? icon : null}
       {children}

@@ -3,9 +3,15 @@
 @theme inline {
   /* Font tokens */
   --font-serif: var(--font-cardo), Constantia, Georgia, "Times New Roman", serif;
-  --font-lato: var(--font-lato), Lato, "Nunito Sans", system-ui, sans-serif;
+  --font-mulish: var(--font-mulish), Mulish, "Nunito Sans", system-ui, sans-serif;
+
+  /* Type scale extensions */
+  --text-2xs: 0.725rem;
+  --text-2xs--line-height: 0.975rem;
 
   /* Core palette */
+  --color-black: #000000;
+  --color-white: #ffffff;
   --color-off-white: #f2f0ed;
   --color-off-white-2: #eae7e0;
   --color-off-white-3: #dedbd2;
@@ -17,7 +23,7 @@
   --color-brown: #7d7469;
   --color-dark-brown: #6a5f52;
   --color-red: #b45f5f;
-  --color-light-red: #eacece;
+  --color-light-red: #eac6ce;
   --color-light-red-2: #dfafaf;
   --color-blue: #5f7c8c;
   --color-light-blue: #d2dee4;
@@ -26,8 +32,9 @@
   /* Semantic tokens */
   --color-background: #ffffff;
   --color-card: #ffffff;
-  --color-primary: #697751;
-  --color-primary-hover: #7b8963;
+  --color-primary: #7b8963;
+  --color-primary-hover: #879471;
+  --color-primary-active: #697751;
   --color-primary-soft: #e1e4d0;
   --color-primary-border: #c9cead;
   --color-on-primary: #ffffff;
@@ -42,7 +49,7 @@
   --color-success-bg: #e1e4d0;
   --color-success-border: #c9cead;
   --color-danger: #b45f5f;
-  --color-danger-bg: #eacece;
+  --color-danger-bg: #eac6ce;
   --color-danger-border: #dfafaf;
   --color-info: #5f7c8c;
   --color-info-bg: #d2dee4;
@@ -54,8 +61,8 @@
 
   /* Backward-compatible aliases */
   --color-text-dark: #000000;
-  --color-primary-light: #7b8963;
-  --color-primary-extra-light: #879471;
+  --color-primary-light: #879471;
+  --color-primary-extra-light: #697751;
   --color-button: #f2f0ed;
   --color-button-muted: #dedbd2;
   --color-button-light: #ffffff;
@@ -66,13 +73,13 @@
   --color-active-pill: #e1e4d0;
   --color-pill-border: #c9cead;
   --color-foreground: #ffffff;
-  --color-warning: #d4a574;
+  --color-warning: #7d7469;
   --color-icon-primary-muted: #c9cead;
 
   /* Shadow tokens */
-  --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.12);
-  --shadow-panel: 0 1px 4px rgba(0, 0, 0, 0.1);
-  --shadow-map-control: 0 2px 6px rgba(0, 0, 0, 0.18);
+  --shadow-soft: 0 2px 6px color-mix(in srgb, var(--color-black) 12%, transparent);
+  --shadow-panel: 0 1px 4px color-mix(in srgb, var(--color-black) 10%, transparent);
+  --shadow-map-control: 0 2px 6px color-mix(in srgb, var(--color-black) 18%, transparent);
 }
 
 @layer base {
@@ -83,6 +90,11 @@
 }
 
 @layer utilities {
+  .text-2xs {
+    font-size: var(--text-2xs);
+    line-height: var(--text-2xs--line-height);
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none; /* Safari and Chrome */
   }

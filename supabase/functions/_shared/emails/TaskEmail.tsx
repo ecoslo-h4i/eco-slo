@@ -35,14 +35,14 @@ export function TaskEmail({ firstname, title, message }: TaskEmailProps) {
 // Inline styles because many email clients (Gmail, Outlook)
 // strip <style> tags or don't honor external CSS.
 const bodyStyle: React.CSSProperties = {
-  backgroundColor: "#f6f9fc",
+  backgroundColor: "#F2F0ED",
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   margin: 0,
   padding: 0,
 };
 
 const containerStyle: React.CSSProperties = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "#FFFFFF",
   margin: "40px auto",
   padding: "32px",
   maxWidth: "560px",
@@ -50,7 +50,7 @@ const containerStyle: React.CSSProperties = {
 };
 
 const headingStyle: React.CSSProperties = {
-  color: "#1a1a1a",
+  color: "#000000",
   fontSize: "20px",
   fontWeight: 600,
   marginTop: 0,
@@ -58,21 +58,21 @@ const headingStyle: React.CSSProperties = {
 };
 
 const textStyle: React.CSSProperties = {
-  color: "#404040",
+  color: "#6A5F52",
   fontSize: "15px",
   lineHeight: "24px",
 };
 
 const taskCardStyle: React.CSSProperties = {
-  backgroundColor: "#f6f9fc",
-  border: "1px solid #e6ebf1",
+  backgroundColor: "#F2F0ED",
+  border: "1px solid #DEDBD2",
   borderRadius: "6px",
   padding: "20px",
   margin: "20px 0",
 };
 
 const taskTitleStyle: React.CSSProperties = {
-  color: "#1a1a1a",
+  color: "#000000",
   fontSize: "17px",
   fontWeight: 600,
   marginTop: 0,
@@ -80,7 +80,7 @@ const taskTitleStyle: React.CSSProperties = {
 };
 
 const taskMessageStyle: React.CSSProperties = {
-  color: "#404040",
+  color: "#6A5F52",
   fontSize: "14px",
   lineHeight: "22px",
   margin: 0,
@@ -88,12 +88,12 @@ const taskMessageStyle: React.CSSProperties = {
 };
 
 const hrStyle: React.CSSProperties = {
-  borderColor: "#e6ebf1",
+  borderColor: "#DEDBD2",
   margin: "24px 0",
 };
 
 const footerStyle: React.CSSProperties = {
-  color: "#8898aa",
+  color: "#7D7469",
   fontSize: "13px",
   marginBottom: 0,
 };

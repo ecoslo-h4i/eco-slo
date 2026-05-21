@@ -5,9 +5,18 @@ import { MemberSchema } from "@/components/data-table/table-widget-defs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/dropdown-menu";
 import { Modal, ModalClose, ModalContent, ModalDescription, ModalFooter, ModalHeader } from "@/components/modal";
 import VolunteerAssignedTreePickerModal, { AssignableTree } from "@/components/assigned-tree-picker-modal";
+import {
+  AppButton,
+  appButtonClassName,
+  dropdownContentClassName,
+  dropdownItemClassName,
+  selectTriggerClassName,
+  textFieldClassName,
+} from "@/components/ui/form-controls";
 import { Database } from "@/database/database.types";
 import { ChevronDown, Pencil, Plus, Trash2, Undo2, UserRoundCog, X } from "lucide-react";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 
 type MemberRole = Database["public"]["Enums"]["MemberType"];
 
@@ -39,6 +48,21 @@ function isAssignableTree(value: unknown): value is AssignableTree {
 }
 
 const memberRoleOptions: MemberRole[] = ["Tree Keeper", "Admin"];
+
+function MemberRoleBadge({ role }: { role: MemberRole | string }) {
+  const isAdmin = String(role).toLowerCase() === "admin";
+
+  return (
+    <Badge
+      variant={isAdmin ? "info" : "default"}
+      size="sm"
+      icon={isAdmin ? <UserRoundCog className="h-4 w-4" /> : undefined}
+      className="shrink-0 capitalize"
+    >
+      {String(role)}
+    </Badge>
+  );
+}
 
 function getCurrentDateInputValue() {
   const today = new Date();
@@ -154,7 +178,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
 
   const isAddingMember = member === null;
   const displayedName =
-    `${memberForm.firstname} ${memberForm.lastname}`.trim() || (isAddingMember ? "Add Volunteer" : "Volunteer");
+    `${memberForm.firstname} ${memberForm.lastname}`.trim() || (isAddingMember ? "Add Member" : "Member");
   const displayedRole = memberForm.role;
   const assignedTreeLabelsByEcosloNumber = useMemo(
     () =>
@@ -169,7 +193,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
 
   useEffect(() => {
     if (!open) return;
-
+    /* eslint-disable react-hooks/set-state-in-effect -- reset form state when dialog opens */
     setMemberForm(member ? memberToForm(member) : createBlankMemberForm());
     setIsEditing(member ? false : true);
     setFormError(null);
@@ -178,13 +202,16 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
     setAssignedTreesError(null);
     setIsTreePickerOpen(false);
     setDeleteConfirmationOpen(false);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [open, member]);
 
   useEffect(() => {
     if (!open) {
+      /* eslint-disable react-hooks/set-state-in-effect -- reset state when dialog closes */
       setAssignableTrees([]);
       setAssignedTreesError(null);
       setAreAssignedTreesLoading(false);
+      /* eslint-enable react-hooks/set-state-in-effect */
       return;
     }
 
@@ -273,7 +300,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
             ? responseBody.message
             : typeof responseBody?.error === "string"
               ? responseBody.error
-              : "Failed to delete volunteer";
+              : "Failed to delete member";
 
         throw new Error(errorMessage);
       }
@@ -282,7 +309,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
       onSaved();
       onOpenChange(false);
     } catch (error) {
-      setDeleteError(error instanceof Error ? error.message : "Failed to delete volunteer");
+      setDeleteError(error instanceof Error ? error.message : "Failed to delete member");
     } finally {
       setIsDeleting(false);
     }
@@ -323,7 +350,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
             ? responseBody.message
             : typeof responseBody?.error === "string"
               ? responseBody.error
-              : "Failed to save volunteer";
+              : "Failed to save member";
 
         throw new Error(errorMessage);
       }
@@ -331,7 +358,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
       onSaved();
       onOpenChange(false);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Failed to save volunteer");
+      setFormError(error instanceof Error ? error.message : "Failed to save member");
     } finally {
       setIsSubmitting(false);
     }
@@ -340,7 +367,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
   return (
     <>
       <Modal open={open} onOpenChange={onOpenChange}>
-        <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false}>
+        <ModalContent className="bg-off-white" closeOnOverlayClick={false} showCloseButton={false}>
           <form onSubmit={handleMemberSubmit}>
             <ModalHeader className="flex flex-col gap-y-4">
               <div className="flex items-center justify-between gap-x-4">
@@ -348,24 +375,12 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                   <h2 className="text-[1.75rem] text-text-dark font-serif font-extrabold capitalize">
                     {displayedName}
                   </h2>
-                  {String(displayedRole).toLowerCase() === "admin" ? (
-                    <Badge
-                      variant="muted"
-                      icon={<UserRoundCog className="w-4 h-4" />}
-                      className="shrink-0 capitalize h-8"
-                    >
-                      {String(displayedRole)}
-                    </Badge>
-                  ) : (
-                    <Badge variant="default" className="shrink-0 capitalize h-8">
-                      {String(displayedRole)}
-                    </Badge>
-                  )}
+                  <MemberRoleBadge role={displayedRole} />
                 </div>
                 <div className="flex gap-x-2">
                   <button
                     type="button"
-                    className="flex items-center justify-center w-8 h-8 bg-transparent hover:bg-black/5 transition-colors duration-100 rounded-md disabled:hidden block"
+                    className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
                     disabled={isAddingMember}
                     onClick={(event) => {
                       event.stopPropagation();
@@ -380,7 +395,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                   </button>
                   <button
                     type="button"
-                    className="flex items-center justify-center w-8 h-8 bg-transparent hover:bg-destructive/15 rounded-md transition-colors duration-100 disabled:hidden block"
+                    className={appButtonClassName({ iconOnly: true, variant: "danger" })}
                     disabled={isAddingMember}
                     onClick={(event) => {
                       event.stopPropagation();
@@ -393,7 +408,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                   <ModalClose asChild>
                     <button
                       type="button"
-                      className="flex items-center justify-center w-8 h-8 bg-transparent hover:bg-black/5 transition-colors duration-100 rounded-md"
+                      className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
                       onClick={(event) => {
                         event.stopPropagation();
                         onOpenChange(false);
@@ -412,13 +427,13 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                 <div className="flex flex-col gap-y-4">
                   <div className="flex gap-x-4">
                     <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-medium">
+                      <p className="text-text-muted font-semibold">
                         <span>First Name</span>
                         {isEditing && <span className="text-destructive font-semibold"> *</span>}
                       </p>
                       {isEditing ? (
                         <input
-                          className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100"
+                          className={cn(textFieldClassName, "bg-button-muted")}
                           onChange={handleFormChange("firstname")}
                           placeholder="John..."
                           required
@@ -429,13 +444,13 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                       )}
                     </div>
                     <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-medium">
+                      <p className="text-text-muted font-semibold">
                         <span>Last Name</span>
                         {isEditing && <span className="text-destructive font-semibold"> *</span>}
                       </p>
                       {isEditing ? (
                         <input
-                          className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100"
+                          className={cn(textFieldClassName, "bg-button-muted")}
                           onChange={handleFormChange("lastname")}
                           placeholder="Doe..."
                           required
@@ -448,10 +463,10 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                   </div>
                   <div className="flex gap-x-4">
                     <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-medium">Phone</p>
+                      <p className="text-text-muted font-semibold">Phone</p>
                       {isEditing ? (
                         <input
-                          className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100"
+                          className={cn(textFieldClassName, "bg-button-muted")}
                           onChange={handleFormChange("phone")}
                           placeholder="(123) 456-7890..."
                           value={memberForm.phone}
@@ -467,13 +482,13 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                       )}
                     </div>
                     <div className="flex-1 flex flex-col items-start gap-y-1">
-                      <p className="text-text-muted font-medium">
+                      <p className="text-text-muted font-semibold">
                         <span>Role</span>
                         {isEditing && <span className="text-destructive font-semibold"> *</span>}
                       </p>
                       {isEditing ? (
                         <DropdownMenu open={roleMenuOpen} onOpenChange={setRoleMenuOpen}>
-                          <DropdownMenuTrigger className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100 flex items-center justify-between">
+                          <DropdownMenuTrigger className={cn(selectTriggerClassName, "bg-button-muted")}>
                             <span>{memberForm.role}</span>
                             <ChevronDown
                               className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
@@ -481,11 +496,11 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                               }`}
                             />
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start" className="w-48">
+                          <DropdownMenuContent align="start" className={dropdownContentClassName}>
                             {memberRoleOptions.map((role) => (
                               <DropdownMenuItem
                                 key={role}
-                                className="font-medium"
+                                className={dropdownItemClassName}
                                 onClick={() => handleRoleChange(role)}
                               >
                                 {role}
@@ -493,27 +508,17 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                             ))}
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      ) : String(displayedRole).toLowerCase() === "admin" ? (
-                        <Badge
-                          variant="muted"
-                          icon={<UserRoundCog className="w-4 h-4" />}
-                          className="shrink-0 capitalize h-8"
-                        >
-                          {String(displayedRole)}
-                        </Badge>
                       ) : (
-                        <Badge variant="default" className="shrink-0 capitalize h-8">
-                          {String(displayedRole)}
-                        </Badge>
+                        <MemberRoleBadge role={displayedRole} />
                       )}
                     </div>
                   </div>
                   <div className="flex flex-col items-start gap-y-1">
-                    <p className="text-text-muted font-medium">Email</p>
+                    <p className="text-text-muted font-semibold">Email</p>
                     {isEditing ? (
                       <input
                         type="email"
-                        className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100"
+                        className={cn(textFieldClassName, "bg-button-muted")}
                         onChange={handleFormChange("email")}
                         placeholder="john.doe@example.com..."
                         value={memberForm.email}
@@ -529,14 +534,14 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                     )}
                   </div>
                   <div className="flex flex-col items-start gap-y-1">
-                    <p className="text-text-muted font-medium">
+                    <p className="text-text-muted font-semibold">
                       <span>Joined Date</span>
                       {isEditing && <span className="text-destructive font-semibold"> *</span>}
                     </p>
                     {isEditing ? (
                       <input
                         type="date"
-                        className="w-full bg-button-muted rounded-xl px-3 py-2 placeholder:text-text-muted placeholder:font-normal text-text-dark font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-100"
+                        className={cn(textFieldClassName, "bg-button-muted")}
                         onChange={handleFormChange("joined")}
                         required
                         value={memberForm.joined}
@@ -555,7 +560,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                     {isEditing ? (
                       <button
                         type="button"
-                        className="flex h-8 w-8 items-center justify-center rounded-md bg-transparent text-text-muted transition-colors duration-100 hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border"
+                        className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
                         onClick={() => setIsTreePickerOpen(true)}
                         aria-label="Add assigned tree"
                       >
@@ -569,7 +574,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                     <>
                       {memberForm.assignedTreeEcosloNumbers.map((treeEcosloNumber) => (
                         <div
-                          className="flex w-full items-center justify-between gap-x-3 rounded-lg border border-border bg-button-muted p-1 pl-3"
+                          className="flex w-full items-center justify-between gap-x-3 rounded-lg border border-border bg-off-white p-1 pl-3"
                           key={treeEcosloNumber}
                         >
                           <p className="text-text-dark font-medium">
@@ -581,7 +586,7 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
                             {isEditing ? (
                               <button
                                 type="button"
-                                className="flex h-8 w-8 items-center justify-center rounded-md bg-transparent text-text-muted transition-colors duration-100 hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border"
+                                className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
                                 onClick={() => handleAssignedTreeRemove(treeEcosloNumber)}
                                 aria-label={`Remove assigned tree #${treeEcosloNumber}`}
                               >
@@ -604,23 +609,19 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
               <div className="flex flex-col w-full gap-y-4">
                 <div className="bg-border h-px w-full" />
                 <div className="flex justify-end gap-x-4">
-                  <button
+                  <AppButton
                     type="button"
-                    className="px-4 py-2 text-text-dark bg-transparent border border-border rounded-full hover:bg-black/5 transition-colors duration-100"
+                    variant="secondary"
                     onClick={(event) => {
                       event.stopPropagation();
                       onOpenChange(false);
                     }}
                   >
-                    <span className="font-medium">Cancel</span>
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-primary text-text-light border border-border text-text-dark rounded-full hover:bg-primary/90 transition-colors duration-100 disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={isSubmitting || !hasFormChanges}
-                    type="submit"
-                  >
-                    <span className="font-medium">{isAddingMember ? "Add Member" : "Save Changes"}</span>
-                  </button>
+                    Cancel
+                  </AppButton>
+                  <AppButton disabled={isSubmitting || !hasFormChanges} type="submit">
+                    {isAddingMember ? "Add Member" : "Save Changes"}
+                  </AppButton>
                 </div>
               </div>
             </ModalFooter>
@@ -641,22 +642,18 @@ export default function VolunteerPageForm({ member, onOpenChange, onSaved, open 
           </ModalDescription>
           <ModalFooter>
             <div className="w-full flex justify-center gap-x-4">
-              <button
-                type="button"
-                className="px-4 py-2 text-text-dark bg-transparent border border-border rounded-full hover:bg-black/5 transition-colors duration-100"
-                onClick={() => setDeleteConfirmationOpen(false)}
-              >
-                <span className="font-medium">Cancel</span>
-              </button>
-              <button
-                className="flex gap-x-2 items-center px-4 py-2 bg-destructive text-text-light rounded-full hover:bg-destructive/90 transition-colors duration-100 disabled:opacity-60"
+              <AppButton type="button" variant="secondary" onClick={() => setDeleteConfirmationOpen(false)}>
+                Cancel
+              </AppButton>
+              <AppButton
+                icon={Trash2}
+                variant="danger"
                 disabled={isDeleting}
                 onClick={handleDeleteVolunteer}
                 type="button"
               >
-                <Trash2 className="w-5 h-5" />
-                <span className="font-medium">{isDeleting ? "Deleting..." : "Delete Volunteer"}</span>
-              </button>
+                {isDeleting ? "Deleting..." : "Delete Member"}
+              </AppButton>
             </div>
           </ModalFooter>
         </ModalContent>

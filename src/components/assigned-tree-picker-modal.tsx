@@ -1,8 +1,9 @@
 "use client";
 
 import { Modal, ModalClose, ModalContent, ModalDescription, ModalHeader } from "@/components/modal";
+import { SearchField, appButtonClassName } from "@/components/ui/form-controls";
 import Fuse from "fuse.js";
-import { Search, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export type AssignableTree = {
@@ -105,7 +106,7 @@ function AssignedTreePickerModalBody({
           <ModalClose asChild>
             <button
               type="button"
-              className="flex h-8 w-8 items-center justify-center rounded-md bg-transparent transition-colors duration-100 hover:bg-black/5"
+              className="flex h-8 w-8 items-center justify-center rounded-md bg-transparent transition-colors duration-100 hover:bg-text/5"
               onClick={() => onOpenChange(false)}
             >
               <X className="h-5 w-5 text-text-muted" />
@@ -114,15 +115,7 @@ function AssignedTreePickerModalBody({
         </div>
       </ModalHeader>
       <ModalDescription className="flex flex-col gap-y-4 pt-4">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" />
-          <input
-            className="w-full rounded-xl bg-button-muted py-2 pl-10 pr-3 font-medium text-text-dark placeholder:text-text-muted placeholder:font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border"
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search trees..."
-            value={searchQuery}
-          />
-        </div>
+        <SearchField placeholder="Search trees..." value={searchQuery} onQueryChange={setSearchQuery} />
 
         <div className="flex max-h-80 flex-col gap-y-2 overflow-y-auto">
           {isLoading ? (
@@ -136,7 +129,11 @@ function AssignedTreePickerModalBody({
               return (
                 <button
                   type="button"
-                  className="flex w-full items-center justify-between gap-x-3 rounded-lg border border-border bg-button-muted p-3 text-left font-medium text-text-dark transition-colors duration-100 hover:bg-button-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50"
+                  className={appButtonClassName({
+                    className: "w-full justify-between whitespace-normal rounded-lg px-3 py-3 text-left",
+                    radius: "small",
+                    variant: "secondary",
+                  })}
                   disabled={isAssigned}
                   key={tree.ecoslo_num}
                   onClick={() => handleTreeSelect(tree.ecoslo_num)}

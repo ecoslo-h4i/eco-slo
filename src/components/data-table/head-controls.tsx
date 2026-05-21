@@ -8,6 +8,8 @@ import {
 } from "../dropdown-menu";
 import { Table } from "./table/table-types";
 import { ArrowUpDown, ChevronDown, ChevronUp, EyeOff } from "lucide-react";
+import { dropdownContentClassName, dropdownItemClassName } from "@/components/ui/form-controls";
+import { cn } from "@/lib/utils";
 
 type HeadControlsProps<T extends Record<string, unknown>> = {
   table: Table<T>;
@@ -34,39 +36,39 @@ export default function HeadControls<T extends Record<string, unknown>>({
         <span>{title}</span>
         {canSort ? <ArrowUpDown className="w-3 h-3 text-text-muted" /> : <EyeOff className="w-3 h-3 text-text-muted" />}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="select-none w-48">
+      <DropdownMenuContent align="start" className={cn(dropdownContentClassName, "w-48 select-none")}>
         {canSort && (
           <>
             <DropdownMenuItem
-              className="group flex justify-between whitespace-nowrap px-3 py-2 font-medium"
+              className={cn(dropdownItemClassName, "group justify-between whitespace-nowrap")}
               onClick={() => {
                 table.setColumnSorting(columnId, false);
               }}
             >
               <span>Sort Ascending</span>
-              <ChevronUp className="h-4 w-4 text-text-muted transition-colors group-hover:text-text-light group-focus:text-text-light" />
+              <ChevronUp className="h-4 w-4 text-text-muted transition-colors group-hover:text-text group-focus:text-text" />
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="group flex justify-between whitespace-nowrap px-3 py-2 font-medium"
+              className={cn(dropdownItemClassName, "group justify-between whitespace-nowrap")}
               onClick={() => {
                 table.setColumnSorting(columnId, true);
               }}
             >
               <span>Sort Descending</span>
-              <ChevronDown className="w-4 h-4 text-text-muted transition-colors group-hover:text-text-light group-focus:text-text-light" />
+              <ChevronDown className="w-4 h-4 text-text-muted transition-colors group-hover:text-text group-focus:text-text" />
             </DropdownMenuItem>
           </>
         )}
         {canSort && canHide && <DropdownMenuSeparator />}
         {canHide ? (
           <DropdownMenuItem
-            className="group flex justify-between whitespace-nowrap px-3 py-2 font-medium"
+            className={cn(dropdownItemClassName, "group justify-between whitespace-nowrap")}
             onClick={() => {
               table.setColumnVisibility(columnId, () => false);
             }}
           >
             <span>Hide Column</span>
-            <EyeOff className="w-4 h-4 text-text-muted transition-colors group-hover:text-text-light group-focus:text-text-light" />
+            <EyeOff className="w-4 h-4 text-text-muted transition-colors group-hover:text-text group-focus:text-text" />
           </DropdownMenuItem>
         ) : null}
       </DropdownMenuContent>

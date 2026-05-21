@@ -9,7 +9,7 @@ import { TreeDeciduous } from "lucide-react";
 
 function TreeDashboardWidget({ className }: { className?: string }) {
   const [trees, setTrees] = useState<TreeSchema[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,9 +42,9 @@ function TreeDashboardWidget({ className }: { className?: string }) {
           <Link
             href="/trees"
             aria-label="Go to Trees page"
-            className="rounded-full size-14 bg-transparent transition-all duration-200 ease-out hover:bg-black/10 cursor-pointer flex justify-center items-center items-center"
+            className="rounded-full size-14 bg-transparent transition-all duration-200 ease-out hover:bg-text/10 cursor-pointer flex justify-center items-center items-center"
           >
-            <TreeDeciduous aria-hidden="true" className="size-10 text-black" strokeWidth={2} />
+            <TreeDeciduous aria-hidden="true" className="size-10 text-text" strokeWidth={2} />
           </Link>
         </div>
         <div className="h-[0.1rem] w-full bg-border-strong"></div>

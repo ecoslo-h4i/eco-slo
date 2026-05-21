@@ -7,7 +7,7 @@ import { createUserLevelClient } from "@/lib/supabase/client";
 import MapPopout from "./MapPopout";
 import MapControlPanel from "./MapControlPanel";
 import { QueryData } from "@supabase/supabase-js";
-import { LocateFixed, MapPin, ZoomIn, ZoomOut } from "lucide-react";
+import { LocateFixed, MapPin, TreeDeciduous, ZoomIn, ZoomOut } from "lucide-react";
 
 const supabase = createUserLevelClient();
 
@@ -56,21 +56,47 @@ const treesQuery = supabase.from("public_trees").select(`
 type TreeRow = QueryData<typeof treesQuery>[number];
 
 function createTreeMarkerIcon(selected: boolean) {
-  const color = selected ? "#758656" : "#AFC18F";
-  const fill = selected ? "#AFC18F" : "#758656";
+  const pin = "var(--color-primary)";
+  const white = "var(--color-card)";
+  const black = "var(--color-text)";
+  const ring = selected
+    ? `0 0 0 4px ${white}, 0 5px 14px color-mix(in srgb, ${black} 28%, transparent)`
+    : `0 2px 6px color-mix(in srgb, ${black} 18%, transparent)`;
 
   return L.divIcon({
     className: "eco-tree-marker",
     html: renderToStaticMarkup(
-      createElement(MapPin, {
-        color,
-        fill,
-        size: 48,
-        strokeWidth: 2.5,
-      }),
+      createElement(
+        "div",
+        {
+          style: {
+            position: "relative",
+            width: "44px",
+            height: "44px",
+            filter: `drop-shadow(0 2px 4px color-mix(in srgb, ${black} 18%, transparent))`,
+          },
+        },
+        createElement(MapPin, {
+          color: pin,
+          fill: pin,
+          size: 44,
+          strokeWidth: 2.25,
+          style: { boxShadow: ring, borderRadius: selected ? "999px" : undefined },
+        }),
+        createElement(TreeDeciduous, {
+          color: white,
+          size: 15,
+          strokeWidth: 2.2,
+          style: {
+            position: "absolute",
+            left: "14.5px",
+            top: "11px",
+          },
+        }),
+      ),
     ),
-    iconSize: [48, 48],
-    iconAnchor: [24, 44],
+    iconSize: [44, 44],
+    iconAnchor: [22, 40],
   });
 }
 
@@ -192,39 +218,39 @@ export default function MapClient() {
   };
 
   return (
-    <main className="flex-1 w-full min-h-0">
-      <div className="relative w-full h-full">
-        <div className="absolute left-30 top-6 w-[500px] h-[150px] bg-white rounded-xl shadow-lg p-2 overflow-y-auto z-[999]">
+    <main className="flex-1 w-full min-h-screen bg-off-white">
+      <div className="relative h-screen w-full overflow-hidden bg-off-white">
+        <div className="absolute left-[88px] top-6 z-[999] w-[450px] rounded-[16px] bg-card px-[18px] py-[17px] shadow-map-control max-md:left-[78px] max-md:right-4 max-md:w-auto">
           <MapControlPanel trees={locations} onFilter={setFilteredLocations} onCenter={handleCenter} />
         </div>
         <div ref={mapContainerRef} className="h-full w-full" />
 
-        <div className="absolute top-6 left-5 z-[1000] flex items-start">
-          <div className="w-[64px] overflow-hidden rounded-[24px] bg-white shadow-map-control">
+        <div className="absolute left-5 top-6 z-[1000] flex items-start">
+          <div className="w-11 overflow-hidden rounded-[18px] bg-card shadow-map-control">
             <button
               type="button"
-              className="grid h-[50px] w-full place-items-center text-black hover:bg-background hover:cursor-pointer"
+              className="grid h-10 w-full place-items-center text-text transition hover:bg-off-white hover:cursor-pointer"
               onClick={zoomIn}
               aria-label="Zoom in"
             >
-              <ZoomIn aria-hidden="true" className="h-6 w-6" strokeWidth={2} />
+              <ZoomIn aria-hidden="true" className="h-4.5 w-4.5" strokeWidth={2} />
             </button>
-            <div className="mx-4 h-px  bg-border" />
+            <div className="mx-3 h-px bg-border" />
             <button
               onClick={handleCenter}
-              className="grid h-[50px] w-full place-items-center text-black hover:bg-background hover:cursor-pointer"
+              className="grid h-10 w-full place-items-center text-text transition hover:bg-off-white hover:cursor-pointer"
               aria-label="Reset map view"
             >
-              <LocateFixed aria-hidden="true" className="h-6 w-6" strokeWidth={2} />
+              <LocateFixed aria-hidden="true" className="h-4.5 w-4.5" strokeWidth={2} />
             </button>
-            <div className="mx-4 h-px bg-border" />
+            <div className="mx-3 h-px bg-border" />
             <button
               type="button"
-              className="grid h-[50px] w-full place-items-center text-black hover:bg-background hover:cursor-pointer"
+              className="grid h-10 w-full place-items-center text-text transition hover:bg-off-white hover:cursor-pointer"
               onClick={zoomOut}
               aria-label="Zoom out"
             >
-              <ZoomOut aria-hidden="true" className="h-6 w-6" strokeWidth={2} />
+              <ZoomOut aria-hidden="true" className="h-4.5 w-4.5" strokeWidth={2} />
             </button>
           </div>
         </div>

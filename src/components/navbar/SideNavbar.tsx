@@ -4,10 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BarChart3, Calendar, Ellipsis, Home, Map, NotebookPen, TreeDeciduous, UsersRound } from "lucide-react";
+import {
+  BarChart3,
+  Calendar,
+  Ellipsis,
+  LayoutDashboard,
+  Map,
+  NotebookPen,
+  TreeDeciduous,
+  UsersRound,
+} from "lucide-react";
 import NavbarButton, { NavbarButtonProps } from "./SideNavbarButton";
 import { LogoutButton } from "../LogoutButton";
 import { useCurrentMember } from "@/hooks/useCurrentProvider";
+import { appButtonClassName } from "@/components/ui/form-controls";
 
 // All possible feature buttons. Filtered by role at render time.
 // `adminOnly` flags entries hidden from Tree Keepers because RLS prevents
@@ -16,7 +26,7 @@ import { useCurrentMember } from "@/hooks/useCurrentProvider";
 type FeatureButton = NavbarButtonProps & { adminOnly?: boolean };
 
 const allFeatureButtons: FeatureButton[] = [
-  { icon: Home, label: "Dashboard", link: "/dashboard" },
+  { icon: LayoutDashboard, label: "Dashboard", link: "/dashboard" },
   { icon: TreeDeciduous, label: "Trees", link: "/trees" },
   { icon: UsersRound, label: "Members", link: "/members", adminOnly: true },
   { icon: Calendar, label: "Reminders", link: "/reminders", adminOnly: true },
@@ -108,17 +118,12 @@ export default function SideNavbar() {
     if (loading) return null;
 
     if (member) {
-      return (
-        <LogoutButton className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-lato font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer" />
-      );
+      return <LogoutButton className={appButtonClassName({ className: "w-28", size: "sm", variant: "secondary" })} />;
     }
 
     if (pathname === "/login") {
       return (
-        <Link
-          href="/map"
-          className="flex items-center justify-center gap-2 bg-white text-black rounded-full w-28 h-[39px] px-3 py-2.5 text-sm font-lato font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer"
-        >
+        <Link href="/map" className={appButtonClassName({ className: "w-28", size: "sm", variant: "secondary" })}>
           <Map aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
           <span>Map</span>
         </Link>
@@ -127,10 +132,7 @@ export default function SideNavbar() {
 
     // Default for logged-out users on any other public page (notably /map).
     return (
-      <Link
-        href="/login"
-        className="flex items-center justify-center bg-white text-black rounded-full w-28 h-[39px] px-4 py-2.5 text-sm font-lato font-normal hover:bg-off-white-3 transition-colors duration-200 cursor-pointer"
-      >
+      <Link href="/login" className={appButtonClassName({ className: "w-28", size: "sm", variant: "secondary" })}>
         Login
       </Link>
     );
@@ -158,7 +160,7 @@ export default function SideNavbar() {
         {overflowButtons.length > 0 && (
           <div ref={moreMenuRef} className="relative">
             {isMoreOpen && (
-              <div className="fixed bottom-6 left-35 z-60 ml-3 flex max-h-[calc(100dvh-48px)] flex-col gap-4 overflow-y-auto rounded-2xl border border-white/20 bg-primary p-3">
+              <div className="fixed bottom-6 left-35 z-60 ml-3 flex max-h-[calc(100dvh-48px)] flex-col gap-4 overflow-y-auto rounded-2xl border border-card/20 bg-primary p-3">
                 {overflowButtons.map((button) => (
                   <NavbarButton key={button.label} {...button} />
                 ))}

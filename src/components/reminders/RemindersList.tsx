@@ -35,7 +35,7 @@ export default function RemindersList({
             />
           ))
         ) : (
-          <span className="font-lato">Loading...</span>
+          <span className="font-mulish">Loading...</span>
         )}
       </div>
     </div>

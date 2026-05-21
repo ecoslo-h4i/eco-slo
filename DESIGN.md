@@ -5,13 +5,13 @@ description: >
   A calm, civic environmental management interface for ECOSLO tree adoption,
   volunteer coordination, reminders, tasks, and map workflows. The product uses
   a natural institutional palette, serif page titles, rounded off-white surfaces,
-  and Lato-based utility typography. The interface should feel local,
+  and Mulish-based utility typography. The interface should feel local,
   trustworthy, organic, quiet, and operational rather than flashy or tech-heavy.
 
 fonts:
   display: "Constantia, Georgia, 'Times New Roman', serif"
-  body: "Lato, Nunito Sans, system-ui, sans-serif"
-  ui: "Lato, Nunito Sans, system-ui, sans-serif"
+  body: "Mulish, Nunito Sans, system-ui, sans-serif"
+  ui: "Mulish, Nunito Sans, system-ui, sans-serif"
 
 colors:
   black: "#000000"
@@ -32,7 +32,7 @@ colors:
   dark-brown: "#6A5F52"
 
   red: "#B45F5F"
-  light-red: "#EACECE"
+  light-red: "#EAC6CE"
   light-red-2: "#DFAFAF"
 
   blue: "#5F7C8C"
@@ -47,8 +47,9 @@ semanticColors:
   muted-card-bg: "{colors.off-white-2}"
   disabled-bg: "{colors.off-white-3}"
 
-  primary: "{colors.dark-green}"
-  primary-hover: "{colors.green-2}"
+  primary: "{colors.green-2}"
+  primary-hover: "{colors.green}"
+  primary-active: "{colors.dark-green}"
   primary-soft: "{colors.light-green}"
   primary-border: "{colors.light-green-2}"
   on-primary: "{colors.white}"
@@ -181,9 +182,9 @@ borders:
 
 shadows:
   none: "none"
-  soft: "0 2px 6px rgba(0, 0, 0, 0.12)"
-  panel: "0 1px 4px rgba(0, 0, 0, 0.10)"
-  map-control: "0 2px 6px rgba(0, 0, 0, 0.18)"
+  soft: "0 2px 6px {colors.black} at 12% opacity"
+  panel: "0 1px 4px {colors.black} at 10% opacity"
+  map-control: "0 2px 6px {colors.black} at 18% opacity"
 
 layout:
   sidebar-width: 160px
@@ -287,7 +288,7 @@ components:
 
 ECOSLO is an environmental civic operations app for trees, volunteers, reminders, tasks, maps, and adoption workflows. The interface should look like a refined nonprofit field-management system: calm, grounded, local, accessible, and lightly organic.
 
-The visual identity is built around a muted sage-green sidebar, off-white canvas, rounded cards, pill controls, serif page titles, and Lato-based operational text. Avoid modern SaaS flashiness. The UI should feel like a trustworthy public-facing environmental tool with enough structure for admin workflows.
+The visual identity is built around a muted sage-green sidebar, off-white canvas, rounded cards, pill controls, serif page titles, and Mulish-based operational text. Avoid modern SaaS flashiness. The UI should feel like a trustworthy public-facing environmental tool with enough structure for admin workflows.
 
 ## Image Analysis Summary
 
@@ -301,11 +302,11 @@ The map page uses a horizontal green top bar instead of the admin sidebar. The c
 
 ### Tasks Page
 
-The tasks page uses the admin sidebar and a large Constantia page title. Filters sit in a rounded off-white panel. Search is a full-width white pill input. Segmented controls use primary green for selected states and white/off-white for inactive states. Task cards are wide rounded rectangles, mostly muted off-white, with Constantia card titles and Lato metadata. Completed cards use a darker muted background, reduced emphasis, and a pale green completed badge.
+The tasks page uses the admin sidebar and a large Constantia page title. Filters sit in a rounded off-white panel. Search is a full-width white pill input. Segmented controls use primary green for selected states and white/off-white for inactive states. Task cards are wide rounded rectangles, mostly muted off-white, with Constantia card titles and Mulish metadata. Completed cards use a darker muted background, reduced emphasis, and a pale green completed badge.
 
 ### Volunteers Page
 
-The volunteers page uses a wider desktop layout with the same admin sidebar. The page title is extra large and bold. The top filter panel combines search with role filter pills. The volunteer list is a bordered, rounded table. Table headers use bold Lato, rows alternate between white and off-white, and badges use subdued semantic fills. Pagination is contained inside a muted footer row with rounded page controls.
+The volunteers page uses a wider desktop layout with the same admin sidebar. The page title is extra large and bold. The top filter panel combines search with role filter pills. The volunteer list is a bordered, rounded table. Table headers use bold Mulish, rows alternate between white and off-white, and badges use subdued semantic fills. Pagination is contained inside a muted footer row with rounded page controls.
 
 ### Color Palette
 
@@ -314,7 +315,7 @@ The palette is highly constrained and should remain so. The main brand colors ar
 ## Design Principles
 
 1. Use Constantia for page titles, panel headings, field labels, and card titles.
-2. Use Lato for navigation, buttons, tables, metadata, inputs, forms, and body copy.
+2. Use Mulish for navigation, buttons, tables, metadata, inputs, forms, and body copy.
 3. Use sage green as the primary brand color and selected state color.
 4. Use off-white surfaces instead of pure gray.
 5. Prefer rounded panels, cards, chips, and pill controls.
@@ -330,7 +331,7 @@ Use `#F2F0ED` as the default page canvas. Use `#FFFFFF` for cards, input fields,
 
 ### Greens
 
-Use `#697751` for primary buttons, selected filter pills, sidebar background, map pins, active nav states, and important active controls. Use `#879471` and `#7B8963` for secondary green surfaces, marker variants, hover states, and supporting brand blocks. Use `#E1E4D0` and `#C9CEAD` for active badges, selected dropdown rows, soft chips, and positive state backgrounds.
+Use `#7B8963` as the default primary green for buttons, selected filter pills, sidebar background, map pins, active nav states, and important active controls. Use `#879471` for hover/lifted green states and `#697751` for pressed, active, or high-emphasis altered states. Use `#E1E4D0` and `#C9CEAD` for active badges, selected dropdown rows, soft chips, and positive state backgrounds.
 
 ### Browns
 
@@ -346,13 +347,13 @@ Use red only for inactive, destructive, delete, or issue states. Use blue only f
 
 Constantia is the brand and structure font. It gives the app its civic, editorial, environmental character. Use it for titles and important labels only.
 
-Lato is the operational interface font. Use it for everything users scan, click, search, filter, sort, or edit.
+Mulish is the operational interface font. Use it for everything users scan, click, search, filter, sort, or edit.
 
 ### Hierarchy
 
 Page titles should be large, black, and visually dominant. Admin pages generally use 56px Constantia. The volunteer page can use a larger 64px title on wide desktop screens. Avoid making page titles light or small.
 
-Section headings, detail drawer titles, card titles, and form field labels should use Constantia. Body copy, table text, search placeholders, metadata, buttons, nav labels, badges, pagination, dropdowns, and form inputs should use Lato.
+Section headings, detail drawer titles, card titles, and form field labels should use Constantia. Body copy, table text, search placeholders, metadata, buttons, nav labels, badges, pagination, dropdowns, and form inputs should use Mulish.
 
 ### Title Underline Accent
 
@@ -370,7 +371,7 @@ Use a fixed left sidebar on desktop.
 - White pill log-out button below the logo.
 - Navigation items stacked vertically with large white outline icons.
 - Active nav item sits in a translucent lighter green rounded square/tile.
-- Nav labels use Lato bold, centered under icons.
+- Nav labels use Mulish bold, centered under icons.
 
 The main content area starts to the right of the sidebar. Use a white header band for the page title and top actions, separated from content by a subtle off-white border.
 
@@ -414,7 +415,7 @@ Use a subtle bottom divider in `#EAE7E0` or `#DEDBD2`.
 
 ### Buttons
 
-Primary buttons are green pills with white Lato bold text. Use them for actions like Create Reminder, Add Volunteer, Report an Issue, and selected filter states.
+Primary buttons are green pills with white Mulish bold text. Use them for actions like Create Reminder, Add Volunteer, Report an Issue, and selected filter states.
 
 Secondary buttons are outlined or off-white pills with muted brown or black text. Use them for Cancel, Close, inactive segmented controls, and lower-priority actions.
 
@@ -427,7 +428,7 @@ Search inputs are white pills with a left search icon and muted placeholder text
 - Height: 46-56px depending on page density.
 - Radius: pill.
 - Border: subtle `#DEDBD2` when on white; no visible border when inside an off-white panel.
-- Placeholder: Lato, muted brown.
+- Placeholder: Mulish, muted brown.
 
 ### Filter Pills and Segmented Controls
 
@@ -439,7 +440,7 @@ Dropdown rows should use pale green selected states with a checkmark aligned rig
 
 Active cards use white backgrounds and high-contrast text. Inactive or completed cards use muted off-white backgrounds and lower-contrast brown text.
 
-Reminder and task cards should be large, rounded, and spacious. Titles use Constantia. Metadata uses Lato with small icons.
+Reminder and task cards should be large, rounded, and spacious. Titles use Constantia. Metadata uses Mulish with small icons.
 
 ### Badges
 
@@ -461,8 +462,8 @@ Form panels should feel calm and editorial, not dense.
 - Inputs/selects: white pill fields.
 - Use two-column layout on desktop.
 - Use full-width stacked fields on mobile.
-- Textareas are white rounded rectangles with Lato text.
-- Token chips are small off-white pills with monospace-like placeholder labels only if necessary; otherwise use Lato.
+- Textareas are white rounded rectangles with Mulish text.
+- Token chips are small off-white pills with monospace-like placeholder labels only if necessary; otherwise use Mulish.
 
 ### Toggles
 
@@ -470,7 +471,7 @@ Toggles use muted panel cards with text on the left and a green switch on the ri
 
 ### Tables
 
-Tables appear inside a rounded container with a border. Headers use a muted off-white background and bold Lato. Rows alternate between white and off-white. Text should be Lato bold or medium for scanability. Use badges inside cells for roles and assigned tree numbers.
+Tables appear inside a rounded container with a border. Headers use a muted off-white background and bold Mulish. Rows alternate between white and off-white. Text should be Mulish bold or medium for scanability. Use badges inside cells for roles and assigned tree numbers.
 
 Pagination sits in a muted footer row. Pagination controls are rounded small square buttons with subtle borders.
 
@@ -492,7 +493,7 @@ The map detail drawer is a white right-side panel around 405px wide on desktop.
 - Status pills below title.
 - Information blocks are off-white rounded cards.
 - Each block title uses Constantia uppercase or small title styling.
-- Body text uses Lato.
+- Body text uses Mulish.
 - Bottom action buttons are full-width pills.
 
 ## Page Patterns
@@ -541,7 +542,7 @@ Use an immersive map canvas.
 
 ### Hover
 
-Primary buttons should slightly lighten to `#7B8963` or darken depending on contrast. Cards may subtly raise with a soft shadow only if clickable. Avoid dramatic scaling.
+Primary buttons should default to `#7B8963`, lighten to `#879471` on hover, and use `#697751` for pressed or high-emphasis altered states. Cards may subtly raise with a soft shadow only if clickable. Avoid dramatic scaling.
 
 ### Focus
 
@@ -578,8 +579,8 @@ All interactive controls should have clear focus states. Touch targets should be
 ## Do's
 
 - Use Constantia for large page titles and important headings.
-- Use Lato for operational UI text.
-- Use sage green for primary actions, selected states, sidebars, and map markers.
+- Use Mulish for operational UI text.
+- Use `#7B8963` sage green for primary actions, selected states, sidebars, and map markers; reserve `#879471` and `#697751` for altered states.
 - Use off-white backgrounds instead of cool gray.
 - Use rounded cards, panels, chips, and pill buttons.
 - Use soft semantic badges for status.
@@ -603,6 +604,6 @@ All interactive controls should have clear focus states. Touch targets should be
 
 ## Agent Prompt Guide
 
-When generating UI for this app, match the provided mockups closely. Use the exact color tokens from this file, Constantia for headings, and Lato for body/interface text. Build admin pages with a fixed sage-green sidebar, large serif page titles, white/off-white content surfaces, rounded panels, pill controls, soft badges, and spacious card-based layouts. Build public map pages with a horizontal sage-green top bar, floating white map controls, green tree markers, and a right-side white detail drawer.
+When generating UI for this app, match the provided mockups closely. Use the exact color tokens from this file, Constantia for headings, and Mulish for body/interface text. Build admin pages with a fixed sage-green sidebar, large serif page titles, white/off-white content surfaces, rounded panels, pill controls, soft badges, and spacious card-based layouts. Build public map pages with a horizontal sage-green top bar, floating white map controls, green tree markers, and a right-side white detail drawer.
 
 Prefer semantic tokens such as `primary`, `panel-bg`, `card-bg`, `text-muted`, `success-bg`, and `danger-bg` over raw hex values. Preserve the restrained environmental visual language. Every new screen should feel like it belongs to the Reminders, Tasks, Volunteers, and Map mockups.

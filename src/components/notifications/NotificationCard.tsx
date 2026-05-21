@@ -28,7 +28,7 @@ export default function NotificationCard({
       <div className="flex flex-row items-center">
         <p className="text-sm font-medium">{timestamp}</p>
         <button
-          className="ml-auto p-0.5 cursor-pointer text-black/70 transition-colors hover:text-black"
+          className="ml-auto p-0.5 cursor-pointer text-text/70 transition-colors hover:text-text"
           aria-label="Delete notification"
           onClick={(event) => {
             event.stopPropagation();
@@ -39,7 +39,7 @@ export default function NotificationCard({
         </button>
       </div>
       <div className="flex flex-row items-center mt-2">
-        <Bell aria-hidden="true" className="h-6 w-6 shrink-0 text-black" strokeWidth={2} />
+        <Bell aria-hidden="true" className="h-6 w-6 shrink-0 text-text" strokeWidth={2} />
         <p className="ml-1.5 truncate">{notificationText}</p>
       </div>
     </div>

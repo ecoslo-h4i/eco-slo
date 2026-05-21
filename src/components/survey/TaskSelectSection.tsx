@@ -1,6 +1,6 @@
 import type { SurveyTaskOption } from "@/types/survey";
+import { SelectField } from "@/components/ui/form-controls";
 import FormSection from "./FormSection";
-import { surveyFieldClass } from "./formStyles";
 
 export type { SurveyTaskOption };
 
@@ -16,24 +16,17 @@ export default function TaskSelectSection({ tasks, value, onChange, disabled, er
   return (
     <FormSection title="Task" titleId="survey-heading-task">
       <div>
-        <select
+        <SelectField
           id="survey-task"
-          className={surveyFieldClass}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={onChange}
           disabled={disabled}
-          aria-labelledby="survey-heading-task"
-          aria-invalid={!!error}
-          aria-describedby={error ? "survey-err-task" : undefined}
+          ariaInvalid={!!error}
+          ariaDescribedBy={error ? "survey-err-task" : undefined}
+          placeholder="Select a task..."
           required
-        >
-          <option value="">Select a task…</option>
-          {tasks.map((t) => (
-            <option key={t.id} value={String(t.id)}>
-              {t.label}
-            </option>
-          ))}
-        </select>
+          options={tasks.map((task) => ({ label: task.label, value: String(task.id) }))}
+        />
         {error ? (
           <p id="survey-err-task" className="mt-2 text-sm text-danger" role="alert">
             {error}

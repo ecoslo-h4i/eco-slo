@@ -1,5 +1,7 @@
 "use client";
 import { TreeSchema } from "@/components/data-table/table-widget-defs";
+import { AppButton, appButtonClassName } from "@/components/ui/form-controls";
+import Badge from "@/components/badge";
 import { Tables } from "@/database/database.types";
 import { createUserLevelClient } from "@/lib/supabase/client";
 import { Pencil, Trash2, TriangleAlert, X } from "lucide-react";
@@ -47,6 +49,10 @@ type TreeDetailRow = {
 function display(value: unknown): string {
   if (value === null || value === undefined || value === "") return "N/A";
   return String(value);
+}
+
+function treeStatusBadgeVariant(status: unknown) {
+  return String(status).toLowerCase() === "active" ? "success" : "muted";
 }
 
 export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
@@ -179,7 +185,7 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
   ];
   return (
     <div
-      className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/40 p-6"
+      className="fixed inset-0 z-[3000] flex items-center justify-center bg-text/40 p-6"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="relative flex w-[620px] max-h-[88vh] max-w-full flex-col items-center overflow-hidden rounded-2xl bg-panel-bg p-8 pb-0 drop-shadow-xl">
@@ -190,7 +196,11 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
               e.stopPropagation();
               props.onClose?.();
             }}
-            className="absolute top-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white/90 text-text-muted shadow-sm transition hover:bg-white hover:text-text"
+            className={appButtonClassName({
+              className: "absolute right-3 top-3 bg-card/90",
+              iconOnly: true,
+              variant: "secondary",
+            })}
             aria-label="Close tree details"
           >
             <X className="h-4 w-4" strokeWidth={2} />
@@ -200,34 +210,31 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
         <div className="flex flex-col items-center">
           <h1 className="text-[32px] font-serif">#{source.ecoslo_num} Tree Details</h1>
           <div className="flex flex-row gap-[10px]">
-            <div className="flex w-[150px] flex-row gap-[3px] rounded-2xl bg-danger-bg p-[2px] pr-[10px] pl-[10px]">
-              <TriangleAlert aria-hidden="true" className="h-4 w-4 text-danger" strokeWidth={2} />
-              <p className="text-sm font-semibold text-danger">Issue Reported</p>
-            </div>
-            <div className="rounded-2xl bg-success-bg p-[2px] pr-[10px] pl-[10px] text-sm font-semibold text-success">
+            <Badge variant="danger" icon={<TriangleAlert aria-hidden="true" className="h-4 w-4" strokeWidth={2} />}>
+              Issue Reported
+            </Badge>
+            <Badge variant={treeStatusBadgeVariant(source.status)} className="capitalize">
               {display(source.status)}
-            </div>
-            <div className="rounded-2xl bg-success-bg p-[2px] pr-[10px] pl-[10px] text-sm font-semibold text-success">
-              {source.is_public ? "Public" : "Private"}
-            </div>
+            </Badge>
+            <Badge variant={source.is_public ? "info" : "muted"}>{source.is_public ? "Public" : "Private"}</Badge>
           </div>
         </div>
 
         {/* Body Container */}
         <div className="no-scrollbar m-[16px] flex h-full max-h-[70vh] w-fit flex-col items-start justify-items-center gap-[20px] overflow-y-auto">
-          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-4">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-card p-4">
             {mapInfo("TREE INFORMATION", basicInformation)}
           </div>
-          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-4">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-card p-4">
             {mapInfo("LOCATION", location)}
           </div>
-          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-4">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-card p-4">
             {mapInfo("TREEKEEPER INFO", treeKeeperInfo)}
           </div>
-          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-4">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-card p-4">
             {mapInfo("MAINTENANCE", maintenance)}
           </div>
-          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-5">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-card p-5">
             {mapInfo(
               "NOTES",
               [
@@ -237,7 +244,7 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
               true,
             )}
           </div>
-          <div className="h-auto w-[460px] rounded-2xl border border-border bg-white p-4">
+          <div className="h-auto w-[460px] rounded-2xl border border-border bg-card p-4">
             <h1 className="font-semibold">SURVEYS</h1>
             {surveys.length === 0 ? (
               <p>No associated surveys.</p>
@@ -246,14 +253,14 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
                 {surveys.map((survey) => {
                   const body = survey.body ?? {};
                   return (
-                    <div key={survey.id} className="rounded-xl bg-white p-3 text-sm">
+                    <div key={survey.id} className="rounded-xl bg-card p-3 text-sm">
                       <p className="font-semibold">{new Date(survey.created_at).toLocaleDateString()}</p>
                       <p>Issue: {display(body.issue)}</p>
                       <p>Other: {display(body.issueOther)}</p>
                       <p>Image Link: {display(body.imageLink)}</p>
                       <p>Admin Contact: {display(body.adminContact)}</p>
                       <div className="mt-1 max-h-40 overflow-y-auto whitespace-pre-wrap break-words">
-                        <p className="font-semibold text-black/80">Survey notes</p>
+                        <p className="font-semibold text-text/80">Survey notes</p>
                         <p>{display(body.notes)}</p>
                       </div>
                     </div>
@@ -264,14 +271,12 @@ export default function TreeDetailsPopout(props: treeDetailsPopoutProps) {
           </div>
           {props.admin ? (
             <div className="flex flex-col items-center gap-[16px]">
-              <button className="flex h-[32px] w-[460px] cursor-pointer items-center justify-center gap-[8px] rounded-2xl bg-primary p-[10px]">
-                <p className="font-semibold text-on-primary">Edit Tree</p>
-                <Pencil aria-hidden="true" className="h-5 w-5 text-on-primary" strokeWidth={2} />
-              </button>
-              <button className="flex h-[32px] w-[460px] cursor-pointer flex-row items-center justify-center gap-[8px] rounded-2xl border border-danger/35 bg-danger-bg p-[10px]">
-                <p className="font-bold text-danger">Delete Tree</p>
-                <Trash2 aria-hidden="true" className="h-5 w-5 text-danger" strokeWidth={2} />
-              </button>
+              <AppButton className="w-[460px]" icon={Pencil} radius="small" size="sm">
+                Edit Tree
+              </AppButton>
+              <AppButton className="w-[460px]" icon={Trash2} radius="small" size="sm" variant="danger">
+                Delete Tree
+              </AppButton>
             </div>
           ) : (
             <></>
@@ -289,10 +294,10 @@ function mapInfo(header: string, body: { title: string | null; info: string | nu
       <div className={`mt-2 grid gap-3 ${stacked ? "grid-cols-1" : "grid-cols-2"}`}>
         {body.map((entry, idx) => (
           <div key={`${header}-${idx}`} className="w-full">
-            <p className="text-sm font-bold uppercase tracking-wide text-black/45">
+            <p className="text-sm font-bold uppercase tracking-wide text-text/45">
               {String(entry.title ?? "").replace(/:\s*$/, "")}
             </p>
-            <p className="mt-1 font-bold text-black">{entry.info}</p>
+            <p className="mt-1 font-bold text-text">{entry.info}</p>
           </div>
         ))}
       </div>

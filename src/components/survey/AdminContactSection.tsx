@@ -8,7 +8,7 @@ type AdminContactSectionProps = {
 };
 
 const choiceClass =
-  "flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3 transition hover:bg-background has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/40";
+  "flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 transition hover:bg-background has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/40";
 
 export default function AdminContactSection({ value, onChange, disabled }: AdminContactSectionProps) {
   return (

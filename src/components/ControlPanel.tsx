@@ -1,9 +1,9 @@
 "use client";
 
-import { ChangeEvent, type MutableRefObject, type ReactNode, useEffect, useRef, useState } from "react";
+import { type MutableRefObject, type ReactNode, useEffect, useRef, useState } from "react";
 import { TreeSchema } from "./data-table/table-widget-defs";
 import { Table } from "./data-table/table/table-types";
-import { Check, ChevronDown, Search, X, type LucideIcon } from "lucide-react";
+import { Check, ChevronDown, X, type LucideIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -12,6 +12,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
+import {
+  PillGroup,
+  SearchField,
+  SelectField,
+  appButtonClassName,
+  controlLabelClassName,
+  dropdownContentClassName,
+  dropdownItemClassName,
+  selectTriggerClassName,
+} from "@/components/ui/form-controls";
+import { cn } from "@/lib/utils";
 
 interface ControlSearchProps {
   query: string;
@@ -32,23 +43,13 @@ export function ControlSearch(props: ControlSearchProps) {
     };
   }, [props.query, props.searchDelay, props.searchFunction, props]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const next = e.target.value;
-    props.onQueryChange(next);
-  };
-
   return (
-    <div className="flex items-center gap-2 px-3 py-2 rounded-full border border-border bg-foreground w-full">
-      <Search className="text-text-muted w-5 h-5" />
-      <input
-        type="text"
-        id="query"
-        placeholder={props.placeholder || "Search..."}
-        value={props.query}
-        onChange={handleChange}
-        className="flex-1 text-text-dark font-medium placeholder:text-text-muted outline-none"
-      />
-    </div>
+    <SearchField
+      id="query"
+      placeholder={props.placeholder || "Search..."}
+      value={props.query}
+      onQueryChange={props.onQueryChange}
+    />
   );
 }
 
@@ -66,8 +67,9 @@ export function ControlButton(props: ControlButtonInterface) {
   const Icon = props.icon;
 
   return (
-    <div
-      className="w-36 h-11 rounded-full outline-1 outline-black cursor-pointer select-none flex items-center justify-center px-5 gap-2.5"
+    <button
+      type="button"
+      className={appButtonClassName({ className: "w-36", variant: "primary" })}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onClick={() => props.function()}
@@ -81,7 +83,7 @@ export function ControlButton(props: ControlButtonInterface) {
         {props.text}
       </p>
       {Icon ? <Icon aria-hidden="true" className="h-[22px] w-[22px]" strokeWidth={2} /> : null}
-    </div>
+    </button>
   );
 }
 
@@ -121,20 +123,15 @@ export function ControlStatusPills(props: ControlStatusPillsInterface) {
   };
 
   return (
-    <div className={`flex flex-col gap-2 select-none ${props.className}`}>
-      {props.text && <h2 className="text-text-muted font-semibold">{props.text}</h2>}
-      <div className={`flex gap-2 ${props.containerClassName}`}>
-        {props.options.map((option, index) => (
-          <button
-            key={index}
-            className={`${props.buttonClassName} rounded-2xl cursor-pointer flex items-center justify-center px-2 py-1 transition-colors
-              ${index === props.activeIndex ? "bg-primary text-text-light hover:bg-primary/90" : "bg-button text-text-dark border border-border hover:bg-button/50"}`}
-            onClick={() => handleSelect(index)}
-          >
-            <p className="font-medium lg:text-lg whitespace-nowrap">{option}</p>
-          </button>
-        ))}
-      </div>
+    <div className={cn("flex flex-col gap-2 select-none", props.className)}>
+      {props.text && <h2 className={controlLabelClassName}>{props.text}</h2>}
+      <PillGroup
+        activeValue={props.options[props.activeIndex]}
+        className={props.containerClassName}
+        optionClassName={props.buttonClassName}
+        options={props.options.map((option) => ({ label: option, value: option }))}
+        onChange={(_, index) => handleSelect(index)}
+      />
     </div>
   );
 }
@@ -150,7 +147,6 @@ interface ControlFilterDropdownInterface {
 }
 
 export function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
-  const [isOpen, setIsOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -175,25 +171,13 @@ export function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
 
   return (
     <div className="flex flex-col gap-2 select-none">
-      <h2 className="text-text-muted font-semibold">{props.label}</h2>
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger
-          className={`px-4 py-1.5 flex justify-between items-center bg-button-light border border-border text-text-dark rounded-full hover:bg-button-light/80 transition-colors duration-50 
-                    ${props.triggerClassName}`}
-        >
-          <span className="font-medium truncate">{props.dropDown[props.activeIndex]}</span>
-          <ChevronDown
-            className={`w-4 h-4 shrink-0 text-text-muted transition-transform duration-200 ${isOpen && "rotate-180"}`}
-          />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          {props.dropDown.map((item, index) => (
-            <DropdownMenuItem className="font-medium" onClick={() => handleSelect(index)} key={index}>
-              {item}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <h2 className={controlLabelClassName}>{props.label}</h2>
+      <SelectField
+        className={props.triggerClassName}
+        value={props.dropDown[props.activeIndex]}
+        onChange={(value) => handleSelect(props.dropDown.indexOf(value))}
+        options={props.dropDown.map((item) => ({ label: item, value: item }))}
+      />
     </div>
   );
 }
@@ -235,8 +219,8 @@ function Select(props: SelectProps) {
   };
 
   return (
-    <div className={`flex flex-col gap-2 select-none ${props.className}`}>
-      <h2 className="text-text-muted font-semibold">{props.label}</h2>
+    <div className={cn("flex flex-col gap-2 select-none", props.className)}>
+      <h2 className={controlLabelClassName}>{props.label}</h2>
       <DropdownMenu
         open={isOpen}
         onOpenChange={(open) => {
@@ -244,14 +228,15 @@ function Select(props: SelectProps) {
           if (open) syncItemsFromTable();
         }}
       >
-        <DropdownMenuTrigger className="w-32 lg:w-64 px-4 py-1.5 flex justify-between items-center bg-button-light border border-border text-text-dark rounded-full hover:bg-button-light/80 transition-colors duration-50">
-          <span className="font-medium">Visibility</span>
+        <DropdownMenuTrigger className={cn(selectTriggerClassName, "w-32 lg:w-64")}>
+          <span className="truncate">Visibility</span>
           <ChevronDown
             className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isOpen && "rotate-180"}`}
           />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
+        <DropdownMenuContent align="start" className={dropdownContentClassName}>
           <DropdownMenuItem
+            className={dropdownItemClassName}
             onClick={() => {
               items.forEach((item) => {
                 if (!item.checked) onCheckedChange(item.id);
@@ -264,7 +249,7 @@ function Select(props: SelectProps) {
           <DropdownMenuSeparator />
           {items.map((item) => (
             <DropdownMenuCheckboxItem
-              className="font-medium"
+              className={dropdownItemClassName}
               checked={item.checked}
               checkedIcon={props.checkedIcon}
               onCheckedChange={() => onCheckedChange(item.id)}
@@ -369,7 +354,12 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
             visibilityActiveIndex !== 0) && (
             <button
               type="button"
-              className="self-end flex items-center gap-x-1 px-2 md:px-3 py-2 bg-transparent text-text-muted font-medium rounded-2xl hover:bg-black/5 transition-colors duration-100"
+              className={appButtonClassName({
+                className: "self-end px-2 md:px-3",
+                radius: "small",
+                size: "sm",
+                variant: "ghost",
+              })}
               onClick={resetFilters}
             >
               <X className="w-4 h-4" />

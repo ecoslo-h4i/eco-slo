@@ -11,6 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
+import {
+  controlLabelClassName,
+  dropdownContentClassName,
+  dropdownItemClassName,
+  selectTriggerClassName,
+} from "@/components/ui/form-controls";
+import { cn } from "@/lib/utils";
 
 interface TasksControlPanelProps {
   setStatusFunction: (status: string) => void;
@@ -126,28 +133,21 @@ function Select(props: SelectProps) {
         : `${selectedItems.length} selected`;
 
   return (
-    <div className={`flex flex-col gap-2 select-none ${props.className ?? ""}`}>
-      <h2 className="text-text-muted font-semibold">{props.label}</h2>
+    <div className={cn("flex flex-col gap-2 select-none", props.className)}>
+      <h2 className={controlLabelClassName}>{props.label}</h2>
 
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger
-          className={`px-4 py-1.5 flex justify-between items-center bg-button-light border border-border text-text-dark rounded-full hover:bg-button-light/80 transition-colors duration-50 ${
-            props.triggerClassName ?? "w-32 lg:w-64"
-          }`}
-        >
-          <span className="font-medium truncate">{triggerText}</span>
+        <DropdownMenuTrigger className={cn(selectTriggerClassName, props.triggerClassName ?? "w-32 lg:w-64")}>
+          <span className="truncate">{triggerText}</span>
 
           <ChevronDown
             className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           />
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent
-          align="start"
-          className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-72 overflow-y-auto"
-        >
+        <DropdownMenuContent align="start" className={cn(dropdownContentClassName, "max-h-72")}>
           <DropdownMenuCheckboxItem
-            className="font-medium"
+            className={dropdownItemClassName}
             checked={selectedItems.length === 0}
             checkedIcon={props.checkedIcon}
             onSelect={(event) => event.preventDefault()}
@@ -159,12 +159,14 @@ function Select(props: SelectProps) {
           <DropdownMenuSeparator />
 
           {options.length === 0 ? (
-            <DropdownMenuItem disabled>No assignees</DropdownMenuItem>
+            <DropdownMenuItem className={dropdownItemClassName} disabled>
+              No assignees
+            </DropdownMenuItem>
           ) : (
             options.map((option) => (
               <DropdownMenuCheckboxItem
                 key={option}
-                className="font-medium"
+                className={dropdownItemClassName}
                 checked={selectedSet.has(option)}
                 checkedIcon={props.checkedIcon}
                 onSelect={(event) => event.preventDefault()}

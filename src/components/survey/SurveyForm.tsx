@@ -14,7 +14,8 @@ import ImageLinkSection from "./ImageLinkSection";
 import IssueSection from "./IssueSection";
 import TaskSelectSection from "./TaskSelectSection";
 import TreeSelectSection from "./TreeSelectSection";
-import { surveyFieldClass, surveyLabelClass } from "./formStyles";
+import { AppButton } from "@/components/ui/form-controls";
+import { surveyLabelClass, surveyTextareaClass } from "./formStyles";
 
 const DEFAULT_ISSUE: SurveyIssueValue = "watering";
 
@@ -61,9 +62,11 @@ export default function SurveyForm() {
     }
   }, []);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void loadData();
   }, [loadData]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const setIssue = (v: SurveyIssueValue) => {
     setIssueState(v);
@@ -135,12 +138,12 @@ export default function SurveyForm() {
       {loadError ? (
         <div
           role="alert"
-          className="rounded-2xl border-2 border-amber-800/35 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+          className="rounded-2xl border-2 border-danger-border bg-danger-bg px-4 py-3 text-sm text-danger"
         >
           {loadError}{" "}
           <button
             type="button"
-            className="font-medium underline underline-offset-2 hover:text-amber-900"
+            className="font-medium underline underline-offset-2 hover:text-danger"
             onClick={() => void loadData()}
           >
             Retry
@@ -183,7 +186,7 @@ export default function SurveyForm() {
           <textarea
             id="survey-notes"
             rows={6}
-            className={`${surveyFieldClass} min-h-[140px] resize-y`}
+            className={`${surveyTextareaClass} min-h-[140px] resize-y`}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             disabled={submitting}
@@ -195,13 +198,9 @@ export default function SurveyForm() {
       <AdminContactSection value={adminContact} onChange={setAdminContact} disabled={submitting} />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <button
-          type="submit"
-          disabled={submitting || !canSubmit}
-          className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-primary px-10 py-3 text-base font-medium text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
-        >
+        <AppButton type="submit" disabled={submitting || !canSubmit} className="px-10" size="lg">
           {submitting ? "Submitting…" : "Submit"}
-        </button>
+        </AppButton>
         {submitMessage ? (
           <p role="status" className={submitMessage.type === "ok" ? "text-sm text-success" : "text-sm text-danger"}>
             {submitMessage.text}

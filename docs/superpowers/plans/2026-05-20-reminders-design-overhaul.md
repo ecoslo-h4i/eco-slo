@@ -27,9 +27,9 @@ All colors below already exist in `src/app/globals.css`:
 - Muted card bg (inactive cards, info boxes): `bg-table-header` (#EAE7E0)
 - Border: `border-border` (#DEDBD2)
 - Active pill: `bg-active-pill` (#E1E4D0) + `border-pill-border` (#C9CEAD)
-- Inactive pill: `bg-danger-bg` (#EACECE) + `border-danger-border` (#DFAFAF)
-- Primary green: `bg-primary` (#697751)
-- Primary hover: `bg-primary-light` (#7B8963)
+- Inactive pill: `bg-danger-bg` (#EAC6CE) + `border-danger-border` (#DFAFAF)
+- Primary green: `bg-primary` (#7B8963)
+- Primary hover: `bg-primary-hover` (#879471)
 - Text dark: `text-text-dark` (#000000)
 - Text muted: `text-text-muted` (#6A5F52)
 - Text subtle (inactive card text): `text-text-subtle` (#7D7469)
@@ -68,7 +68,7 @@ In `src/app/(admin)/reminders/page.tsx`, change the button from a pill to a roun
 import { Plus } from "lucide-react";
 
 <button
-  className="h-11 px-4 bg-primary rounded-lg text-white font-lato flex flex-row items-center justify-center gap-3 hover:bg-primary-light transition-colors duration-200 cursor-pointer"
+  className="h-11 px-4 bg-primary rounded-lg text-white font-lato flex flex-row items-center justify-center gap-3 hover:bg-primary-hover transition-colors duration-200 cursor-pointer"
   onClick={handleCreateReminder}
 >
   <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
