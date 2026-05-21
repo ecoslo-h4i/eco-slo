@@ -188,6 +188,7 @@ interface SelectProps {
   checkedIcon?: ReactNode;
   tableRef: MutableRefObject<Table<TreeSchema> | null>;
   onCheckedItem: (item: string) => void;
+  triggerClassName?: string;
 }
 
 type SelectItem = {
@@ -200,23 +201,29 @@ function Select(props: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [items, setItems] = useState<SelectItem[]>([]);
 
-  const syncItemsFromTable = () => {
+  const getItemsFromTable = () => {
     const table = props.tableRef.current;
-    if (!table) return;
+    if (!table) return [];
 
-    setItems(
-      table.getHideableColumns().map((column) => ({
-        checked: table.getColumnVisibility(column.id),
-        id: column.id,
-        name: column.name,
-      })),
-    );
+    return table.getHideableColumns().map((column) => ({
+      checked: table.getColumnVisibility(column.id),
+      id: column.id,
+      name: column.name,
+    }));
+  };
+
+  const syncItemsFromTable = () => {
+    setItems(getItemsFromTable());
   };
 
   const onCheckedChange = (item: string) => {
-    setItems((prev) => prev.map((entry) => (entry.id === item ? { ...entry, checked: !entry.checked } : entry)));
     props.onCheckedItem(item);
+    setItems((prev) => prev.map((entry) => (entry.id === item ? { ...entry, checked: !entry.checked } : entry)));
   };
+
+  const columnItems = items.length > 0 ? items : getItemsFromTable();
+  const hiddenCount = columnItems.filter((item) => !item.checked).length;
+  const triggerLabel = hiddenCount === 0 ? "All Columns" : `${hiddenCount} Hidden`;
 
   return (
     <div className={cn("flex flex-col gap-2 select-none", props.className)}>
@@ -228,8 +235,8 @@ function Select(props: SelectProps) {
           if (open) syncItemsFromTable();
         }}
       >
-        <DropdownMenuTrigger className={cn(selectTriggerClassName, "w-32 lg:w-64")}>
-          <span className="truncate">Visibility</span>
+        <DropdownMenuTrigger className={cn(selectTriggerClassName, props.triggerClassName)}>
+          <span className="truncate">{triggerLabel}</span>
           <ChevronDown
             className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isOpen && "rotate-180"}`}
           />
@@ -292,89 +299,85 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 rounded-xl bg-card border border-border shadow-sm p-6 lg:p-8">
-      <ControlSearch
-        placeholder="Search for tree fields..."
-        query={searchQuery}
-        onQueryChange={setSearchQuery}
-        searchDelay={QUERY_DELAY}
-        searchFunction={(query: string) => {
-          const trimmedQuery = query.trimStart();
-          tableRef.current?.setSearchQuery(trimmedQuery);
-        }}
-      />
+    <div className="w-full flex flex-col gap-4 rounded-xl bg-off-white border border-border shadow-sm p-6 lg:p-8">
+      <div className="flex flex-col gap-4 lg:flex-row">
+        <div className="w-full lg:w-1/2">
+          <ControlSearch
+            placeholder="Search for tree fields..."
+            query={searchQuery}
+            onQueryChange={setSearchQuery}
+            searchDelay={QUERY_DELAY}
+            searchFunction={(query: string) => {
+              const trimmedQuery = query.trimStart();
+              tableRef.current?.setSearchQuery(trimmedQuery);
+            }}
+          />
+        </div>
+        <ControlStatusPills
+          className="flex-1"
+          containerClassName="w-full h-full"
+          buttonClassName="flex-1 min-w-0"
+          options={CONTROL_STATUS_OPTIONS}
+          activeIndex={statusActiveIndex}
+          onActiveIndexChange={setStatusActiveIndex}
+          delay={QUERY_DELAY}
+          delayFunction={(status: string) =>
+            tableRef.current?.setColumnFilter("status", () => (status === "All" ? [] : [status.toLowerCase()]))
+          }
+        />
+      </div>
 
-      <div className="flex justify-between items-start">
-        <div className="flex gap-4 items-start justify-start flex-wrap">
-          <ControlStatusPills
-            buttonClassName="min-w-16 lg:min-w-30"
-            text="Status"
-            options={CONTROL_STATUS_OPTIONS}
-            activeIndex={statusActiveIndex}
-            onActiveIndexChange={setStatusActiveIndex}
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <div className="grid min-w-0 flex-1 grid-cols-1 gap-4 md:grid-cols-3">
+          <ControlFilterDropdown
+            triggerClassName="w-full"
+            label="Condition"
+            dropDown={CONDITION_STATUS_OPTIONS}
+            activeIndex={conditionActiveIndex}
+            onActiveIndexChange={setConditionActiveIndex}
             delay={QUERY_DELAY}
             delayFunction={(status: string) =>
-              tableRef.current?.setColumnFilter("status", () => (status === "All" ? [] : [status.toLowerCase()]))
+              tableRef.current?.setColumnFilter("condition", () => (status === "All" ? [] : [status.toLowerCase()]))
+            }
+          />
+          <ControlFilterDropdown
+            triggerClassName="w-full"
+            label="Visibility"
+            dropDown={VISIBILITY_STATUS_OPTIONS}
+            activeIndex={visibilityActiveIndex}
+            onActiveIndexChange={setVisibilityActiveIndex}
+            delay={QUERY_DELAY}
+            delayFunction={(status: string) =>
+              tableRef.current?.setColumnFilter("is_public", () => (status === "All" ? [] : [status.toLowerCase()]))
             }
           />
           <Select
-            className="block md:hidden"
             label="Columns"
             tableRef={tableRef}
+            triggerClassName="w-full"
             checkedIcon={<Check />}
             onCheckedItem={(item: string) => tableRef.current?.setColumnVisibility(item, (visible) => !visible)}
           />
-          <div className="flex gap-4 min-w-0">
-            <ControlFilterDropdown
-              triggerClassName="w-32 lg:w-64"
-              label="Condition"
-              dropDown={CONDITION_STATUS_OPTIONS}
-              activeIndex={conditionActiveIndex}
-              onActiveIndexChange={setConditionActiveIndex}
-              delay={QUERY_DELAY}
-              delayFunction={(status: string) =>
-                tableRef.current?.setColumnFilter("condition", () => (status === "All" ? [] : [status.toLowerCase()]))
-              }
-            />
-            <ControlFilterDropdown
-              triggerClassName="w-32 lg:w-64"
-              label="Visibility"
-              dropDown={VISIBILITY_STATUS_OPTIONS}
-              activeIndex={visibilityActiveIndex}
-              onActiveIndexChange={setVisibilityActiveIndex}
-              delay={QUERY_DELAY}
-              delayFunction={(status: string) =>
-                tableRef.current?.setColumnFilter("is_public", () => (status === "All" ? [] : [status.toLowerCase()]))
-              }
-            />
-          </div>
-          {(searchQuery !== "" ||
-            statusActiveIndex !== 0 ||
-            conditionActiveIndex !== 0 ||
-            visibilityActiveIndex !== 0) && (
-            <button
-              type="button"
-              className={appButtonClassName({
-                className: "self-end px-2 md:px-3",
-                radius: "small",
-                size: "sm",
-                variant: "ghost",
-              })}
-              onClick={resetFilters}
-            >
-              <X className="w-4 h-4" />
-              <span className="text-sm lg:text-md">Clear Filters</span>
-            </button>
-          )}
         </div>
 
-        <Select
-          className="hidden md:block"
-          label="Columns"
-          tableRef={tableRef}
-          checkedIcon={<Check />}
-          onCheckedItem={(item: string) => tableRef.current?.setColumnVisibility(item, (visible) => !visible)}
-        />
+        {(searchQuery !== "" ||
+          statusActiveIndex !== 0 ||
+          conditionActiveIndex !== 0 ||
+          visibilityActiveIndex !== 0) && (
+          <button
+            type="button"
+            className={appButtonClassName({
+              className: "self-start px-2 md:px-3 xl:self-end",
+              radius: "small",
+              size: "sm",
+              variant: "ghost",
+            })}
+            onClick={resetFilters}
+          >
+            <X className="w-4 h-4" />
+            <span className="text-sm lg:text-md">Clear Filters</span>
+          </button>
+        )}
       </div>
     </div>
   );

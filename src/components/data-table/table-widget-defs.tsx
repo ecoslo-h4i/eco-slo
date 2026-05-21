@@ -58,7 +58,7 @@ function roleBadge(value: unknown) {
 
   return (
     <Badge
-      variant={isAdmin ? "info" : "default"}
+      variant={isAdmin ? "info" : "success"}
       icon={isAdmin ? <UserRoundCog className="h-4 w-4" /> : undefined}
       className="capitalize"
     >

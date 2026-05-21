@@ -6,6 +6,7 @@ import { TaskSchema } from "@/components/data-table/table-widget-defs";
 import { TaskCard } from "@/components/TaskCard";
 import { TasksControlPanel } from "@/components/TasksControlPanel";
 import { createUserLevelClient } from "@/lib/supabase/client";
+import { AdminPageShell } from "@/components/admin-page-shell";
 
 interface TaskSchemaWithNames extends TaskSchema {
   names: string[];
@@ -93,15 +94,11 @@ export default function Tasks() {
   const filteredTasks = filterTasks(tasks, status, surveys, assignees, searchQuery);
 
   return (
-    <main className="flex-1 min-w-0 bg-background">
+    <AdminPageShell title="Tasks">
       {error ? (
-        <div className="w-full h-full flex justify-center items-center text-danger">{error}</div>
+        <div className="flex min-h-[570px] w-full items-center justify-center text-danger">{error}</div>
       ) : (
-        <div className="flex flex-col min-w-0 mx-5 mt-4 gap-[20px]">
-          <header className="flex items-center justify-between pt-5">
-            <h1 className="flex text-[36px] font-serif font-bold">Tasks</h1>
-          </header>
-
+        <>
           <div className="rounded-xl border-[1px] border-border drop-shadow-sm bg-muted-card-bg w-full min-w-0">
             <TasksControlPanel
               setStatusFunction={setStatus}
@@ -126,9 +123,9 @@ export default function Tasks() {
               Showing {filteredTasks.length} tasks
             </div>
           </div>
-        </div>
+        </>
       )}
-    </main>
+    </AdminPageShell>
   );
 }
 

@@ -54,7 +54,7 @@ function MemberRoleBadge({ role }: { role: MemberRole | string }) {
 
   return (
     <Badge
-      variant={isAdmin ? "info" : "default"}
+      variant={isAdmin ? "info" : "success"}
       size="sm"
       icon={isAdmin ? <UserRoundCog className="h-4 w-4" /> : undefined}
       className="shrink-0 capitalize"

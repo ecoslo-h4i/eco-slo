@@ -41,7 +41,7 @@ export default function AssignedTreePickerModal({
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalContent
-        className="bg-card"
+        className="bg-off-white"
         closeOnOverlayClick={false}
         showCloseButton={false}
         widthClassName="w-full max-w-xl"
@@ -117,7 +117,7 @@ function AssignedTreePickerModalBody({
       <ModalDescription className="flex flex-col gap-y-4 pt-4">
         <SearchField placeholder="Search trees..." value={searchQuery} onQueryChange={setSearchQuery} />
 
-        <div className="flex max-h-80 flex-col gap-y-2 overflow-y-auto">
+        <div className="flex max-h-80 flex-col gap-y-2 overflow-y-auto bg-card p-4 rounded-xl border border-border">
           {isLoading ? (
             <p className="rounded-lg border border-border bg-button-muted p-3 font-medium text-text-muted">
               Loading trees...
@@ -130,7 +130,7 @@ function AssignedTreePickerModalBody({
                 <button
                   type="button"
                   className={appButtonClassName({
-                    className: "w-full justify-between whitespace-normal rounded-lg px-3 py-3 text-left",
+                    className: "w-full justify-start whitespace-normal rounded-lg px-3 py-3 text-left bg-off-white",
                     radius: "small",
                     variant: "secondary",
                   })}
@@ -139,7 +139,7 @@ function AssignedTreePickerModalBody({
                   onClick={() => handleTreeSelect(tree.ecoslo_num)}
                 >
                   <span>{`${getTreeDisplayName(tree)} #${tree.ecoslo_num}`}</span>
-                  {isAssigned ? <span className="text-sm text-text-muted">Assigned</span> : null}
+                  {isAssigned ? <span className="text-sm text-text-muted ml-auto">Assigned</span> : null}
                 </button>
               );
             })
