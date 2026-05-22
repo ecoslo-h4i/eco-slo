@@ -44,7 +44,7 @@ export type SurveyInsertPayload = {
   /** `tasks.id` */
   task: number;
   /** `trees.ecoslo_num` */
-  tree: number;
+  tree: number | null;
   body: SurveyBodyPayload;
 };
 

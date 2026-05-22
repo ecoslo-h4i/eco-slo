@@ -13,7 +13,6 @@ import {
   LogOut,
   Map,
   MapPin,
-  NotebookPen,
   TreeDeciduous,
   UsersRound,
 } from "lucide-react";
@@ -34,7 +33,6 @@ const allFeatureButtons: FeatureButton[] = [
   { icon: UsersRound, label: "Members", link: "/members", adminOnly: true },
   { icon: Calendar, label: "Reminders", link: "/reminders", adminOnly: true },
   { icon: ListChecks, label: "Tasks", link: "/tasks" },
-  { icon: NotebookPen, label: "Surveys", link: "/survey" },
   { icon: MapPin, label: "Map", link: "/map" },
 ];
 

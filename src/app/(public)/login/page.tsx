@@ -42,7 +42,7 @@ function LoginShell({ children }: { children: ReactNode }) {
 }
 
 function LoginCard({ children }: { children: ReactNode }) {
-  return <section className="w-full max-w-[430px] rounded-[16px] bg-card px-8 py-7 shadow-soft">{children}</section>;
+  return <section className="w-full max-w-[430px] rounded-2xl bg-card px-8 py-7 shadow-soft">{children}</section>;
 }
 
 export default function LoginPage() {
@@ -114,8 +114,8 @@ export default function LoginPage() {
     return (
       <LoginShell>
         <LoginCard>
-          <h1 className="mb-5 text-center font-serif text-[24px] font-normal leading-tight text-text">{LOGIN_TITLE}</h1>
-          <label htmlFor="login-email" className="mb-2 block font-mulish text-[12px] font-bold text-text-muted">
+          <h1 className="mb-5 text-center font-serif text-2xl font-normal leading-tight text-text">{LOGIN_TITLE}</h1>
+          <label htmlFor="login-email" className="mb-2 block font-mulish text-xs font-bold text-text-muted">
             {EMAIL_LABEL}
           </label>
           <TextField
@@ -158,10 +158,10 @@ export default function LoginPage() {
     return (
       <LoginShell>
         <LoginCard>
-          <h1 className="mb-4 text-center font-serif text-[24px] font-normal leading-tight text-text">
+          <h1 className="mb-4 text-center font-serif text-2xl font-normal leading-tight text-text">
             {CONFIRMATION_HEADING}
           </h1>
-          <p className="mb-5 text-center font-mulish text-[12px] leading-snug text-text">
+          <p className="mb-5 text-center font-mulish text-xs leading-snug text-text">
             {CONFIRMATION_MESSAGE_START} <strong>{submittedEmail}</strong>. {CONFIRMATION_MESSAGE_END}
           </p>
           <div className="flex flex-col gap-3">
@@ -181,8 +181,8 @@ export default function LoginPage() {
   return (
     <LoginShell>
       <LoginCard>
-        <h1 className="mb-4 text-center font-serif text-[24px] font-normal leading-tight text-text">{ERROR_HEADING}</h1>
-        <p className="mb-5 text-center font-mulish text-[12px] leading-snug text-text">{errorMessage}</p>
+        <h1 className="mb-4 text-center font-serif text-2xl font-normal leading-tight text-text">{ERROR_HEADING}</h1>
+        <p className="mb-5 text-center font-mulish text-xs leading-snug text-text">{errorMessage}</p>
         <AppButton type="button" onClick={handleTryAnotherEmail} className="mx-auto" size="sm" variant="ghost">
           {ERROR_TRY_ANOTHER_TEXT}
         </AppButton>

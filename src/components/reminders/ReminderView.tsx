@@ -102,6 +102,7 @@ export default function ReminderView({
   const isViewMode = mode === "view";
   const isExistingReminderMode = isEditMode || isViewMode;
   const isReadOnly = isViewMode;
+  const viewInputBackgroundClass = isViewMode ? "disabled:!bg-off-white-2" : undefined;
   const headerTitle = isExistingReminderMode ? reminder?.name || form.name : "Create New Reminder";
   const headerSubtitle = isExistingReminderMode
     ? assigneeLabel || "No assignees"
@@ -265,6 +266,7 @@ export default function ReminderView({
         <div className="flex flex-row gap-4">
           <div className="flex basis-1/2 text-text-dark">
             <ReminderDropdown
+              triggerClassName={viewInputBackgroundClass}
               disabled={isReadOnly}
               label="Repeats"
               options={[...REPEAT_OPTIONS]}
@@ -275,6 +277,7 @@ export default function ReminderView({
           </div>
           <div className="flex basis-1/2 text-text-dark">
             <ReminderTimePicker
+              inputClassName={viewInputBackgroundClass}
               disabled={isReadOnly}
               label="Time"
               placeholder="Select a time"
@@ -296,7 +299,7 @@ export default function ReminderView({
                 onOptionClick={(value) => updateForm("dayOfWeek", value)}
               />
             </div>
-            <div className="flex basis-1/2 items-center gap-4 rounded-lg bg-table-header px-4 py-3 self-end">
+            <div className="flex basis-1/2 items-center gap-4 self-end rounded-lg border border-border bg-table-header px-4 py-3">
               <div className="flex items-center rounded-lg bg-primary p-2">
                 <Calendar className="text-on-primary" size={24} />
               </div>
@@ -330,7 +333,7 @@ export default function ReminderView({
           </div>
         )}
         {form.repeat !== "weekly" && (
-          <div className="flex items-center gap-4 rounded-lg bg-table-header px-4 py-3">
+          <div className="flex items-center gap-4 rounded-lg border border-border bg-table-header px-4 py-3">
             <div className="flex items-center rounded-lg bg-primary p-2">
               <Calendar className="text-on-primary" size={24} />
             </div>
@@ -351,6 +354,7 @@ export default function ReminderView({
           ))}
         </div>
         <ReminderLongTextInput
+          textareaClassName={viewInputBackgroundClass}
           disabled={isReadOnly}
           label=""
           placeholder="Write a message..."

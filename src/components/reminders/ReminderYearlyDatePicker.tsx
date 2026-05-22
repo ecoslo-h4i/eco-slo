@@ -97,7 +97,7 @@ export default function ReminderYearlyDatePicker({
   const showLeapWarning = value?.month === 2 && value?.day === 29;
 
   return (
-    <div className={cn("rounded-3xl bg-card p-4", disabled && "bg-table-header", className)}>
+    <div className={cn("rounded-3xl border border-border bg-card p-4", disabled && "bg-table-header", className)}>
       <div className="mb-3 flex items-center justify-between">
         <button
           type="button"

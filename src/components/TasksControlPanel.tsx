@@ -20,6 +20,9 @@ import {
 } from "@/components/ui/form-controls";
 import { cn } from "@/lib/utils";
 
+export const STATUS_OPTIONS = ["All", "Open", "Completed"];
+export const SURVEY_OPTIONS = ["All", "Needs Survey", "No Survey Required"];
+
 interface TasksControlPanelProps {
   setStatusFunction: (status: string) => void;
   setSurveyFunction: (survey: string) => void;
@@ -27,25 +30,24 @@ interface TasksControlPanelProps {
   searchFunction: (query: string) => void;
   assignees: string[];
   selectedAssignees: string[];
+  isAdmin: boolean;
 }
 
 export function TasksControlPanel(props: TasksControlPanelProps) {
-  const CONTROL_STATUS_OPTIONS = ["All", "Done", "Incomplete"];
   const ASSIGNEE_STATUS_OPTIONS = props.assignees;
-  const SURVEY_OPTIONS = ["All Tasks", "Surveys Needed", "Surveys Complete"];
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusActiveIndex, setStatusActiveIndex] = useState(0);
+  const [statusActiveIndex, setStatusActiveIndex] = useState(1);
   const [surveysActiveIndex, setSurveyActiveIndex] = useState(0);
 
   const QUERY_DELAY = 0;
 
   const resetFilters = () => {
     setSearchQuery("");
-    setStatusActiveIndex(0);
+    setStatusActiveIndex(1);
     setSurveyActiveIndex(0);
     props.searchFunction("");
-    props.setStatusFunction(CONTROL_STATUS_OPTIONS[0]);
+    props.setStatusFunction(STATUS_OPTIONS[1]);
     props.setSurveyFunction(SURVEY_OPTIONS[0]);
     props.setAssigneesFunction([]);
   };
@@ -71,22 +73,29 @@ export function TasksControlPanel(props: TasksControlPanelProps) {
           buttonClassName="flex-1 min-w-0"
           activeIndex={statusActiveIndex}
           onActiveIndexChange={setStatusActiveIndex}
-          options={CONTROL_STATUS_OPTIONS}
+          options={STATUS_OPTIONS}
           delay={QUERY_DELAY}
           delayFunction={(status: string) => props.setStatusFunction(status)}
         />
       </div>
 
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-        <div className="grid min-w-0 flex-1 grid-cols-1 gap-4 md:grid-cols-2">
-          <Select
-            triggerClassName="w-full"
-            label="Assignees"
-            options={ASSIGNEE_STATUS_OPTIONS}
-            selectedItems={props.selectedAssignees}
-            onSelectedItemsChange={props.setAssigneesFunction}
-            checkedIcon={<Check className="h-4 w-4" />}
-          />
+        <div
+          className={cn(
+            "grid min-w-0 flex-1 grid-cols-1 gap-4",
+            props.isAdmin ? "md:grid-cols-2" : "md:grid-cols-1 md:max-w-sm",
+          )}
+        >
+          {props.isAdmin ? (
+            <Select
+              triggerClassName="w-full"
+              label="Assignees"
+              options={ASSIGNEE_STATUS_OPTIONS}
+              selectedItems={props.selectedAssignees}
+              onSelectedItemsChange={props.setAssigneesFunction}
+              checkedIcon={<Check className="h-4 w-4" />}
+            />
+          ) : null}
           <ControlFilterDropdown
             triggerClassName="w-full"
             label="Surveys"
@@ -99,7 +108,7 @@ export function TasksControlPanel(props: TasksControlPanelProps) {
         </div>
 
         {(searchQuery !== "" ||
-          statusActiveIndex !== 0 ||
+          statusActiveIndex !== 1 ||
           surveysActiveIndex !== 0 ||
           props.selectedAssignees.length > 0) && (
           <button

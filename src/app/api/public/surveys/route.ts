@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
     if (typeof task !== "number" || !Number.isFinite(task)) {
       return NextResponse.json({ message: "task must be a number (tasks.id)" }, { status: 400 });
     }
-    if (typeof tree !== "number" || !Number.isFinite(tree)) {
-      return NextResponse.json({ message: "tree must be a number (trees.ecoslo_num)" }, { status: 400 });
+    if (tree != null && (typeof tree !== "number" || !Number.isFinite(tree))) {
+      return NextResponse.json({ message: "tree must be a number (trees.ecoslo_num) or null" }, { status: 400 });
     }
     if (!isPlainObject(payloadBody)) {
       return NextResponse.json({ message: "body must be a JSON object" }, { status: 400 });
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     const insert: SurveyInsert = {
       task,
-      tree,
+      tree: tree ?? null,
       body: payloadBody as Json,
     };
 
@@ -53,6 +53,13 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error("Supabase error inserting survey:", error.message);
       return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
+    }
+
+    if (task) {
+      const { error: rpcError } = await supabase.rpc("complete_task_survey", { p_task_id: task });
+      if (rpcError) {
+        console.error("complete_task_survey RPC failed:", rpcError.message);
+      }
     }
 
     return NextResponse.json({ message: data }, { status: 201 });
