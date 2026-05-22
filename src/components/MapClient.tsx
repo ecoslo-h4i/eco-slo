@@ -7,7 +7,7 @@ import { createUserLevelClient } from "@/lib/supabase/client";
 import MapPopout from "./MapPopout";
 import MapControlPanel from "./MapControlPanel";
 import { QueryData } from "@supabase/supabase-js";
-import { LocateFixed, MapPin, TreeDeciduous, ZoomIn, ZoomOut } from "lucide-react";
+import { LocateFixed, TreeDeciduous, ZoomIn, ZoomOut } from "lucide-react";
 
 const supabase = createUserLevelClient();
 
@@ -62,9 +62,9 @@ const treesQuery = supabase.from("public_trees").select(`
 type TreeRow = QueryData<typeof treesQuery>[number];
 
 function createTreeMarkerIcon(selected: boolean) {
-  const pin = "var(--color-primary)";
+  const pin = selected ? "var(--color-light-green-2)" : "var(--color-primary)";
+  const outline = selected ? "var(--color-primary)" : "var(--color-primary-active)";
   const white = "var(--color-card)";
-  const black = "var(--color-text)";
 
   return L.divIcon({
     className: "eco-tree-marker",
@@ -78,20 +78,27 @@ function createTreeMarkerIcon(selected: boolean) {
             height: `${MARKER_SIZE}px`,
           },
         },
-        createElement(MapPin, {
-          color: pin,
-          fill: pin,
-          size: MARKER_SIZE,
-          strokeWidth: 2.25,
-          style: selected
-            ? {
-                boxShadow: `0 0 0 4px ${white}, 0 5px 14px color-mix(in srgb, ${black} 28%, transparent)`,
-                borderRadius: "999px",
-              }
-            : undefined,
-        }),
+        createElement(
+          "svg",
+          {
+            fill: "none",
+            height: MARKER_SIZE,
+            viewBox: "0 0 24 24",
+            width: MARKER_SIZE,
+            xmlns: "http://www.w3.org/2000/svg",
+          },
+          createElement("path", {
+            d: "M12 22s8-5.4 8-12a8 8 0 1 0-16 0c0 6.6 8 12 8 12Z",
+            fill: pin,
+            stroke: outline,
+            strokeLinejoin: "round",
+            strokeWidth: 1.5,
+          }),
+        ),
         createElement(TreeDeciduous, {
           color: white,
+          stroke: white,
+          fill: "none",
           size: MARKER_ICON_SIZE,
           strokeWidth: 2.2,
           style: {
