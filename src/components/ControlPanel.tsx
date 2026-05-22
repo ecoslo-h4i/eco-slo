@@ -1,6 +1,6 @@
 "use client";
 
-import { type MutableRefObject, type ReactNode, useEffect, useRef, useState } from "react";
+import { type MutableRefObject, type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { TreeSchema } from "./data-table/table-widget-defs";
 import { Table } from "./data-table/table/table-types";
 import { Check, ChevronDown, X, type LucideIcon } from "lucide-react";
@@ -33,23 +33,20 @@ interface ControlSearchProps {
 }
 
 export function ControlSearch(props: ControlSearchProps) {
+  const { onQueryChange, placeholder, query, searchDelay, searchFunction } = props;
+
   useEffect(() => {
     const handler = setTimeout(() => {
-      props.searchFunction(props.query);
-    }, props.searchDelay);
+      searchFunction(query);
+    }, searchDelay);
 
     return () => {
       clearTimeout(handler);
     };
-  }, [props.query, props.searchDelay, props.searchFunction, props]);
+  }, [query, searchDelay, searchFunction]);
 
   return (
-    <SearchField
-      id="query"
-      placeholder={props.placeholder || "Search..."}
-      value={props.query}
-      onQueryChange={props.onQueryChange}
-    />
+    <SearchField id="query" placeholder={placeholder || "Search..."} value={query} onQueryChange={onQueryChange} />
   );
 }
 
@@ -189,7 +186,6 @@ interface SelectProps {
   tableRef: MutableRefObject<Table<TreeSchema> | null>;
   onCheckedItem: (item: string) => void;
   triggerClassName?: string;
-  tableVersion?: number;
 }
 
 type SelectItem = {
@@ -274,10 +270,9 @@ function Select(props: SelectProps) {
 
 interface ControlPanelProps {
   tableRef: MutableRefObject<Table<TreeSchema> | null>;
-  tableVersion?: number;
 }
 
-export default function ControlPanel({ tableRef, tableVersion }: ControlPanelProps) {
+export default function ControlPanel({ tableRef }: ControlPanelProps) {
   void tableRef;
 
   const CONTROL_STATUS_OPTIONS = ["All", "Active", "Graduated"];
@@ -288,6 +283,35 @@ export default function ControlPanel({ tableRef, tableVersion }: ControlPanelPro
   const [statusActiveIndex, setStatusActiveIndex] = useState(0);
   const [conditionActiveIndex, setConditionActiveIndex] = useState(0);
   const [visibilityActiveIndex, setVisibilityActiveIndex] = useState(0);
+
+  const searchTrees = useCallback(
+    (query: string) => {
+      const trimmedQuery = query.trimStart();
+      tableRef.current?.setSearchQuery(trimmedQuery);
+    },
+    [tableRef],
+  );
+
+  const filterByStatus = useCallback(
+    (status: string) => {
+      tableRef.current?.setColumnFilter("status", () => (status === "All" ? [] : [status.toLowerCase()]));
+    },
+    [tableRef],
+  );
+
+  const filterByCondition = useCallback(
+    (status: string) => {
+      tableRef.current?.setColumnFilter("condition", () => (status === "All" ? [] : [status.toLowerCase()]));
+    },
+    [tableRef],
+  );
+
+  const filterByVisibility = useCallback(
+    (status: string) => {
+      tableRef.current?.setColumnFilter("is_public", () => (status === "All" ? [] : [status.toLowerCase()]));
+    },
+    [tableRef],
+  );
 
   const resetFilters = () => {
     setSearchQuery("");
@@ -309,10 +333,7 @@ export default function ControlPanel({ tableRef, tableVersion }: ControlPanelPro
             query={searchQuery}
             onQueryChange={setSearchQuery}
             searchDelay={QUERY_DELAY}
-            searchFunction={(query: string) => {
-              const trimmedQuery = query.trimStart();
-              tableRef.current?.setSearchQuery(trimmedQuery);
-            }}
+            searchFunction={searchTrees}
           />
         </div>
         <ControlStatusPills
@@ -323,9 +344,7 @@ export default function ControlPanel({ tableRef, tableVersion }: ControlPanelPro
           activeIndex={statusActiveIndex}
           onActiveIndexChange={setStatusActiveIndex}
           delay={QUERY_DELAY}
-          delayFunction={(status: string) =>
-            tableRef.current?.setColumnFilter("status", () => (status === "All" ? [] : [status.toLowerCase()]))
-          }
+          delayFunction={filterByStatus}
         />
       </div>
 
@@ -338,9 +357,7 @@ export default function ControlPanel({ tableRef, tableVersion }: ControlPanelPro
             activeIndex={conditionActiveIndex}
             onActiveIndexChange={setConditionActiveIndex}
             delay={QUERY_DELAY}
-            delayFunction={(status: string) =>
-              tableRef.current?.setColumnFilter("condition", () => (status === "All" ? [] : [status.toLowerCase()]))
-            }
+            delayFunction={filterByCondition}
           />
           <ControlFilterDropdown
             triggerClassName="w-full"
@@ -349,14 +366,11 @@ export default function ControlPanel({ tableRef, tableVersion }: ControlPanelPro
             activeIndex={visibilityActiveIndex}
             onActiveIndexChange={setVisibilityActiveIndex}
             delay={QUERY_DELAY}
-            delayFunction={(status: string) =>
-              tableRef.current?.setColumnFilter("is_public", () => (status === "All" ? [] : [status.toLowerCase()]))
-            }
+            delayFunction={filterByVisibility}
           />
           <Select
             label="Columns"
             tableRef={tableRef}
-            tableVersion={tableVersion}
             triggerClassName="w-full"
             checkedIcon={<Check />}
             onCheckedItem={(item: string) => tableRef.current?.setColumnVisibility(item, (visible) => !visible)}

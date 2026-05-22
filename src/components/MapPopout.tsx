@@ -1,7 +1,7 @@
 "use client";
 
 import { Flag, X } from "lucide-react";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useState } from "react";
 import { AppButton, TextField, TextAreaField, controlLabelClassName } from "@/components/ui/form-controls";
 import Badge from "@/components/badge";
 
@@ -23,11 +23,6 @@ type Tree = {
   date_planted: string;
   notes: string;
   is_public: boolean;
-};
-
-type AdminMember = {
-  id: number;
-  role: string | null;
 };
 
 type MapPopoutProps = {
@@ -61,30 +56,6 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
-  const [adminAssigneeIds, setAdminAssigneeIds] = useState<number[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadAdmins() {
-      try {
-        const response = await fetch("/api/admin/members", { cache: "no-store" });
-        if (!response.ok) return;
-        const json = await response.json();
-        const members: AdminMember[] = Array.isArray(json.message) ? json.message : [];
-        if (cancelled) return;
-        const adminIds = members.filter((member) => member.role === "Admin").map((member) => member.id);
-        setAdminAssigneeIds(adminIds);
-      } catch (error) {
-        console.error("Unable to load admin members for issue report", error);
-      }
-    }
-
-    void loadAdmins();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const clearReportForm = () => {
     setMessage("");
@@ -116,26 +87,19 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
     setSubmitError(null);
     setSubmitSuccess(null);
 
-    const reporterDetails = [reporterName.trim(), reporterPhone.trim(), reporterEmail.trim()].filter(Boolean).join(" ");
-    const bodyMessage = `${message.trim()}${reporterDetails ? `\n\nReported by: ${reporterDetails}` : ""}`;
-
-    const taskPayload = {
-      assignees: adminAssigneeIds.length > 0 ? adminAssigneeIds : [],
-      completion_date: null,
-      created_by: null,
-      is_complete: false,
-      message: bodyMessage,
-      surveys_needed: 0,
-      title: `Reported Issue on Tree ${tree?.id ?? "?"}`,
-    };
-
     try {
-      const response = await fetch("/api/admin/tasks", {
+      const response = await fetch("/api/public/issue-reports", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(taskPayload),
+        body: JSON.stringify({
+          message,
+          reporterEmail,
+          reporterName,
+          reporterPhone,
+          treeId: tree?.id,
+        }),
       });
 
       if (!response.ok) {
@@ -196,7 +160,13 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
       </div>
 
       <div className="mt-7 border-t border-border pt-6">
-        <AppButton type="button" className="mb-3 w-full" icon={Flag} onClick={openReportModal}>
+        <AppButton
+          type="button"
+          className="mb-3 w-full"
+          icon={Flag}
+          onClick={openReportModal}
+          disabled={!tree.is_public}
+        >
           Report an Issue
         </AppButton>
         <AppButton type="button" onClick={onClose} className="w-full" variant="secondary">

@@ -17,11 +17,9 @@ export default function Trees() {
   const refetchRef = useRef<(() => void) | null>(null);
   const [treeModalOpen, setTreeModalOpen] = useState(false);
   const [modalTree, setModalTree] = useState<TreeSchema | null>(null);
-  const [tableVersion, setTableVersion] = useState(0);
 
   const handleTableReady = useCallback((table: Table<TreeSchema>) => {
     tableRef.current = table;
-    setTableVersion((v) => v + 1);
   }, []);
 
   const handleAddTreeClick = () => {
@@ -70,7 +68,7 @@ export default function Trees() {
         </>
       }
     >
-      <ControlPanel tableRef={tableRef} tableVersion={tableVersion} />
+      <ControlPanel tableRef={tableRef} />
       <TreePageTableWidget
         refetchRef={refetchRef}
         onRowClick={(event, tree) => {
