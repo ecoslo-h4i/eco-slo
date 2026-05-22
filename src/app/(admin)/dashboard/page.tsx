@@ -20,7 +20,7 @@ async function fetchDashboardStats(isAdmin: boolean): Promise<DashboardStats> {
   const [tasksResult, treesResult, membersResult] = await Promise.all([
     supabase.from("tasks").select("is_complete, surveys_needed, created_at, completion_date"),
     supabase.from("trees").select("created_at"),
-    isAdmin ? supabase.from("public_members").select("role") : Promise.resolve({ data: null, error: null }),
+    isAdmin ? supabase.from("members").select("role") : Promise.resolve({ data: null, error: null }),
   ]);
 
   const tasks = tasksResult.data ?? [];
