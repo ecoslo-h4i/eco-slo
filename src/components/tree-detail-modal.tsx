@@ -186,19 +186,26 @@ type TreeDetailModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSaved: () => void;
+  isAdmin: boolean;
 };
 
-export default function TreeDetailModal({ tree, open, onOpenChange, onSaved }: TreeDetailModalProps) {
+export default function TreeDetailModal({ tree, open, onOpenChange, onSaved, isAdmin }: TreeDetailModalProps) {
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
       {open && (
-        <TreeDetailModalContent key={tree?.id ?? "new"} tree={tree} onOpenChange={onOpenChange} onSaved={onSaved} />
+        <TreeDetailModalContent
+          key={tree?.id ?? "new"}
+          tree={tree}
+          onOpenChange={onOpenChange}
+          onSaved={onSaved}
+          isAdmin={isAdmin}
+        />
       )}
     </Modal>
   );
 }
 
-function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetailModalProps, "open">) {
+function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<TreeDetailModalProps, "open">) {
   const [treeForm, setTreeForm] = useState<TreeFormState>(() => (tree ? treeToForm(tree) : createBlankTreeForm()));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(!tree);
@@ -211,10 +218,15 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
 
   const [surveys, setSurveys] = useState<SurveyRow[]>([]);
 
-  const initialTreeForm = tree ? treeToForm(tree) : createBlankTreeForm();
-  const hasFormChanges = !treeFormsMatch(treeForm, initialTreeForm);
-
   const isAddingTree = tree === null;
+  const canEditAll = isAdmin || isAddingTree;
+
+  const initialTreeForm = tree ? treeToForm(tree) : createBlankTreeForm();
+  const hasFormChanges = canEditAll
+    ? !treeFormsMatch(treeForm, initialTreeForm)
+    : treeForm.condition !== initialTreeForm.condition ||
+      normalizeTreeForm(treeForm).notes !== normalizeTreeForm(initialTreeForm).notes;
+
   const displayedTitle = tree ? `ECOSLO #${tree.ecoslo_num}` : "Add Tree";
 
   const treeKeeper = tree?.tree_keeper ?? null;
@@ -290,41 +302,51 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
     if (!hasFormChanges) return;
 
     const normalized = normalizeTreeForm(treeForm);
-    const ecosloNum = normalized.ecoslo_num ? parseInt(normalized.ecoslo_num, 10) : null;
 
     setIsSubmitting(true);
     setFormError(null);
 
-    if (ecosloNum != null) {
-      const supabase = createUserLevelClient();
-      const { data: existing } = await supabase.from("trees").select("id").eq("ecoslo_num", ecosloNum).maybeSingle();
+    let payload: Record<string, unknown>;
 
-      if (existing && existing.id !== tree?.id) {
-        setDuplicateEcosloNum(ecosloNum);
-        setIsSubmitting(false);
-        return;
+    if (canEditAll) {
+      const ecosloNum = normalized.ecoslo_num ? parseInt(normalized.ecoslo_num, 10) : null;
+
+      if (ecosloNum != null) {
+        const supabase = createUserLevelClient();
+        const { data: existing } = await supabase.from("trees").select("id").eq("ecoslo_num", ecosloNum).maybeSingle();
+
+        if (existing && existing.id !== tree?.id) {
+          setDuplicateEcosloNum(ecosloNum);
+          setIsSubmitting(false);
+          return;
+        }
       }
-    }
 
-    const payload = {
-      ecoslo_num: ecosloNum,
-      species_name: normalized.species_name,
-      common_name: normalized.common_name,
-      funder: normalized.funder,
-      date_planted: normalized.date_planted,
-      condition: normalized.condition,
-      address: normalized.address,
-      latitude: normalized.latitude ? parseFloat(normalized.latitude) : 0,
-      longitude: normalized.longitude ? parseFloat(normalized.longitude) : 0,
-      status: normalized.status,
-      is_public: normalized.is_public === "true",
-      next_watering_date: normalized.next_watering_date || null,
-      weekly_watering_status: normalized.weekly_watering_status,
-      next_mulching_date: normalized.next_mulching_date || null,
-      yearly_mulching_status: normalized.yearly_mulching_status,
-      notes: normalized.notes || null,
-      admin_notes: normalized.admin_notes,
-    };
+      payload = {
+        ecoslo_num: ecosloNum,
+        species_name: normalized.species_name,
+        common_name: normalized.common_name,
+        funder: normalized.funder,
+        date_planted: normalized.date_planted,
+        condition: normalized.condition,
+        address: normalized.address,
+        latitude: normalized.latitude ? parseFloat(normalized.latitude) : 0,
+        longitude: normalized.longitude ? parseFloat(normalized.longitude) : 0,
+        status: normalized.status,
+        is_public: normalized.is_public === "true",
+        next_watering_date: normalized.next_watering_date || null,
+        weekly_watering_status: normalized.weekly_watering_status,
+        next_mulching_date: normalized.next_mulching_date || null,
+        yearly_mulching_status: normalized.yearly_mulching_status,
+        notes: normalized.notes || null,
+        admin_notes: normalized.admin_notes,
+      };
+    } else {
+      payload = {
+        condition: normalized.condition,
+        notes: normalized.notes || null,
+      };
+    }
 
     try {
       const response = await fetch(isAddingTree ? "/api/admin/trees" : `/api/admin/trees/${tree.id}`, {
@@ -383,18 +405,20 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                     <Pencil className="w-5 h-5 text-text-muted" />
                   )}
                 </button>
-                <button
-                  type="button"
-                  className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
-                  disabled={isAddingTree}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setDeleteError(null);
-                    setDeleteConfirmationOpen(true);
-                  }}
-                >
-                  <Trash2 className="w-5 h-5 text-destructive" />
-                </button>
+                {isAdmin && (
+                  <button
+                    type="button"
+                    className={appButtonClassName({ iconOnly: true, variant: "ghost" })}
+                    disabled={isAddingTree}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setDeleteError(null);
+                      setDeleteConfirmationOpen(true);
+                    }}
+                  >
+                    <Trash2 className="w-5 h-5 text-destructive" />
+                  </button>
+                )}
                 <ModalClose asChild>
                   <button
                     type="button"
@@ -421,9 +445,9 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>ECOSLO #</span>
-                      {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                      {isEditing && canEditAll && <span className="text-destructive font-semibold"> *</span>}
                     </p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <input
                         type="number"
                         className={cn(textFieldClassName, "bg-button-muted")}
@@ -439,7 +463,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                   </div>
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">Visibility</p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <SelectField
                         className="bg-button-muted"
                         onChange={handleSelectChange("is_public")}
@@ -457,9 +481,9 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>Species</span>
-                      {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                      {isEditing && canEditAll && <span className="text-destructive font-semibold"> *</span>}
                     </p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <input
                         className={cn(textFieldClassName, "bg-button-muted")}
                         onChange={handleFormChange("species_name")}
@@ -474,9 +498,9 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>Common Name</span>
-                      {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                      {isEditing && canEditAll && <span className="text-destructive font-semibold"> *</span>}
                     </p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <input
                         className={cn(textFieldClassName, "bg-button-muted")}
                         onChange={handleFormChange("common_name")}
@@ -493,9 +517,9 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>Funder</span>
-                      {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                      {isEditing && canEditAll && <span className="text-destructive font-semibold"> *</span>}
                     </p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <input
                         className={cn(textFieldClassName, "bg-button-muted")}
                         onChange={handleFormChange("funder")}
@@ -510,9 +534,9 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>Date Planted</span>
-                      {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                      {isEditing && canEditAll && <span className="text-destructive font-semibold"> *</span>}
                     </p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <input
                         type="date"
                         className={cn(textFieldClassName, "bg-button-muted")}
@@ -543,7 +567,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                   </div>
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">Status</p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <SelectField
                         className="bg-button-muted"
                         onChange={handleSelectChange("status")}
@@ -567,9 +591,9 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                 <div className="flex flex-col items-start gap-y-1">
                   <p className="text-text-muted font-semibold">
                     <span>Address</span>
-                    {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                    {isEditing && canEditAll && <span className="text-destructive font-semibold"> *</span>}
                   </p>
-                  {isEditing ? (
+                  {isEditing && canEditAll ? (
                     <input
                       className={cn(textFieldClassName, "bg-button-muted")}
                       onChange={handleFormChange("address")}
@@ -585,9 +609,9 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>Latitude</span>
-                      {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                      {isEditing && canEditAll && <span className="text-destructive font-semibold"> *</span>}
                     </p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <input
                         type="number"
                         step="any"
@@ -604,9 +628,9 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>Longitude</span>
-                      {isEditing && <span className="text-destructive font-semibold"> *</span>}
+                      {isEditing && canEditAll && <span className="text-destructive font-semibold"> *</span>}
                     </p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <input
                         type="number"
                         step="any"
@@ -670,7 +694,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                 <div className="flex gap-x-4">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">Next Watering Date</p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <input
                         type="date"
                         className={cn(textFieldClassName, "bg-button-muted")}
@@ -683,7 +707,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                   </div>
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">Watering Status</p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <SelectField
                         className="bg-button-muted"
                         onChange={handleSelectChange("weekly_watering_status")}
@@ -698,7 +722,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                 <div className="flex gap-x-4">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">Next Mulching Date</p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <input
                         type="date"
                         className={cn(textFieldClassName, "bg-button-muted")}
@@ -711,7 +735,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                   </div>
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">Mulching Status</p>
-                    {isEditing ? (
+                    {isEditing && canEditAll ? (
                       <SelectField
                         className="bg-button-muted"
                         onChange={handleSelectChange("yearly_mulching_status")}
@@ -745,7 +769,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved }: Omit<TreeDetail
                 </div>
                 <div className="flex flex-col items-start gap-y-1">
                   <p className="text-text-muted font-semibold">Admin</p>
-                  {isEditing ? (
+                  {isEditing && canEditAll ? (
                     <textarea
                       className={cn(textareaFieldClassName, "bg-button-muted min-h-[80px]")}
                       onChange={handleFormChange("admin_notes")}

@@ -16,7 +16,6 @@ export const config = {
     "/members/:path*",
     "/reminders/:path*",
     "/tasks/:path*",
-    "/surveys/:path*",
     "/",
   ],
 };

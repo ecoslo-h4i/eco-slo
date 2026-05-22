@@ -11,6 +11,7 @@ import {
 } from "./reminderInputStyles";
 
 interface ReminderDropdownProps {
+  triggerClassName?: string;
   disabled?: boolean;
   label: string;
   options: string[];
@@ -37,7 +38,10 @@ export default function ReminderDropdown(props: ReminderDropdownProps) {
       <span className={reminderFieldLabelClass}>{props.label}</span>
 
       <DropdownMenu open={!props.disabled && isOpen} onOpenChange={props.disabled ? undefined : setIsOpen}>
-        <DropdownMenuTrigger disabled={props.disabled} className={reminderDropdownTriggerClass}>
+        <DropdownMenuTrigger
+          disabled={props.disabled}
+          className={cn(reminderDropdownTriggerClass, props.triggerClassName)}
+        >
           <span
             className={cn(
               "truncate leading-normal [text-box:normal]",

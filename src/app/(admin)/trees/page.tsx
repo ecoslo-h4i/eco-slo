@@ -9,8 +9,10 @@ import { Download, Plus } from "lucide-react";
 import { downloadTreeCSV, dataToCSV } from "./utils/csv";
 import { AppButton } from "@/components/ui/form-controls";
 import { AdminPageShell } from "@/components/admin-page-shell";
+import { useCurrentMember } from "@/hooks/useCurrentProvider";
 
 export default function Trees() {
+  const { isAdmin } = useCurrentMember();
   const tableRef = useRef<Table<TreeSchema> | null>(null);
   const refetchRef = useRef<(() => void) | null>(null);
   const [treeModalOpen, setTreeModalOpen] = useState(false);
@@ -37,30 +39,34 @@ export default function Trees() {
       title="Trees"
       actions={
         <>
-          <AppButton
-            variant="secondary"
-            size="md"
-            radius="small"
-            icon={Download}
-            onClick={() => {
-              downloadTreeCSV(
-                dataToCSV(
-                  tableRef?.current?.getRowModels().map((rowModel) => {
-                    const row: Record<string, unknown> = {};
-                    rowModel.cells.forEach((cell) => {
-                      row[cell.column.id] = cell.value;
-                    });
-                    return row;
-                  }) ?? [],
-                ),
-              );
-            }}
-          >
-            Export CSV
-          </AppButton>
-          <AppButton radius="small" icon={Plus} onClick={handleAddTreeClick}>
-            Add Tree
-          </AppButton>
+          {isAdmin && (
+            <AppButton
+              variant="secondary"
+              size="md"
+              radius="small"
+              icon={Download}
+              onClick={() => {
+                downloadTreeCSV(
+                  dataToCSV(
+                    tableRef?.current?.getRowModels().map((rowModel) => {
+                      const row: Record<string, unknown> = {};
+                      rowModel.cells.forEach((cell) => {
+                        row[cell.column.id] = cell.value;
+                      });
+                      return row;
+                    }) ?? [],
+                  ),
+                );
+              }}
+            >
+              Export CSV
+            </AppButton>
+          )}
+          {isAdmin && (
+            <AppButton radius="small" icon={Plus} onClick={handleAddTreeClick}>
+              Add Tree
+            </AppButton>
+          )}
         </>
       }
     >
@@ -80,6 +86,7 @@ export default function Trees() {
         open={treeModalOpen}
         onOpenChange={handleModalOpenChange}
         onSaved={() => refetchRef.current?.()}
+        isAdmin={isAdmin}
       />
     </AdminPageShell>
   );
