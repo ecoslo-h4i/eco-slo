@@ -16,10 +16,6 @@ export type TreeSchema = Database["public"]["Tables"]["trees"]["Row"] & Treekeep
 
 export type TaskSchema = Database["public"]["Tables"]["tasks"]["Row"];
 
-export type DashboardTreeSchema = TreeSchema & {
-  last_updated?: string;
-};
-
 export type MemberSchema = Database["public"]["Tables"]["members"]["Row"] & { name: string };
 
 function treeStatusBadgeVariant(value: unknown) {
@@ -66,43 +62,6 @@ function roleBadge(value: unknown) {
     </Badge>
   );
 }
-
-export const dashboardTreeColumns: ColumnDef<DashboardTreeSchema>[] = [
-  {
-    id: "ecoslo_num",
-    accessorKey: "ecoslo_num",
-    name: "EcoSLO #",
-    cell: (value) => Number(value),
-  },
-  {
-    id: "species_name",
-    accessorKey: "species_name",
-    name: "Species",
-    cell: (value) => String(value),
-  },
-  {
-    id: "status",
-    accessorKey: "status",
-    name: "Status",
-    cell: (value) => (
-      <Badge variant={treeStatusBadgeVariant(value)} textCase="capitalize">
-        {String(value)}
-      </Badge>
-    ),
-  },
-  {
-    id: "tree_keeper",
-    accessorKey: "tree_keeper.name",
-    name: "Treekeeper",
-    cell: (value) => <p className="capitalize">{String(value)}</p>,
-  },
-  {
-    id: "last_updated",
-    accessorKey: "last_updated",
-    name: "Last Update",
-    cell: (value) => formatISODate(value),
-  },
-];
 
 export const treeColumns: ColumnDef<TreeSchema>[] = [
   {
