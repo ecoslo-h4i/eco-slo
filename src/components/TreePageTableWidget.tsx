@@ -63,6 +63,7 @@ function TreePageTableWidget({
             onTableReady={onTableReady}
             data={trees}
             cols={treeColumns}
+            isLoading={isLoading}
           />
         )}
       </div>

@@ -18,12 +18,14 @@ function TreePageTable({
   cols,
   onRowClick,
   onTableReady,
+  isLoading = false,
 }: {
   className?: string;
   data: TreeSchema[];
   cols: ColumnDef<TreeSchema>[];
   onRowClick: (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, tree: TreeSchema) => void;
   onTableReady?: (table: TableType<TreeSchema>) => void;
+  isLoading?: boolean;
 }) {
   const table = useTable<TreeSchema>(data, cols, 5);
 
@@ -75,11 +77,20 @@ function TreePageTable({
         </TableRow>
       </TableHeader>
       <TableBody className="divide-y divide-border font-medium">
-        {data.length == 0 ? (
+        {isLoading ? (
           <>
             <TableRow>
               <TableCell className="h-16" columnSpan={cols.length}>
                 <p className="sticky left-1/2 -translate-x-1/2 w-max">Loading trees...</p>
+              </TableCell>
+            </TableRow>
+            {renderPlaceholderRows(4, 1)}
+          </>
+        ) : data.length === 0 ? (
+          <>
+            <TableRow>
+              <TableCell className="h-16" columnSpan={cols.length}>
+                <p className="sticky left-1/2 -translate-x-1/2 w-max">No trees to display.</p>
               </TableCell>
             </TableRow>
             {renderPlaceholderRows(4, 1)}
