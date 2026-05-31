@@ -77,7 +77,10 @@ type ReminderFormState = {
   message: string;
   name: string;
   time: string;
+  /** Template name shown in the "Type" dropdown (display only). */
   type: string;
+  /** Resolved classification persisted to reminders.type. */
+  taskType: Enums<"TaskType">;
 };
 
 export default function ReminderView({
@@ -125,7 +128,10 @@ export default function ReminderView({
     const selectedTemplate = templates.find((template) => template.name === templateName);
 
     if (!selectedTemplate) {
-      updateForm("type", templateName);
+      // No matching template: keep the typed-in label but classify as Other.
+      setForm((current) => ({ ...current, type: templateName, taskType: "Other" }));
+      setSubmitError("");
+      setDeleteError("");
       return;
     }
 
@@ -133,6 +139,7 @@ export default function ReminderView({
       ...current,
       ...getTemplateFormValues(selectedTemplate, members),
       type: selectedTemplate.name,
+      taskType: selectedTemplate.type,
     }));
     setSubmitError("");
     setDeleteError("");
@@ -238,9 +245,9 @@ export default function ReminderView({
           />
         </div>
       )}
-      {!isViewMode && (
-        <div className="flex flex-row gap-4">
-          <div className="flex min-w-0 basis-1/2 text-text-dark">
+      <div className="flex flex-row gap-4">
+        <div className="flex min-w-0 basis-1/2 text-text-dark">
+          {isCreateMode ? (
             <ReminderDropdown
               disabled={isReadOnly}
               label="Type"
@@ -249,7 +256,21 @@ export default function ReminderView({
               value={form.type}
               onOptionClick={handleTemplateSelect}
             />
-          </div>
+          ) : (
+            // Existing reminders don't store which template built them, so the
+            // template picker can't be repopulated. Show the persisted
+            // classification read-only (in both edit and view modes) instead of
+            // a confusing blank dropdown.
+            <ReminderDropdown
+              disabled
+              triggerClassName={viewInputBackgroundClass}
+              label="Type"
+              options={[]}
+              value={form.taskType}
+            />
+          )}
+        </div>
+        {!isViewMode && (
           <div className="flex min-w-0 basis-1/2 text-text-dark">
             <ReminderNestedMultiSelectDropdown
               disabled={isReadOnly}
@@ -260,8 +281,8 @@ export default function ReminderView({
               onChange={(value) => updateForm("assignees", value)}
             />
           </div>
-        </div>
-      )}
+        )}
+      </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-row gap-4">
           <div className="flex basis-1/2 text-text-dark">
@@ -529,6 +550,9 @@ function getReminderFormState(reminder: Reminder | undefined, members: Member[])
     name: reminder?.name ?? DEFAULT_REMINDER_NAME,
     time: schedule.time,
     type: DEFAULT_REMINDER_TYPE,
+    // Preserve an existing reminder's classification across edits even though
+    // the template ("Type") dropdown starts blank in edit mode.
+    taskType: reminder?.type ?? "Other",
   };
 }
 
@@ -604,11 +628,14 @@ function getReminderPayload(form: ReminderFormState): ReminderInsertPayload {
     assignees,
     crons_expression: crons_expression,
     is_active: form.isActive,
-    is_group_task: assignees.length > 1,
+    // Watering/Mulching are inherently per-keeper; fire_reminder ignores the
+    // group flag for them, but keep it false here so the UI stays consistent.
+    is_group_task: form.taskType === "Other" && assignees.length > 1,
     needs_survey: form.needsSurvey,
     name: form.name.trim(),
     task_message: form.message,
     next_run_at: getNextCronOccurrence(crons_expression).toISOString(),
+    type: form.taskType,
   };
 }
 
