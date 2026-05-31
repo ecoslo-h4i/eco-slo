@@ -3,6 +3,36 @@ import { Resend } from "npm:resend";
 import { render } from "npm:@react-email/render@1.0.4";
 import * as React from "npm:react@19.0.0";
 import { TaskEmail } from "../_shared/emails/TaskEmail.tsx";
+import { MESSAGE_VARIABLES, messageVariableToken, type MessageVariable } from "../_shared/message-variables.ts";
+
+type EmailJob = {
+  task_id: number;
+  member_email: string;
+  member_firstname: string;
+  member_tree_count: number;
+  member_tree_names: string;
+  task_title: string;
+  task_message: string;
+};
+
+// One resolver per supported variable. Typed Record<MessageVariable, ...> so a
+// new variable added to _shared/message-variables.ts won't compile until it's
+// handled here — keeping the reminder-form chips and this substitution in sync.
+const messageVariableResolvers: Record<MessageVariable, (job: EmailJob) => string> = {
+  firstName: (job) => job.member_firstname ?? "",
+  treeCount: (job) => String(job.member_tree_count ?? 0),
+  treeNames: (job) => job.member_tree_names ?? "",
+};
+
+// Replace each known {token} with the recipient's value. Unknown or misspelled
+// tokens are left untouched (rendered literally) by design.
+function applyMessageVariables(message: string, job: EmailJob): string {
+  let result = message;
+  for (const name of MESSAGE_VARIABLES) {
+    result = result.replaceAll(messageVariableToken(name), messageVariableResolvers[name](job));
+  }
+  return result;
+}
 
 Deno.serve(async () => {
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
@@ -26,7 +56,7 @@ Deno.serve(async () => {
         React.createElement(TaskEmail, {
           firstname: j.member_firstname,
           title: j.task_title,
-          message: j.task_message,
+          message: applyMessageVariables(j.task_message, j),
         }),
       ),
     })),

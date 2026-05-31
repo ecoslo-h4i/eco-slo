@@ -11,6 +11,7 @@ import { useMemo, useState } from "react";
 import ReminderLongTextInput from "./ReminderLongTextInput";
 import ReminderToggleArea from "./ReminderToggleArea";
 import { reminderFieldLabelClass } from "./reminderInputStyles";
+import { MESSAGE_VARIABLE_TOKENS } from "@shared/message-variables";
 import { Modal, ModalContent, ModalDescription, ModalFooter, ModalHeader } from "@/components/modal";
 import {
   createCronExpression,
@@ -371,7 +372,7 @@ export default function ReminderView({
       <div className="flex flex-col gap-3">
         <span className={reminderFieldLabelClass}>Message Template</span>
         <div className="flex flex-row flex-wrap gap-2">
-          {["{firstName}", "{treeCount}", "{surveyLink}", "{treeNames}"].map((variable) => (
+          {MESSAGE_VARIABLE_TOKENS.map((variable) => (
             <span key={variable} className="rounded-full bg-table-header px-4 py-1 font-mono text-m text-text-muted">
               {variable}
             </span>
