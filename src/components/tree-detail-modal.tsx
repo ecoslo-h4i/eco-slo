@@ -244,7 +244,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
         .from("surveys")
         .select("id, body, created_at")
         .in("id", surveyIds!)
-        .order("id", { ascending: true });
+        .order("created_at", { ascending: false });
 
       if (!cancelled) setSurveys((data ?? []) as SurveyRow[]);
     }
@@ -795,8 +795,11 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                       const body = survey.body ?? {};
                       return (
                         <div key={survey.id} className="rounded-xl border border-border bg-off-white p-3 text-sm">
-                          <p className="font-semibold text-text-dark">
-                            {new Date(survey.created_at).toLocaleDateString()}
+                          <p className="font-semibold">
+                            {new Date(survey.created_at).toLocaleString("en-US", {
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                            })}
                           </p>
                           <p className="text-text">Issue: {display(body.issue)}</p>
                           <p className="text-text">Other: {display(body.issueOther)}</p>
