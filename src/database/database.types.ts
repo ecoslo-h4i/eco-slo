@@ -438,6 +438,8 @@ export type Database = {
           email_attempts: number;
           member_email: string;
           member_firstname: string;
+          member_tree_count: number;
+          member_tree_names: string;
           task_id: number;
           task_message: string;
           task_title: string;
