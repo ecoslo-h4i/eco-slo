@@ -106,6 +106,9 @@ export default function ReminderView({
   const isExistingReminderMode = isEditMode || isViewMode;
   const isReadOnly = isViewMode;
   const viewInputBackgroundClass = isViewMode ? "disabled:!bg-off-white-2" : undefined;
+  // Watering/Mulching are always survey-backed (see surveyRequiredByTaskType);
+  // the Survey toggle is forced on and locked for those types.
+  const surveyRequiredByType = surveyRequiredByTaskType(form.taskType);
   const headerTitle = isExistingReminderMode ? reminder?.name || form.name : "Create New Reminder";
   const headerSubtitle = isExistingReminderMode
     ? assigneeLabel || "No assignees"
@@ -396,11 +399,15 @@ export default function ReminderView({
         </div>
         <div className="basis-1/2">
           <ReminderToggleArea
-            disabled={isReadOnly}
+            disabled={isReadOnly || surveyRequiredByType}
             label="Survey Status"
-            checkedDescription="This reminder requires a survey"
+            checkedDescription={
+              surveyRequiredByType
+                ? "Watering and mulching tasks always require a survey"
+                : "This reminder requires a survey"
+            }
             uncheckedDescription="This reminder does not require a survey"
-            checked={form.needsSurvey}
+            checked={surveyRequiredByType || form.needsSurvey}
             onChange={(value) => updateForm("needsSurvey", value)}
           />
         </div>
@@ -455,6 +462,14 @@ export default function ReminderView({
 
 function isRepeatOption(value: string): value is RepeatOption {
   return (REPEAT_OPTIONS as readonly string[]).includes(value);
+}
+
+// Watering/Mulching tasks are always survey-backed in fire_reminder (one
+// survey per tree), so the reminder form locks the Survey toggle on for them
+// and the payload forces needs_survey true. The flag only affects Other
+// reminders.
+function surveyRequiredByTaskType(taskType: Enums<"TaskType">): boolean {
+  return taskType === "Watering" || taskType === "Mulching";
 }
 
 /**
@@ -530,6 +545,7 @@ function getTemplateFormValues(template: Template, members: Member[]): Partial<R
     dayOfMonth: schedule.dayOfMonth,
     yearlyDate: schedule.yearlyDate,
     message: template.task_message,
+    needsSurvey: template.needs_survey ?? false,
     time: schedule.time,
   };
 }
@@ -631,7 +647,9 @@ function getReminderPayload(form: ReminderFormState): ReminderInsertPayload {
     // Watering/Mulching are inherently per-keeper; fire_reminder ignores the
     // group flag for them, but keep it false here so the UI stays consistent.
     is_group_task: form.taskType === "Other" && assignees.length > 1,
-    needs_survey: form.needsSurvey,
+    // Tree tasks are always survey-backed; persist that rather than the
+    // locked toggle value so the stored reminder matches the UI.
+    needs_survey: surveyRequiredByTaskType(form.taskType) || form.needsSurvey,
     name: form.name.trim(),
     task_message: form.message,
     next_run_at: getNextCronOccurrence(crons_expression).toISOString(),
