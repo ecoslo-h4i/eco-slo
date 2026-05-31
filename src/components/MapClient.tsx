@@ -125,6 +125,10 @@ export default function MapClient() {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
+  // Markers indexed by tree id so selecting one can restyle just two markers
+  // instead of rebuilding the whole layer; selectedIdRef tracks which is lit.
+  const markersByIdRef = useRef<Map<number, L.Marker>>(new Map());
+  const selectedIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     async function fetchLocations() {
@@ -197,27 +201,46 @@ export default function MapClient() {
     };
   }, []);
 
+  // Build the marker layer only when the set of trees changes
   useEffect(() => {
-    if (!mapRef.current || !markersLayerRef.current) {
+    const layer = markersLayerRef.current;
+    if (!mapRef.current || !layer) {
       return;
     }
 
-    markersLayerRef.current.clearLayers();
+    layer.clearLayers();
+    markersByIdRef.current.clear();
 
     for (const tree of filteredLocations) {
-      const isSelected = selectedTree?.id === tree.id;
-
-      const marker = L.marker([tree.latitude, tree.longitude], {
-        icon: isSelected ? selectedIcon : customIcon,
-      });
-
-      marker.on("click", () => {
-        setSelectedTree(tree);
-      });
-
-      marker.addTo(markersLayerRef.current);
+      const marker = L.marker([tree.latitude, tree.longitude], { icon: customIcon });
+      marker.on("click", () => setSelectedTree(tree));
+      marker.addTo(layer);
+      markersByIdRef.current.set(tree.id, marker);
     }
-  }, [filteredLocations, selectedTree]);
+
+    // The selected tree may still be in the new set (e.g. after a filter
+    // change), so re-light its freshly built marker.
+    if (selectedIdRef.current !== null) {
+      markersByIdRef.current.get(selectedIdRef.current)?.setIcon(selectedIcon);
+    }
+  }, [filteredLocations]);
+
+  // Selection restyles only the two affected markers so clicks register
+  // instantly and are never dropped.
+  useEffect(() => {
+    const markers = markersByIdRef.current;
+
+    if (selectedIdRef.current !== null) {
+      markers.get(selectedIdRef.current)?.setIcon(customIcon);
+    }
+
+    const nextId = selectedTree?.id ?? null;
+    if (nextId !== null) {
+      markers.get(nextId)?.setIcon(selectedIcon);
+    }
+
+    selectedIdRef.current = nextId;
+  }, [selectedTree]);
 
   const zoomIn = () => {
     mapRef.current?.zoomIn();
