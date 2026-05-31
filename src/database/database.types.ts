@@ -225,6 +225,7 @@ export type Database = {
           id: number;
           is_group_task: boolean;
           name: string;
+          needs_survey: boolean;
           task_message: string;
           type: Database["public"]["Enums"]["TaskType"];
         };
@@ -235,6 +236,7 @@ export type Database = {
           id?: number;
           is_group_task?: boolean;
           name?: string;
+          needs_survey?: boolean;
           task_message?: string;
           type?: Database["public"]["Enums"]["TaskType"];
         };
@@ -245,6 +247,7 @@ export type Database = {
           id?: number;
           is_group_task?: boolean;
           name?: string;
+          needs_survey?: boolean;
           task_message?: string;
           type?: Database["public"]["Enums"]["TaskType"];
         };
