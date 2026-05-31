@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Minus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../dropdown-menu";
 import { cn } from "@/lib/utils";
@@ -40,17 +40,31 @@ function getSelectedCount(value: NestedMultiSelectValue) {
   return Object.values(value).reduce((count, selectedValues) => count + selectedValues.length, 0);
 }
 
-function CheckboxIcon({ checked, disabled = false }: { checked: boolean; disabled?: boolean }) {
+function CheckboxIcon({
+  checked,
+  indeterminate = false,
+  disabled = false,
+}: {
+  checked: boolean;
+  indeterminate?: boolean;
+  disabled?: boolean;
+}) {
   return (
     <span
       aria-hidden="true"
       className={cn(
         "flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors",
-        checked ? "border-primary bg-primary text-on-primary" : "border-border bg-card text-transparent",
+        checked || indeterminate
+          ? "border-primary bg-primary text-on-primary"
+          : "border-border bg-card text-transparent",
         disabled && "opacity-50",
       )}
     >
-      {checked ? <Check className="h-3 w-3" strokeWidth={3} /> : null}
+      {checked ? (
+        <Check className="h-3 w-3" strokeWidth={3} />
+      ) : indeterminate ? (
+        <Minus className="h-3 w-3" strokeWidth={3} />
+      ) : null}
     </span>
   );
 }
@@ -92,18 +106,42 @@ export default function ReminderNestedMultiSelectDropdown({
     onChange?.(nextValue);
   };
 
-  const toggleGroup = (group: NestedMultiSelectGroup) => {
-    const isSelected = Boolean(selectedValue[group.value]?.length);
+  const setGroupSelection = (groupValue: string, nextSelected: string[]) => {
     const nextValue = { ...selectedValue };
 
-    if (isSelected) {
-      delete nextValue[group.value];
+    // Keep the "an empty group key is omitted" convention so getSelectedCount,
+    // selectedParentOptions, and the saved assignee list stay consistent.
+    if (nextSelected.length === 0) {
+      delete nextValue[groupValue];
     } else {
-      nextValue[group.value] = getAllNestedValues(group);
-      setOpenGroups((current) => ({ ...current, [group.value]: true }));
+      nextValue[groupValue] = nextSelected;
     }
 
     updateSelectedValue(nextValue);
+  };
+
+  // The group checkbox is a select-all / deselect-all toggle: it fills the
+  // group when none or only some members are selected, and clears it once
+  // every member is already selected.
+  const toggleGroup = (group: NestedMultiSelectGroup) => {
+    const selected = selectedValue[group.value] ?? [];
+    const allSelected = group.options.length > 0 && selected.length === group.options.length;
+
+    if (!allSelected && group.options.length > 0) {
+      setOpenGroups((current) => ({ ...current, [group.value]: true }));
+    }
+
+    setGroupSelection(group.value, allSelected ? [] : getAllNestedValues(group));
+  };
+
+  // Toggle a single member, independent of the group-level checkbox.
+  const toggleNestedOption = (group: NestedMultiSelectGroup, optionValue: string) => {
+    const selected = selectedValue[group.value] ?? [];
+    const nextSelected = selected.includes(optionValue)
+      ? selected.filter((value) => value !== optionValue)
+      : [...selected, optionValue];
+
+    setGroupSelection(group.value, nextSelected);
   };
 
   return (
@@ -135,7 +173,8 @@ export default function ReminderNestedMultiSelectDropdown({
             {options.map((group) => {
               const selectedNestedValues = selectedValue[group.value] ?? [];
               const isGroupSelected = selectedNestedValues.length > 0;
-              const allNestedSelected = selectedNestedValues.length === group.options.length;
+              const allNestedSelected =
+                group.options.length > 0 && selectedNestedValues.length === group.options.length;
               const isGroupOpen = openGroups[group.value] ?? isGroupSelected;
 
               return (
@@ -148,9 +187,13 @@ export default function ReminderNestedMultiSelectDropdown({
                       disabled={disabled}
                       onClick={() => toggleGroup(group)}
                       className="flex min-w-0 flex-1 items-center gap-2 text-left font-medium text-text-dark disabled:cursor-default"
-                      aria-pressed={isGroupSelected}
+                      aria-pressed={allNestedSelected ? true : isGroupSelected ? "mixed" : false}
                     >
-                      <CheckboxIcon checked={isGroupSelected} disabled={disabled} />
+                      <CheckboxIcon
+                        checked={allNestedSelected}
+                        indeterminate={isGroupSelected && !allNestedSelected}
+                        disabled={disabled}
+                      />
                       <span className="block truncate">{group.label}</span>
                     </button>
                   </div>
@@ -169,18 +212,22 @@ export default function ReminderNestedMultiSelectDropdown({
                       )}
                     </button>
                     {isGroupOpen &&
-                      group.options.map((nestedOption) => (
-                        <label
-                          key={nestedOption.value}
-                          className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-text-dark transition-colors ${reminderElevationHoverClass}`}
-                        >
-                          <CheckboxIcon
-                            checked={selectedNestedValues.includes(nestedOption.value)}
+                      group.options.map((nestedOption) => {
+                        const isOptionSelected = selectedNestedValues.includes(nestedOption.value);
+                        return (
+                          <button
+                            key={nestedOption.value}
+                            type="button"
                             disabled={disabled}
-                          />
-                          <span className="min-w-0 flex-1 truncate">{nestedOption.label}</span>
-                        </label>
-                      ))}
+                            onClick={() => toggleNestedOption(group, nestedOption.value)}
+                            aria-pressed={isOptionSelected}
+                            className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-text-dark transition-colors disabled:cursor-default ${reminderElevationHoverClass}`}
+                          >
+                            <CheckboxIcon checked={isOptionSelected} disabled={disabled} />
+                            <span className="min-w-0 flex-1 truncate">{nestedOption.label}</span>
+                          </button>
+                        );
+                      })}
                     {isGroupOpen && group.options.length === 0 && (
                       <span className="rounded-lg px-2 py-1.5 text-sm text-text-muted">No options available</span>
                     )}
