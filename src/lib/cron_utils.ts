@@ -252,7 +252,11 @@ function formatPluralDayName(dayIndex: number): string {
 }
 
 function formatExactTime(hour: number, minute: number): string {
-  return `${hour}:${minute.toString().padStart(2, "0")}`;
+  // 12-hour clock with an AM/PM suffix, matching the rest of the app's time
+  // displays. `hour` is 0–23 (PST wall-clock); both 0 and 12 map to 12.
+  const period = hour < 12 ? "AM" : "PM";
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${hour12}:${minute.toString().padStart(2, "0")} ${period}`;
 }
 
 function assertInRange(value: number, min: number, max: number, fieldName: string): void {
@@ -654,7 +658,7 @@ export function getCronFormPreview(values: CronFormValues): string {
   return formatCronSummary(cronFormValuesToExpression(values));
 }
 
-/** Returns a human-readable time like "8:00" when hour and minute are simple values. */
+/** Returns a human-readable time like "8:00 AM" when hour and minute are simple values. */
 export function getCronTimeOfDay(expression: string): string {
   const { minute, hour } = parseCronExpression(expression);
   const parsedMinute = parseCronField("minute", minute);
@@ -750,7 +754,7 @@ export function getCronDetails(expression: string): string {
   }
 }
 
-/** Builds the final UI summary, such as "Weekly - Mondays at 8:00". */
+/** Builds the final UI summary, such as "Weekly - Mondays at 8:00 AM". */
 export function formatCronSummary(expression: string): string {
   const repeatLabel = getCronRepeatLabel(expression);
   const details = capitalizeFirstLetter(getCronDetails(expression));
