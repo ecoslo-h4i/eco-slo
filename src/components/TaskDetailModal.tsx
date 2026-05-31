@@ -300,7 +300,12 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
         {showSurvey && !isAddingTask ? (
           <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[70vh]">
             <div className="bg-foreground p-6 border border-border rounded-xl">
-              <TaskSurveyForm taskId={task.id} onCompleted={handleSurveyCompleted} />
+              <TaskSurveyForm
+                taskId={task.id}
+                taskType={task.type}
+                onSurveySubmitted={onSaved}
+                onCompleted={handleSurveyCompleted}
+              />
             </div>
           </ModalDescription>
         ) : (
