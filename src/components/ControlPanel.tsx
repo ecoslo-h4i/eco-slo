@@ -250,6 +250,16 @@ function Select(props: SelectProps) {
           >
             <span className="font-medium">Enable All</span>
           </DropdownMenuItem>
+          <DropdownMenuItem
+            className={dropdownItemClassName}
+            onClick={() => {
+              items.forEach((item) => {
+                if (item.checked) onCheckedChange(item.id);
+              });
+            }}
+          >
+            <span className="font-medium">Disable All</span>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           {items.map((item) => (
             <DropdownMenuCheckboxItem
