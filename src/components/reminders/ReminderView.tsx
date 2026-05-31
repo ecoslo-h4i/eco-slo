@@ -274,18 +274,17 @@ export default function ReminderView({
             />
           )}
         </div>
-        {!isViewMode && (
-          <div className="flex min-w-0 basis-1/2 text-text-dark">
-            <ReminderNestedMultiSelectDropdown
-              disabled={isReadOnly}
-              label="Assignees"
-              options={assigneeOptions}
-              placeholder="Select assignees"
-              value={form.assignees}
-              onChange={(value) => updateForm("assignees", value)}
-            />
-          </div>
-        )}
+        <div className="flex min-w-0 basis-1/2 text-text-dark">
+          <ReminderNestedMultiSelectDropdown
+            disabled={isReadOnly}
+            triggerClassName={viewInputBackgroundClass}
+            label="Assignees"
+            options={assigneeOptions}
+            placeholder="Select assignees"
+            value={form.assignees}
+            onChange={(value) => updateForm("assignees", value)}
+          />
+        </div>
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-row gap-4">

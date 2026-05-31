@@ -23,6 +23,7 @@ export type NestedMultiSelectGroup = NestedMultiSelectOption & {
 export type NestedMultiSelectValue = Record<string, string[]>;
 
 interface ReminderNestedMultiSelectDropdownProps {
+  triggerClassName?: string;
   disabled?: boolean;
   label: string;
   options: NestedMultiSelectGroup[];
@@ -76,6 +77,7 @@ export default function ReminderNestedMultiSelectDropdown({
   onChange,
   options,
   placeholder = "Select recipients",
+  triggerClassName,
   value,
 }: ReminderNestedMultiSelectDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -149,7 +151,7 @@ export default function ReminderNestedMultiSelectDropdown({
       <span className={reminderFieldLabelClass}>{label}</span>
 
       <DropdownMenu open={!disabled && isOpen} onOpenChange={disabled ? undefined : setIsOpen}>
-        <DropdownMenuTrigger disabled={disabled} className={reminderDropdownTriggerClass}>
+        <DropdownMenuTrigger disabled={disabled} className={cn(reminderDropdownTriggerClass, triggerClassName)}>
           <span
             className={cn(
               "truncate leading-normal [text-box:normal]",
