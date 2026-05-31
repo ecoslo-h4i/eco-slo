@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     const { data: member, error: memberError } = await client
       .from("members")
-      .select("id")
+      .select("id, firstname")
       .ilike("email", email)
       .maybeSingle();
 
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       from: "onboarding@resend.dev",
       to: [email],
       subject: "ECOSLO Sign In",
-      react: EmailTemplate({ redirectTo: data.properties.action_link }),
+      react: EmailTemplate({ redirectTo: data.properties.action_link, firstName: member.firstname }),
     });
 
     if (resendError) {

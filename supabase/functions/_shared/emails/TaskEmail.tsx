@@ -7,13 +7,17 @@ export type TaskEmailProps = {
   message: string;
 };
 
+// Styling mirrors the sign-in email (src/components/MagicLinkEmailTemplate.tsx)
+// and globals.css so ECOSLO's emails read as one family. Inline styles only —
+// email clients ignore <style> tags and don't run Tailwind.
 export function TaskEmail({ firstname, title, message }: TaskEmailProps) {
   return (
-    <Html>
+    <Html lang="en">
       <Head />
       <Preview>New task: {title}</Preview>
       <Body style={bodyStyle}>
         <Container style={containerStyle}>
+          <Text style={brandStyle}>🌳 ECOSLO</Text>
           <Heading as="h2" style={headingStyle}>
             Hi {firstname},
           </Heading>
@@ -25,75 +29,86 @@ export function TaskEmail({ firstname, title, message }: TaskEmailProps) {
             <Text style={taskMessageStyle}>{message}</Text>
           </Section>
           <Hr style={hrStyle} />
-          <Text style={footerStyle}>This is an automated reminder from ECOSLO.</Text>
+          <Text style={footerStyle}>This is an automated reminder from ECOSLO. 🌱</Text>
         </Container>
       </Body>
     </Html>
   );
 }
 
-// Inline styles because many email clients (Gmail, Outlook)
-// strip <style> tags or don't honor external CSS.
 const bodyStyle: React.CSSProperties = {
-  backgroundColor: "#F2F0ED",
+  backgroundColor: "#f2f0ed",
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  color: "#6a5f52",
   margin: 0,
   padding: 0,
 };
 
 const containerStyle: React.CSSProperties = {
-  backgroundColor: "#FFFFFF",
+  backgroundColor: "#ffffff",
   margin: "40px auto",
-  padding: "32px",
-  maxWidth: "560px",
-  borderRadius: "8px",
+  padding: "40px",
+  maxWidth: "480px",
+  borderRadius: "12px",
+  border: "1px solid #dedbd2",
+};
+
+const brandStyle: React.CSSProperties = {
+  fontFamily: 'Georgia, "Times New Roman", serif',
+  fontSize: "18px",
+  fontWeight: 700,
+  letterSpacing: "0.02em",
+  color: "#7b8963",
+  margin: "0 0 28px",
 };
 
 const headingStyle: React.CSSProperties = {
-  color: "#000000",
-  fontSize: "20px",
+  fontFamily: 'Georgia, "Times New Roman", serif',
+  fontSize: "24px",
   fontWeight: 600,
-  marginTop: 0,
-  marginBottom: "16px",
+  color: "#000000",
+  margin: "0 0 12px",
 };
 
 const textStyle: React.CSSProperties = {
-  color: "#6A5F52",
   fontSize: "15px",
   lineHeight: "24px",
+  color: "#6a5f52",
+  margin: "0 0 16px",
 };
 
 const taskCardStyle: React.CSSProperties = {
-  backgroundColor: "#F2F0ED",
-  border: "1px solid #DEDBD2",
-  borderRadius: "6px",
+  backgroundColor: "#f2f0ed",
+  border: "1px solid #dedbd2",
+  borderRadius: "8px",
   padding: "20px",
-  margin: "20px 0",
+  margin: 0,
 };
 
 const taskTitleStyle: React.CSSProperties = {
-  color: "#000000",
+  fontFamily: 'Georgia, "Times New Roman", serif',
   fontSize: "17px",
   fontWeight: 600,
-  marginTop: 0,
-  marginBottom: "8px",
+  color: "#000000",
+  margin: "0 0 8px",
 };
 
 const taskMessageStyle: React.CSSProperties = {
-  color: "#6A5F52",
   fontSize: "14px",
   lineHeight: "22px",
+  color: "#6a5f52",
   margin: 0,
   whiteSpace: "pre-wrap",
 };
 
 const hrStyle: React.CSSProperties = {
-  borderColor: "#DEDBD2",
-  margin: "24px 0",
+  border: 0,
+  borderTop: "1px solid #dedbd2",
+  margin: "28px 0",
 };
 
 const footerStyle: React.CSSProperties = {
-  color: "#7D7469",
   fontSize: "13px",
-  marginBottom: 0,
+  color: "#7d7469",
+  margin: 0,
 };
