@@ -63,6 +63,7 @@ export type Database = {
           needs_survey: boolean;
           next_run_at: string;
           task_message: string;
+          type: Database["public"]["Enums"]["TaskType"];
         };
         Insert: {
           assignees: number[];
@@ -76,6 +77,7 @@ export type Database = {
           needs_survey?: boolean;
           next_run_at: string;
           task_message?: string;
+          type?: Database["public"]["Enums"]["TaskType"];
         };
         Update: {
           assignees?: number[];
@@ -89,6 +91,7 @@ export type Database = {
           needs_survey?: boolean;
           next_run_at?: string;
           task_message?: string;
+          type?: Database["public"]["Enums"]["TaskType"];
         };
         Relationships: [];
       };
@@ -153,6 +156,8 @@ export type Database = {
           reminder_id: number | null;
           surveys_needed: number;
           title: string;
+          tree_targets: number[] | null;
+          type: Database["public"]["Enums"]["TaskType"];
         };
         Insert: {
           assignees?: number[] | null;
@@ -168,6 +173,8 @@ export type Database = {
           reminder_id?: number | null;
           surveys_needed?: number;
           title?: string;
+          tree_targets?: number[] | null;
+          type?: Database["public"]["Enums"]["TaskType"];
         };
         Update: {
           assignees?: number[] | null;
@@ -183,6 +190,8 @@ export type Database = {
           reminder_id?: number | null;
           surveys_needed?: number;
           title?: string;
+          tree_targets?: number[] | null;
+          type?: Database["public"]["Enums"]["TaskType"];
         };
         Relationships: [
           {
@@ -217,6 +226,7 @@ export type Database = {
           is_group_task: boolean;
           name: string;
           task_message: string;
+          type: Database["public"]["Enums"]["TaskType"];
         };
         Insert: {
           assignees: number[];
@@ -226,6 +236,7 @@ export type Database = {
           is_group_task?: boolean;
           name?: string;
           task_message?: string;
+          type?: Database["public"]["Enums"]["TaskType"];
         };
         Update: {
           assignees?: number[];
@@ -235,6 +246,7 @@ export type Database = {
           is_group_task?: boolean;
           name?: string;
           task_message?: string;
+          type?: Database["public"]["Enums"]["TaskType"];
         };
         Relationships: [];
       };
@@ -400,10 +412,21 @@ export type Database = {
       };
     };
     Functions: {
+      complete_task_survey: {
+        Args: { p_task_id: number; p_tree?: number };
+        Returns: undefined;
+      };
       current_member_id: { Args: never; Returns: number };
       fire_reminder: {
         Args: { p_next_run_at: string; p_reminder_id: number };
         Returns: undefined;
+      };
+      fire_reminders_batch: {
+        Args: { p_next_run_ats: string[]; p_reminder_ids: number[] };
+        Returns: {
+          failed: number;
+          fired: number;
+        }[];
       };
       get_pending_email_jobs: {
         Args: { p_limit?: number };
@@ -427,6 +450,7 @@ export type Database = {
       Condition: "good" | "fair" | "poor";
       MemberType: "Admin" | "Tree Keeper";
       MulchingStatus: "Completed" | "Pending";
+      TaskType: "Watering" | "Mulching" | "Other";
       TreeStatus: "Active" | "Graduated";
       WateringStatus: "Completed" | "Pending";
     };
@@ -551,6 +575,7 @@ export const Constants = {
       Condition: ["good", "fair", "poor"],
       MemberType: ["Admin", "Tree Keeper"],
       MulchingStatus: ["Completed", "Pending"],
+      TaskType: ["Watering", "Mulching", "Other"],
       TreeStatus: ["Active", "Graduated"],
       WateringStatus: ["Completed", "Pending"],
     },
