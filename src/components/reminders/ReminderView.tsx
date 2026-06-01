@@ -388,7 +388,7 @@ export default function ReminderView({
         />
       </div>
       <div className="flex flex-row gap-4">
-        <div className="basis-1/3">
+        <div className="basis-1/2">
           <ReminderToggleArea
             disabled={isReadOnly}
             label="Active Status"
@@ -398,7 +398,7 @@ export default function ReminderView({
             onChange={(value) => updateForm("isActive", value)}
           />
         </div>
-        <div className="basis-1/3">
+        <div className="basis-1/2">
           <ReminderToggleArea
             disabled={isReadOnly || surveyRequiredByType}
             label="Survey Status"
@@ -412,16 +412,16 @@ export default function ReminderView({
             onChange={(value) => updateForm("needsSurvey", value)}
           />
         </div>
-        <div className="basis-1/3">
-          <ReminderToggleArea
-            disabled={isReadOnly}
-            label="Set Group Task"
-            checkedDescription="This reminder will create one task for ALL assignees"
-            uncheckedDescription="This reminder will create one task for EACH assignee"
-            checked={form.isGroupTask}
-            onChange={(value) => updateForm("isGroupTask", value)}
-          />
-        </div>
+      </div>
+      <div className="basis-1/3">
+        <ReminderToggleArea
+          disabled={isReadOnly}
+          label="Set Group Task"
+          checkedDescription="This reminder will create one task for ALL assignees"
+          uncheckedDescription="This reminder will create one task PER assignee"
+          checked={form.isGroupTask}
+          onChange={(value) => updateForm("isGroupTask", value)}
+        />
       </div>
       {!isViewMode && (
         <>
