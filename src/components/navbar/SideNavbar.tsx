@@ -146,8 +146,8 @@ export default function SideNavbar() {
   })();
 
   return (
-    <div className="sticky top-0 z-60 flex h-screen w-35 flex-col bg-primary px-5 py-6">
-      <div className="flex flex-col items-center justify-center">
+    <div className="sticky top-0 z-60 flex h-[calc(100vh-24px)] w-38 flex-col rounded-4xl bg-primary p-5">
+      <Link href="/" className="flex flex-col items-center justify-center">
         <div className="w-24.5 h-24.5 flex items-center justify-center">
           <Image
             src="/icons/ecoslo-logo.png"
@@ -157,7 +157,7 @@ export default function SideNavbar() {
             className="h-full w-full object-contain"
           />
         </div>
-      </div>
+      </Link>
 
       <div ref={navListRef} className="mt-6 flex min-h-0 flex-grow flex-col items-center gap-4">
         {visibleButtons.map((button) => (
@@ -166,7 +166,7 @@ export default function SideNavbar() {
         {overflowButtons.length > 0 && (
           <div ref={moreMenuRef} className="relative">
             {isMoreOpen && (
-              <div className="fixed bottom-6 left-35 z-60 ml-3 flex max-h-[calc(100dvh-48px)] flex-col gap-4 overflow-y-auto rounded-2xl border border-card/20 bg-primary p-3">
+              <div className="absolute -top-3 left-full z-60 ml-10 flex max-h-[calc(100dvh-48px)] flex-col gap-4 overflow-y-auto rounded-3xl border border-card/20 bg-primary p-3">
                 {overflowButtons.map((button) => (
                   <NavbarButton key={button.label} {...button} />
                 ))}

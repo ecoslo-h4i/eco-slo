@@ -126,7 +126,7 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
       <div className="mb-7 flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="font-serif text-3xl font-normal leading-none text-text">#{tree.id}</h2>
+            <h2 className="font-serif text-3xl font-medium leading-none text-text">#{tree.id}</h2>
             <Badge variant={statusBadgeVariant(tree.status)} size="md">
               {tree.status}
             </Badge>
