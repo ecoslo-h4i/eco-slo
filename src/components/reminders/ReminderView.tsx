@@ -75,6 +75,7 @@ type ReminderFormState = {
   yearlyDate: YearlyDate | null;
   isActive: boolean;
   needsSurvey: boolean;
+  isGroupTask: boolean;
   message: string;
   name: string;
   time: string;
@@ -387,7 +388,7 @@ export default function ReminderView({
         />
       </div>
       <div className="flex flex-row gap-4">
-        <div className="basis-1/2">
+        <div className="basis-1/3">
           <ReminderToggleArea
             disabled={isReadOnly}
             label="Active Status"
@@ -397,7 +398,7 @@ export default function ReminderView({
             onChange={(value) => updateForm("isActive", value)}
           />
         </div>
-        <div className="basis-1/2">
+        <div className="basis-1/3">
           <ReminderToggleArea
             disabled={isReadOnly || surveyRequiredByType}
             label="Survey Status"
@@ -409,6 +410,16 @@ export default function ReminderView({
             uncheckedDescription="This reminder does not require a survey"
             checked={surveyRequiredByType || form.needsSurvey}
             onChange={(value) => updateForm("needsSurvey", value)}
+          />
+        </div>
+        <div className="basis-1/3">
+          <ReminderToggleArea
+            disabled={isReadOnly}
+            label="Set Group Task"
+            checkedDescription="This reminder will create one task for ALL assignees"
+            uncheckedDescription="This reminder will create one task for EACH assignee"
+            checked={form.isGroupTask}
+            onChange={(value) => updateForm("isGroupTask", value)}
           />
         </div>
       </div>
@@ -562,6 +573,7 @@ function getReminderFormState(reminder: Reminder | undefined, members: Member[])
     yearlyDate: schedule.yearlyDate,
     isActive: reminder?.is_active ?? true,
     needsSurvey: reminderWithNeedsSurvey?.needs_survey ?? false,
+    isGroupTask: reminder?.is_group_task ?? false,
     message: reminder?.task_message ?? DEFAULT_REMINDER_MESSAGE,
     name: reminder?.name ?? DEFAULT_REMINDER_NAME,
     time: schedule.time,
@@ -644,9 +656,9 @@ function getReminderPayload(form: ReminderFormState): ReminderInsertPayload {
     assignees,
     crons_expression: crons_expression,
     is_active: form.isActive,
-    // Watering/Mulching are inherently per-keeper; fire_reminder ignores the
-    // group flag for them, but keep it false here so the UI stays consistent.
-    is_group_task: form.taskType === "Other" && assignees.length > 1,
+    // Watering/Mulching are inherently per-keeper; otherwise,
+    // use the isGroupTask field to determine the value
+    is_group_task: form.taskType === "Other" && form.isGroupTask,
     // Tree tasks are always survey-backed; persist that rather than the
     // locked toggle value so the stored reminder matches the UI.
     needs_survey: surveyRequiredByTaskType(form.taskType) || form.needsSurvey,
