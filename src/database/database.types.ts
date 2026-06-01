@@ -100,6 +100,7 @@ export type Database = {
           body: Json;
           created_at: string;
           id: number;
+          submitted_by: number | null;
           task: number | null;
           tree: number | null;
         };
@@ -107,6 +108,7 @@ export type Database = {
           body: Json;
           created_at?: string;
           id?: number;
+          submitted_by?: number | null;
           task?: number | null;
           tree?: number | null;
         };
@@ -114,10 +116,25 @@ export type Database = {
           body?: Json;
           created_at?: string;
           id?: number;
+          submitted_by?: number | null;
           task?: number | null;
           tree?: number | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "surveys_submitted_by_fkey";
+            columns: ["submitted_by"];
+            isOneToOne: false;
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "surveys_submitted_by_fkey";
+            columns: ["submitted_by"];
+            isOneToOne: false;
+            referencedRelation: "public_members";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "surveys_task_fkey";
             columns: ["task"];

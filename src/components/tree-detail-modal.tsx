@@ -42,10 +42,20 @@ type TreeFormState = {
   admin_notes: string;
 };
 
+type SurveySubmitter = {
+  id: number;
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone: string;
+};
+
 type SurveyRow = {
   id: number;
   body: Record<string, unknown> | null;
   created_at: string;
+  /** Live contact for the member who completed the survey; null if not recorded or hidden by RLS. */
+  submitter: SurveySubmitter | null;
 };
 
 const conditionOptions: SelectOption[] = [
@@ -242,11 +252,34 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
       const supabase = createUserLevelClient();
       const { data } = await supabase
         .from("surveys")
-        .select("id, body, created_at")
+        .select("id, body, created_at, submitted_by")
         .in("id", surveyIds!)
         .order("created_at", { ascending: false });
 
-      if (!cancelled) setSurveys((data ?? []) as SurveyRow[]);
+      const rows = data ?? [];
+
+      // Resolve each submitter's live contact in one batched lookup. RLS decides
+      // which member rows are visible; anything hidden or unrecorded stays null
+      // and renders as "contact not recorded".
+      const submitterIds = [...new Set(rows.map((r) => r.submitted_by).filter((id): id is number => id != null))];
+      const contactById = new Map<number, SurveySubmitter>();
+      if (submitterIds.length > 0) {
+        const { data: members } = await supabase
+          .from("members")
+          .select("id, firstname, lastname, email, phone")
+          .in("id", submitterIds);
+        for (const m of members ?? []) contactById.set(m.id, m);
+      }
+
+      if (cancelled) return;
+      setSurveys(
+        rows.map((r) => ({
+          id: r.id,
+          body: r.body,
+          created_at: r.created_at,
+          submitter: r.submitted_by != null ? (contactById.get(r.submitted_by) ?? null) : null,
+        })) as SurveyRow[],
+      );
     }
 
     void loadSurveys();
@@ -804,7 +837,22 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                           <p className="text-text">Issue: {display(body.issue)}</p>
                           <p className="text-text">Other: {display(body.issueOther)}</p>
                           <p className="text-text">Image Link: {display(body.imageLink)}</p>
-                          <p className="text-text">Admin Contact: {display(body.adminContact)}</p>
+                          {body.adminContact === true ? (
+                            <div className="text-text">
+                              <p>Admin contact: Yes</p>
+                              {survey.submitter ? (
+                                <p className="text-text-muted">
+                                  {survey.submitter.firstname} {survey.submitter.lastname}
+                                  {survey.submitter.email ? ` · ${survey.submitter.email}` : ""}
+                                  {survey.submitter.phone ? ` · ${survey.submitter.phone}` : ""}
+                                </p>
+                              ) : (
+                                <p className="text-text-muted">Contact not recorded.</p>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-text">Admin contact: No</p>
+                          )}
                           <div className="mt-3 max-h-40 overflow-y-auto whitespace-pre-wrap break-words">
                             <p className="font-semibold text-text-dark">Notes</p>
                             <p className="text-text">{display(body.notes)}</p>
