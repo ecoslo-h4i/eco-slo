@@ -25,7 +25,7 @@ export function AdminPageShell({
   titleClassName,
 }: AdminPageShellProps) {
   return (
-    <main className={cn("flex-1 min-w-0 bg-background", className)} onClick={onClick}>
+    <main className={cn("flex-1 min-w-0 min-h-full bg-background", className)} onClick={onClick}>
       {beforeContent}
       <div className={cn("flex flex-col gap-y-8 px-6 py-10", contentClassName)}>
         <header className={cn("flex w-full items-center justify-between pb-2", headerClassName)}>
