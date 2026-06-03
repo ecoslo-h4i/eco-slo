@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form-controls";
 import { Database } from "@/database/database.types";
 import { createUserLevelClient } from "@/lib/supabase/client";
-import { Pencil, Trash2, Undo2, X } from "lucide-react";
+import { LoaderCircle, LocateFixed, Pencil, Trash2, Undo2, X } from "lucide-react";
 import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import Badge from "@/components/badge";
@@ -227,6 +227,8 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
   const [duplicateEcosloNum, setDuplicateEcosloNum] = useState<number | null>(null);
 
   const [surveys, setSurveys] = useState<SurveyRow[]>([]);
+  const [geoStatus, setGeoStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [geoError, setGeoError] = useState<string | null>(null);
 
   const isAddingTree = tree === null;
   const canEditAll = isAdmin || isAddingTree;
@@ -298,6 +300,44 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
     return (value: string) => {
       setTreeForm((current) => ({ ...current, [field]: value }));
     };
+  };
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setGeoStatus("error");
+      setGeoError("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setGeoStatus("loading");
+    setGeoError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude.toFixed(6);
+        const lng = position.coords.longitude.toFixed(6);
+        setTreeForm((current) => ({ ...current, latitude: lat, longitude: lng }));
+        setGeoStatus("idle");
+      },
+      (error) => {
+        setGeoStatus("error");
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setGeoError("Location permission denied. Please allow access in your browser settings.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            setGeoError("Location information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            setGeoError("Location request timed out. Please try again.");
+            break;
+          default:
+            setGeoError("An unknown error occurred while getting your location.");
+            break;
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+    );
   };
 
   const handleDelete = async () => {
@@ -650,7 +690,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                         step="any"
                         className={cn(textFieldClassName, "bg-button-muted")}
                         onChange={handleFormChange("latitude")}
-                        placeholder="35.2828..."
+                        placeholder="35.2762..."
                         required
                         value={treeForm.latitude}
                       />
@@ -669,7 +709,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                         step="any"
                         className={cn(textFieldClassName, "bg-button-muted")}
                         onChange={handleFormChange("longitude")}
-                        placeholder="-120.6596..."
+                        placeholder="-120.6640..."
                         required
                         value={treeForm.longitude}
                       />
@@ -678,6 +718,26 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                     )}
                   </div>
                 </div>
+                {isEditing && canEditAll && (
+                  <div className="flex flex-col items-start gap-y-1">
+                    <button
+                      type="button"
+                      disabled={geoStatus === "loading"}
+                      onClick={handleUseMyLocation}
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-primary cursor-pointer hover:text-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {geoStatus === "loading" ? (
+                        <LoaderCircle aria-hidden="true" className="h-4 w-4 shrink-0 animate-spin" strokeWidth={2} />
+                      ) : (
+                        <LocateFixed aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={2} />
+                      )}
+                      {geoStatus === "loading" ? "Locating..." : "Use my location"}
+                    </button>
+                    {geoStatus === "error" && geoError && (
+                      <p className="text-sm text-destructive font-medium">{geoError}</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
