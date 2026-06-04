@@ -16,7 +16,7 @@ ECOSLO is a San Luis Obispo-based environmental organization with over 50 years 
 
 ### Team
 
-The ECOSLO team consists of 13 Cal Poly students. Over the course of about 9 months, we worked as a team to deploy this web application.
+The ECOSLO team consists of 13 Cal Poly students. Over the course of about 9 months, we worked as a team to build and deploy this web application.
 
 - [Leticia Leon-Rodriguez](https://www.linkedin.com/) - Project Manager
 - [Matthew Blam](https://www.linkedin.com/) - Tech Lead
