@@ -1,32 +1,33 @@
-# name of non-profit
+# ECOSLO
 
-{One sentence description of the project}
+A web platform to help ECOSLO manage and track thier members and planted trees, automate volunteer reminders and tasks, and visualize tree locations on an interactive map.
 
 ## Table of Contents
 
 - [Overview](#overview)
   - [Purpose](#purpose)
   - [Team](#team)
-- [Getting Started And Contributing](#getting-started-and-contributing)
 
 ## Overview
 
 ### Purpose
 
-{Short paragraph description of the non-profit mission and the purpose of this project. Who will this project help, why is it necessary. Impact of the project.}
+ECOSLO is a San Luis Obispo-based environmental organization with over 50 years of advocacy dedicated to sustainability, restoration, and community stewardship. This project will replace their manual, spreadsheet-driven system for tracking hundreds of planted trees with a modern web platform that streamlines tree management, volunteer coordination, and automated communications. It will directly benefit ECOSLO's admin staff by eliminating tedious data entry, while empowering Tree Keepers and volunteers through timely reminders and status updates. By making tree data more accessible and actionable, the platform will strengthen ECOSLO's ability to ensure the long-term survival of every tree they plant, turning community-driven environmental work into a more organized and scalable operation.
 
 ### Team
 
-The {non-profit name} team consists of {#} Cal Poly students. Over the course of about 9 months, we worked as a team to deploy this web application. The team members are listed below:
+The ECOSLO team consists of 13 Cal Poly students. Over the course of about 9 months, we worked as a team to deploy this web application. The team members are listed below:
 
-- [First Last](https://www.linkedin.com/) - Project Manager
-- [First Last](https://www.linkedin.com/) - Designer
-- [First Last](https://www.linkedin.com/) - Tech Lead
-- [First Last](https://www.linkedin.com/) - Tech Lead
-- [First Last](https://www.linkedin.com/) - Software Developer
-
-## Getting Started And Contributing
-
-Visit [getting-started.md](docs/getting-started.md) on info for how to set up this repo.
-
-Visit [contributing.md](docs/contributing.md) on info for how to contribute to this repo.
+- [Leticia Leon-Rodriguez](https://www.linkedin.com/) - Project Manager
+- [Matthew Blam](https://www.linkedin.com/) - Tech Lead
+- [Sean Nguyen](https://www.linkedin.com/) - Tech Lead
+- [Kayla Le](https://www.linkedin.com/) - Designer
+- [Hayes Lao](https://www.linkedin.com/) - Designer
+- [Empress Ming](https://www.linkedin.com/) - Designer
+- [Roscoe Parzybok](https://www.linkedin.com/) - Designer
+- [Will Heath](https://www.linkedin.com/) - Software Developer
+- [David Benshachar](https://www.linkedin.com/) - Software Developer
+- [Mohini Chahal](https://www.linkedin.com/) - Software Developer
+- [Oliver Cushman](https://www.linkedin.com/) - Software Developer
+- [Noah Chang](https://www.linkedin.com/) - Software Developer
+- [Rudy Good](https://www.linkedin.com/) - Software Developer
