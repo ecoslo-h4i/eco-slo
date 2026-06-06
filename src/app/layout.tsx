@@ -26,8 +26,13 @@ const mulish = Mulish({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${cardo.variable} ${mulish.variable} font-mulish`}>{children}</body>
-    </html>
+    <>
+      <head>
+        <link rel="icon" type="image/png" href="/favicon.png" />
+      </head>
+      <html lang="en">
+        <body className={`${cardo.variable} ${mulish.variable} font-mulish`}>{children}</body>
+      </html>
+    </>
   );
 }
