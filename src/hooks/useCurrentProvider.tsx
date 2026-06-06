@@ -35,24 +35,15 @@ export function CurrentMemberProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     const supabase = createUserLevelClient();
 
-    const fetchMember = async () => {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-      if (cancelled) return;
+    // The member is keyed on the authenticated user's id. Track the id we last
+    // loaded so we only refetch when the *identity* changes.
+    let loadedUserId: string | null = null;
 
-      if (sessionError || !session?.user) {
-        setMember(null);
-        setError(sessionError ? new Error(sessionError.message) : null);
-        setLoading(false);
-        return;
-      }
-
+    const loadMemberFor = async (userId: string) => {
       const { data, error: queryError } = await supabase
         .from("members")
         .select("*")
-        .eq("user_id", session.user.id)
+        .eq("user_id", userId)
         .maybeSingle();
       if (cancelled) return;
 
@@ -66,18 +57,53 @@ export function CurrentMemberProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     };
 
-    void fetchMember();
+    // React only to a change in who is signed in. Same user (including a token
+    // refresh) is a no-op, so the UI never churns back into a loading state.
+    const syncUser = (userId: string | null) => {
+      if (userId === loadedUserId) return;
+      loadedUserId = userId;
 
-    const { data: subscription } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") {
+      if (!userId) {
         setMember(null);
+        setError(null);
         setLoading(false);
         return;
       }
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-        setLoading(true);
-        void fetchMember();
+
+      setLoading(true);
+      void loadMemberFor(userId);
+    };
+
+    // Initial read, wrapped so a thrown/rejected getSession can't strand
+    // `loading` at true and hang the shell on a blank state.
+    void (async () => {
+      try {
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+        if (cancelled) return;
+
+        if (sessionError) {
+          setError(new Error(sessionError.message));
+          setMember(null);
+          setLoading(false);
+          return;
+        }
+        syncUser(session?.user?.id ?? null);
+      } catch (err) {
+        if (cancelled) return;
+        setError(err instanceof Error ? err : new Error(String(err)));
+        setMember(null);
+        setLoading(false);
       }
+    })();
+
+    // Use the session handed to the callback rather than calling getSession()
+    // again here
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
+      syncUser(session?.user?.id ?? null);
     });
 
     return () => {
