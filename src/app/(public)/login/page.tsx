@@ -1,6 +1,7 @@
 "use client";
 
 import { AppButton, TextField } from "@/components/ui/form-controls";
+import { Metadata } from "next";
 import { type ReactNode, useState } from "react";
 
 const LOGIN_STATE = {
