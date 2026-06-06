@@ -45,7 +45,7 @@ export default function SideNavbar() {
 
   const navListRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
-  const [visibleButtonCount, setVisibleButtonCount] = useState(0);
+  const [visibleButtonCount, setVisibleButtonCount] = useState<number | null>(null);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   // Compute which buttons to show based on auth + role. Memoized so the
@@ -62,7 +62,15 @@ export default function SideNavbar() {
     if (!navList) return;
 
     const updateVisibleButtonCount = () => {
-      const capacity = Math.floor((navList.clientHeight + NAV_ITEM_GAP) / (NAV_ITEM_HEIGHT + NAV_ITEM_GAP));
+      // Guard against an unresolved layout: some engines (notably Safari) can
+      // report a flex-grow container's clientHeight as 0 on the first measure
+      const availableHeight = navList.clientHeight;
+      if (!availableHeight) {
+        setVisibleButtonCount(null);
+        return;
+      }
+
+      const capacity = Math.floor((availableHeight + NAV_ITEM_GAP) / (NAV_ITEM_HEIGHT + NAV_ITEM_GAP));
 
       if (capacity >= featureButtons.length) {
         setVisibleButtonCount(featureButtons.length);
@@ -104,11 +112,16 @@ export default function SideNavbar() {
     };
   }, [isMoreOpen]);
 
+  // `null` means "not measured yet" — show every button rather than risk
+  // hiding them all behind an unresolved measurement.
   const visibleButtons = useMemo(
-    () => featureButtons.slice(0, visibleButtonCount),
+    () => (visibleButtonCount === null ? featureButtons : featureButtons.slice(0, visibleButtonCount)),
     [featureButtons, visibleButtonCount],
   );
-  const overflowButtons = useMemo(() => featureButtons.slice(visibleButtonCount), [featureButtons, visibleButtonCount]);
+  const overflowButtons = useMemo(
+    () => (visibleButtonCount === null ? [] : featureButtons.slice(visibleButtonCount)),
+    [featureButtons, visibleButtonCount],
+  );
 
   // Decide what to render in the bottom "action" slot — the area that holds
   // either the Login link, the Back-to-Map link, or the Logout button.

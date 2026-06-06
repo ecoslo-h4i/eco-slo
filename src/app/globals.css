@@ -75,17 +75,24 @@
   --color-foreground: #ffffff;
   --color-warning: #7d7469;
   --color-icon-primary-muted: #c9cead;
-
-  /* Shadow tokens */
-  --shadow-soft: 0 2px 6px color-mix(in srgb, var(--color-black) 12%, transparent);
-  --shadow-panel: 0 1px 4px color-mix(in srgb, var(--color-black) 10%, transparent);
-  --shadow-map-control: 0 2px 6px color-mix(in srgb, var(--color-black) 18%, transparent);
+  /* Shadow tokens. Plain rgba()  */
+  --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.12);
+  --shadow-panel: 0 1px 4px rgba(0, 0, 0, 0.1);
+  --shadow-map-control: 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
 @layer base {
   button {
     line-height: 1;
-    text-box: trim-both cap alphabetic;
+  }
+
+  /* `text-box` trimming is very new (Safari 18.2+, Chrome 133+). Gate it behind
+     @supports so unsupported browsers fall back to the line-height above
+     instead of relying on silent skipping of an unknown declaration. */
+  @supports (text-box: trim-both cap alphabetic) {
+    button {
+      text-box: trim-both cap alphabetic;
+    }
   }
 }
 
