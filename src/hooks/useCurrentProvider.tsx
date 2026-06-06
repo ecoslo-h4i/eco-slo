@@ -37,7 +37,7 @@ export function CurrentMemberProvider({ children }: { children: ReactNode }) {
 
     // The member is keyed on the authenticated user's id. Track the id we last
     // loaded so we only refetch when the *identity* changes.
-    let loadedUserId: string | null = null;
+    let loadedUserId: string | null | undefined = undefined;
 
     const loadMemberFor = async (userId: string) => {
       const { data, error: queryError } = await supabase
