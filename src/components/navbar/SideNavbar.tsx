@@ -159,7 +159,7 @@ export default function SideNavbar() {
   })();
 
   return (
-    <div className="sticky top-0 z-60 flex h-[calc(100vh-24px)] w-38 flex-col rounded-4xl bg-primary p-5">
+    <div className="sticky top-[0px] z-60 flex h-[calc(100vh-24px)] w-38 flex-col rounded-4xl bg-primary p-5">
       <Link href="/" className="flex flex-col items-center justify-center">
         <div className="w-24.5 h-24.5 flex items-center justify-center">
           <Image
