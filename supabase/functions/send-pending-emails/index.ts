@@ -48,8 +48,7 @@ Deno.serve(async () => {
   // Build the Resend batch payload
   const batch = await Promise.all(
     jobs.map(async (j) => ({
-      // TODO: replace "from" line with ECOSLO's email once we get their domain
-      from: "onboarding@resend.dev",
+      from: "no-reply@notifications.ecoslo.org",
       to: j.member_email,
       subject: `Task: ${j.task_title}`,
       html: await render(
