@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { error: resendError } = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "no-reply@notifications.ecoslo.org",
       to: [email],
       subject: "ECOSLO Sign In",
       react: EmailTemplate({ redirectTo: data.properties.action_link, firstName: member.firstname }),
