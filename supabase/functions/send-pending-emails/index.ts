@@ -38,6 +38,12 @@ Deno.serve(async () => {
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
 
+  // Base URL of the deployed app (set via `supabase secrets set SITE_URL=…`),
+  // used for the "View Your Tasks" button. If unset, the email simply omits
+  // the button rather than sending a broken link.
+  const siteUrl = Deno.env.get("SITE_URL")?.trim().replace(/\/+$/, "");
+  const tasksUrl = siteUrl ? `${siteUrl}/tasks` : undefined;
+
   // Pull up to 100 pending (task, assignee) email jobs
   const { data: jobs, error } = await supabase.rpc("get_pending_email_jobs", {
     p_limit: 100,
@@ -56,6 +62,7 @@ Deno.serve(async () => {
           firstname: j.member_firstname,
           title: j.task_title,
           message: applyMessageVariables(j.task_message, j),
+          tasksUrl,
         }),
       ),
     })),

@@ -1,16 +1,29 @@
-import { Body, Container, Head, Heading, Hr, Html, Preview, Section, Text } from "npm:@react-email/components@0.0.36";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Heading,
+  Hr,
+  Html,
+  Link,
+  Preview,
+  Section,
+  Text,
+} from "npm:@react-email/components@0.0.36";
 import * as React from "npm:react@19.0.0";
 
 export type TaskEmailProps = {
   firstname: string;
   title: string;
   message: string;
+  tasksUrl?: string;
 };
 
 // Styling mirrors the sign-in email (src/components/MagicLinkEmailTemplate.tsx)
 // and globals.css so ECOSLO's emails read as one family. Inline styles only —
 // email clients ignore <style> tags and don't run Tailwind.
-export function TaskEmail({ firstname, title, message }: TaskEmailProps) {
+export function TaskEmail({ firstname, title, message, tasksUrl }: TaskEmailProps) {
   return (
     <Html lang="en">
       <Head />
@@ -28,6 +41,21 @@ export function TaskEmail({ firstname, title, message }: TaskEmailProps) {
             </Heading>
             <Text style={taskMessageStyle}>{message}</Text>
           </Section>
+          {tasksUrl ? (
+            <>
+              <Section style={buttonWrapStyle}>
+                <Button href={tasksUrl} style={buttonStyle}>
+                  View Your Tasks
+                </Button>
+              </Section>
+              <Text style={mutedStyle}>Button not working? Copy and paste this link into your browser:</Text>
+              <Text style={fallbackWrapStyle}>
+                <Link href={tasksUrl} style={fallbackLinkStyle}>
+                  {tasksUrl}
+                </Link>
+              </Text>
+            </>
+          ) : null}
           <Hr style={hrStyle} />
           <Text style={footerStyle}>This is an automated reminder from ECOSLO. 🌱</Text>
         </Container>
@@ -99,6 +127,43 @@ const taskMessageStyle: React.CSSProperties = {
   color: "#6a5f52",
   margin: 0,
   whiteSpace: "pre-wrap",
+};
+
+// Button + fallback link copied from MagicLinkEmailTemplate so both emails
+// share one call-to-action design.
+const buttonWrapStyle: React.CSSProperties = {
+  textAlign: "center",
+  margin: "28px 0",
+};
+
+const buttonStyle: React.CSSProperties = {
+  backgroundColor: "#7b8963",
+  color: "#ffffff",
+  display: "inline-block",
+  padding: "14px 32px",
+  borderRadius: "8px",
+  fontSize: "15px",
+  fontWeight: 600,
+  textDecoration: "none",
+};
+
+const mutedStyle: React.CSSProperties = {
+  fontSize: "13px",
+  lineHeight: "20px",
+  color: "#7d7469",
+  margin: "0 0 6px",
+};
+
+const fallbackWrapStyle: React.CSSProperties = {
+  margin: 0,
+  wordBreak: "break-all",
+};
+
+const fallbackLinkStyle: React.CSSProperties = {
+  fontSize: "13px",
+  color: "#697751",
+  wordBreak: "break-all",
+  textDecoration: "underline",
 };
 
 const hrStyle: React.CSSProperties = {
