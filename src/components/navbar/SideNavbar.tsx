@@ -4,37 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ListChecks,
-  Calendar,
-  Ellipsis,
-  LayoutDashboard,
-  LogIn,
-  LogOut,
-  Map,
-  MapPin,
-  TreeDeciduous,
-  UsersRound,
-} from "lucide-react";
-import NavbarButton, { NavbarButtonProps } from "./SideNavbarButton";
+import { Ellipsis, LogIn, LogOut, Map } from "lucide-react";
+import NavbarButton from "./SideNavbarButton";
 import { LogoutButton } from "../LogoutButton";
 import { useCurrentMember } from "@/hooks/useCurrentProvider";
 import { appButtonClassName } from "@/components/ui/form-controls";
-
-// All possible feature buttons. Filtered by role at render time.
-// `adminOnly` flags entries hidden from Tree Keepers because RLS prevents
-// them from doing meaningful work on those pages (Reminders are admin-only;
-// Members would just show their own row).
-type FeatureButton = NavbarButtonProps & { adminOnly?: boolean };
-
-const allFeatureButtons: FeatureButton[] = [
-  { icon: LayoutDashboard, label: "Dashboard", link: "/dashboard" },
-  { icon: TreeDeciduous, label: "Trees", link: "/trees" },
-  { icon: UsersRound, label: "Members", link: "/members", adminOnly: true },
-  { icon: Calendar, label: "Reminders", link: "/reminders", adminOnly: true },
-  { icon: ListChecks, label: "Tasks", link: "/tasks" },
-  { icon: MapPin, label: "Map", link: "/map" },
-];
+import { getVisibleNavItems, type FeatureNavItem } from "./nav-items";
 
 const NAV_ITEM_HEIGHT = 88;
 const NAV_ITEM_GAP = 16;
@@ -50,10 +25,10 @@ export default function SideNavbar() {
 
   // Compute which buttons to show based on auth + role. Memoized so the
   // resize observer effect below doesn't re-run on every render.
-  const featureButtons = useMemo<FeatureButton[]>(() => {
-    if (!member) return [];
-    return allFeatureButtons.filter((button) => !button.adminOnly || isAdmin);
-  }, [member, isAdmin]);
+  const featureButtons = useMemo<FeatureNavItem[]>(
+    () => getVisibleNavItems(Boolean(member), isAdmin),
+    [member, isAdmin],
+  );
 
   // Resize observer: figure out how many buttons fit in the available space.
   // When the list overflows, the last visible slot becomes a "More" button.
@@ -159,7 +134,7 @@ export default function SideNavbar() {
   })();
 
   return (
-    <div className="sticky top-[0px] z-60 flex h-[calc(100vh-24px)] w-38 flex-col rounded-4xl bg-primary p-5">
+    <div className="sticky top-[0px] z-60 flex h-[calc(100dvh-24px)] w-38 flex-col rounded-4xl bg-primary p-5">
       <Link href="/" className="flex flex-col items-center justify-center">
         <div className="w-24.5 h-24.5 flex items-center justify-center">
           <Image

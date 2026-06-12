@@ -70,7 +70,7 @@ export function TasksControlPanel(props: TasksControlPanelProps) {
         <ControlStatusPills
           className="flex-1"
           containerClassName="w-full h-full"
-          buttonClassName="flex-1 min-w-0"
+          buttonClassName="min-w-0 sm:flex-1"
           activeIndex={statusActiveIndex}
           onActiveIndexChange={setStatusActiveIndex}
           options={STATUS_OPTIONS}

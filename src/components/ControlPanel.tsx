@@ -349,7 +349,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
         <ControlStatusPills
           className="flex-1"
           containerClassName="w-full h-full"
-          buttonClassName="flex-1 min-w-0"
+          buttonClassName="min-w-0 sm:flex-1"
           options={CONTROL_STATUS_OPTIONS}
           activeIndex={statusActiveIndex}
           onActiveIndexChange={setStatusActiveIndex}

@@ -29,7 +29,7 @@ export default function MembersControlPanel({ tableRef }: { tableRef: MutableRef
       <ControlStatusPills
         className="flex-1"
         containerClassName="w-full h-full"
-        buttonClassName="flex-1 min-w-0"
+        buttonClassName="min-w-0 sm:flex-1"
         options={ROLE_STATUS_OPTIONS}
         activeIndex={roleActiveIndex}
         onActiveIndexChange={setRoleActiveIndex}

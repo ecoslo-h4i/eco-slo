@@ -186,7 +186,12 @@ function AssignedTreePickerModalBody({
       </ModalDescription>
 
       <Modal open={transferConfirmTree !== null} onOpenChange={() => setTransferConfirmTree(null)}>
-        <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false} widthClassName="px-8">
+        <ModalContent
+          className="bg-card"
+          closeOnOverlayClick={false}
+          showCloseButton={false}
+          widthClassName="px-6 md:px-8"
+        >
           <ModalHeader>
             <div className="flex items-center justify-between gap-x-4">
               <h2 className="w-full text-center text-2xl text-text-dark font-serif font-extrabold">Transfer Tree</h2>

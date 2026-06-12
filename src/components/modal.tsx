@@ -331,7 +331,9 @@ const ModalContent = forwardRef<HTMLDivElement, ModalContentProps>(function Moda
         data-state={open ? "open" : "closed"}
         className={cn(
           className,
-          "relative rounded-xl border border-border p-6 text-text-dark shadow-lg outline-none",
+          // Cap to the dynamic viewport so short phone screens scroll the
+          // dialog instead of clipping its header/footer.
+          "relative max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-border p-4 text-text-dark shadow-lg outline-none md:p-6",
           widthClassName,
         )}
         onClick={handleContentClick}
