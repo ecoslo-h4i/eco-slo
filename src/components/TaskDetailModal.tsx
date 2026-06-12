@@ -352,7 +352,9 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
                       {task?.message ? (
                         <div className="flex flex-col items-start gap-y-1">
                           <p className="text-text-muted font-semibold">Message</p>
-                          <p className="text-text-dark font-medium whitespace-pre-wrap">{task.message}</p>
+                          <p className="text-text-dark font-medium whitespace-pre-wrap">
+                            {task.displayMessage ?? task.message}
+                          </p>
                         </div>
                       ) : null}
                     </>
