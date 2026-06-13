@@ -20,9 +20,9 @@ import { useCurrentMember } from "@/hooks/useCurrentProvider";
 import { cn } from "@/lib/utils";
 import {
   applyTaskMessageVariables,
+  buildTaskMessageSegments,
   buildTaskVariableContext,
   EMPTY_TASK_VARIABLE_CONTEXT,
-  resolvePerspectiveMemberIds,
   type TaskVariableContext,
 } from "@/lib/task-message-variables";
 import { messageVariableToken } from "@shared/message-variables";
@@ -124,22 +124,24 @@ export default function Tasks() {
   }, [fetchTasks]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  // Tasks with message variables ({firstName}, …) resolved for display. A
-  // tree keeper sees their own values; an admin sees each task's assignee
-  // values (combined when a group task has several assignees). Raw `message`
-  // is kept untouched for the edit form.
+  // Tasks with message variables ({firstName}, …) resolved for display.
+  // `displaySegments` drives the card/modal:
+  //   - a group task shows one anchor member's value + a "+N others" hover
+  //     chip (anchored on this viewer when they're an assignee, else the
+  //     first assignee)
+  //   - a single-assignee task shows that member's plain values. `searchText`
+  //     is the fully-combined plain string so search still matches every
+  //     assignee/tree
+  // Raw `message` is left untouched for the edit form.
   const memberId = member?.id ?? null;
   const displayTasks = useMemo(
     () =>
       tasks.map((task) => ({
         ...task,
-        displayMessage: applyTaskMessageVariables(
-          task,
-          resolvePerspectiveMemberIds(task.assignees ?? [], { isAdmin, memberId }),
-          variableContext,
-        ),
+        displaySegments: buildTaskMessageSegments(task, { memberId }, variableContext),
+        searchText: applyTaskMessageVariables(task, task.assignees ?? [], variableContext),
       })),
-    [tasks, variableContext, isAdmin, memberId],
+    [tasks, variableContext, memberId],
   );
 
   const allAssignees = useMemo(() => ["All", ...new Set(displayTasks.flatMap((task) => task.names))], [displayTasks]);
@@ -370,7 +372,7 @@ function filterTasks(
   const fuse = new Fuse(filteredByControls, {
     keys: [
       { name: "title", weight: 0.3 },
-      { name: "displayMessage", weight: 0.3 },
+      { name: "searchText", weight: 0.3 },
       { name: "names", weight: 0.2 },
       { name: "id", weight: 0.2 },
     ],

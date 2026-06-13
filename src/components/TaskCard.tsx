@@ -2,13 +2,15 @@
 
 import Badge from "@/components/badge";
 import { TaskSchema } from "@/components/data-table/table-widget-defs";
+import { TaskMessage } from "@/components/TaskMessage";
+import type { MessageSegment } from "@/lib/task-message-variables";
 import { CalendarDays, CheckCircle2, ClipboardList, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface TaskSchemaWithNames extends TaskSchema {
   names: string[];
-  /** `message` with variables resolved for the current viewer. */
-  displayMessage?: string;
+  displaySegments?: MessageSegment[];
+  searchText?: string;
 }
 
 interface TaskCardProps {
@@ -29,7 +31,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
   const isComplete = Boolean(task.is_complete);
   const needsSurvey = (task.surveys_needed ?? 0) > 0;
   const isGroup = (task.assignees?.length ?? 0) > 1;
-  const message = task.displayMessage ?? task.message;
+  const segments = task.displaySegments ?? (task.message ? [{ kind: "text" as const, text: task.message }] : []);
 
   return (
     <button
@@ -42,7 +44,11 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
     >
       <div className="flex flex-col gap-1.5 mb-3">
         {task.title ? <p className="text-text-dark text-base font-serif font-bold leading-snug">{task.title}</p> : null}
-        {message ? <p className="text-text-muted text-sm font-mulish leading-snug line-clamp-2">{message}</p> : null}
+        {task.message ? (
+          <p className="text-text-muted text-sm font-mulish leading-snug line-clamp-2">
+            <TaskMessage segments={segments} />
+          </p>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mb-3">
