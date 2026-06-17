@@ -18,9 +18,17 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/dropdown-menu";
 import { useCurrentMember } from "@/hooks/useCurrentProvider";
 import { cn } from "@/lib/utils";
+import {
+  applyTaskMessageVariables,
+  buildTaskMessageSegments,
+  buildTaskVariableContext,
+  EMPTY_TASK_VARIABLE_CONTEXT,
+  type TaskVariableContext,
+} from "@/lib/task-message-variables";
+import { messageVariableToken } from "@shared/message-variables";
 import { Download, Plus, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
-async function getTasks(): Promise<TaskSchemaWithNames[]> {
+async function getTasks(): Promise<{ tasks: TaskSchemaWithNames[]; variableContext: TaskVariableContext }> {
   const supabase = createUserLevelClient();
 
   const { data: tasks, error: tasksError } = await supabase
@@ -29,11 +37,12 @@ async function getTasks(): Promise<TaskSchemaWithNames[]> {
     .order("created_at", { ascending: false });
 
   if (tasksError) throw new Error(tasksError.message);
-  if (!tasks || tasks.length === 0) return [];
+  if (!tasks || tasks.length === 0) return { tasks: [], variableContext: EMPTY_TASK_VARIABLE_CONTEXT };
 
   const assigneeIds = Array.from(new Set(tasks.flatMap((task) => task.assignees ?? [])));
 
   let nameById = new Map<number, string>();
+  let memberRows: { id: number | null; firstname: string | null; lastname: string | null }[] = [];
   if (assigneeIds.length > 0) {
     const { data: members, error: membersError } = await supabase
       .from("public_members")
@@ -43,20 +52,40 @@ async function getTasks(): Promise<TaskSchemaWithNames[]> {
     if (membersError) {
       console.error("[tasks] failed to fetch member names:", membersError);
     } else if (members) {
+      memberRows = members;
       nameById = new Map(members.map((m) => [m.id, `${m.firstname} ${m.lastname}`]));
     }
   }
 
-  return tasks.map((task) => ({
-    ...task,
-    names: (task.assignees ?? []).map((id: number) => nameById.get(id) ?? "Unknown"),
-  }));
+  const treeTokens = [messageVariableToken("treeCount"), messageVariableToken("treeNames")];
+  const needsTrees = tasks.some((task) => treeTokens.some((token) => task.message?.includes(token)));
+
+  let treeRows: { ecoslo_num: number | null; common_name: string | null; tree_keeper_id: number | null }[] = [];
+  if (needsTrees) {
+    const { data: trees, error: treesError } = await supabase
+      .from("public_trees")
+      .select("ecoslo_num, common_name, tree_keeper_id");
+
+    if (treesError) {
+      console.error("[tasks] failed to fetch trees for message variables:", treesError);
+    } else if (trees) {
+      treeRows = trees;
+    }
+  }
+
+  return {
+    tasks: tasks.map((task) => ({
+      ...task,
+      names: (task.assignees ?? []).map((id: number) => nameById.get(id) ?? "Unknown"),
+    })),
+    variableContext: buildTaskVariableContext(memberRows, treeRows),
+  };
 }
 
 const PAGE_SIZE_OPTIONS = [5, 10, 25, 50, 100];
 
 export default function Tasks() {
-  const { isAdmin } = useCurrentMember();
+  const { member, isAdmin } = useCurrentMember();
 
   const [status, setStatus] = useState(STATUS_OPTIONS[1]);
   const [surveys, setSurveys] = useState(SURVEY_OPTIONS[0]);
@@ -64,6 +93,7 @@ export default function Tasks() {
   const [assignees, setAssignees] = useState<string[]>([]);
 
   const [tasks, setTasks] = useState<TaskSchemaWithNames[]>([]);
+  const [variableContext, setVariableContext] = useState<TaskVariableContext>(EMPTY_TASK_VARIABLE_CONTEXT);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -78,7 +108,8 @@ export default function Tasks() {
   const fetchTasks = useCallback(async () => {
     try {
       const data = await getTasks();
-      setTasks(data);
+      setTasks(data.tasks);
+      setVariableContext(data.variableContext);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load tasks");
@@ -93,11 +124,31 @@ export default function Tasks() {
   }, [fetchTasks]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const allAssignees = useMemo(() => ["All", ...new Set(tasks.flatMap((task) => task.names))], [tasks]);
+  // Tasks with message variables ({firstName}, …) resolved for display.
+  // `displaySegments` drives the card/modal:
+  //   - a group task shows one anchor member's value + a "+N others" hover
+  //     chip (anchored on this viewer when they're an assignee, else the
+  //     first assignee)
+  //   - a single-assignee task shows that member's plain values. `searchText`
+  //     is the fully-combined plain string so search still matches every
+  //     assignee/tree
+  // Raw `message` is left untouched for the edit form.
+  const memberId = member?.id ?? null;
+  const displayTasks = useMemo(
+    () =>
+      tasks.map((task) => ({
+        ...task,
+        displaySegments: buildTaskMessageSegments(task, { memberId }, variableContext),
+        searchText: applyTaskMessageVariables(task, task.assignees ?? [], variableContext),
+      })),
+    [tasks, variableContext, memberId],
+  );
+
+  const allAssignees = useMemo(() => ["All", ...new Set(displayTasks.flatMap((task) => task.names))], [displayTasks]);
 
   const filteredTasks = useMemo(
-    () => filterTasks(tasks, status, surveys, assignees, searchQuery),
-    [tasks, status, surveys, assignees, searchQuery],
+    () => filterTasks(displayTasks, status, surveys, assignees, searchQuery),
+    [displayTasks, status, surveys, assignees, searchQuery],
   );
 
   const totalPages = Math.max(1, Math.ceil(filteredTasks.length / pageSize));
@@ -283,7 +334,7 @@ export default function Tasks() {
       <ExportCSVModal
         open={exportModalOpen}
         onOpenChange={setExportModalOpen}
-        allTasks={tasks}
+        allTasks={displayTasks}
         filteredTasks={filteredTasks}
       />
     </>
@@ -321,7 +372,7 @@ function filterTasks(
   const fuse = new Fuse(filteredByControls, {
     keys: [
       { name: "title", weight: 0.3 },
-      { name: "message", weight: 0.3 },
+      { name: "searchText", weight: 0.3 },
       { name: "names", weight: 0.2 },
       { name: "id", weight: 0.2 },
     ],

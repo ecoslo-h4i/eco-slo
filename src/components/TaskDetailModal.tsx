@@ -15,6 +15,7 @@ import { dropdownContentClassName, dropdownItemClassName, selectTriggerClassName
 import Badge from "@/components/badge";
 import { Check, CheckCircle2, ChevronDown, ClipboardList, Pencil, Trash2, Undo2, Users, X } from "lucide-react";
 import type { TaskSchemaWithNames } from "@/components/TaskCard";
+import { TaskMessage } from "@/components/TaskMessage";
 import TaskSurveyForm from "@/components/survey/TaskSurveyForm";
 import { createUserLevelClient } from "@/lib/supabase/client";
 import { useCurrentMember } from "@/hooks/useCurrentProvider";
@@ -349,10 +350,13 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
                     </>
                   ) : (
                     <>
+                      {/* Display resolves {message variables}; the edit textarea keeps the raw tokens. */}
                       {task?.message ? (
                         <div className="flex flex-col items-start gap-y-1">
                           <p className="text-text-muted font-semibold">Message</p>
-                          <p className="text-text-dark font-medium whitespace-pre-wrap">{task.message}</p>
+                          <p className="text-text-dark font-medium whitespace-pre-wrap">
+                            <TaskMessage segments={task.displaySegments ?? [{ kind: "text", text: task.message }]} />
+                          </p>
                         </div>
                       ) : null}
                     </>
