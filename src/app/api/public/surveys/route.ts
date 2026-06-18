@@ -7,10 +7,6 @@ export const dynamic = "force-dynamic";
 
 type SurveyInsert = Pick<TablesInsert<"surveys">, "task" | "tree" | "body">;
 
-// Task types whose completion is driven per-tree and therefore require a
-// survey to name the specific tree that was serviced.
-const TREE_TASK_TYPES = ["Watering", "Mulching"] as const;
-
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -48,42 +44,44 @@ export async function POST(request: NextRequest) {
 
     const treeNum: number | null = typeof tree === "number" ? tree : null;
 
-    // Load the task to enforce type-specific rules. RLS limits this to the
-    // caller's own tasks (admins see all); a hidden or missing task falls
-    // through to the insert below, whose RLS policy is the authoritative gate.
-    const { data: taskRow } = await supabase
+    // Load the task to enforce survey-mode and linked-tree rules. RLS limits
+    // this to the caller's own tasks (admins see all).
+    const { data: taskRow, error: taskError } = await supabase
       .from("tasks")
-      .select("id, type, is_complete, tree_targets")
+      .select("id, assignees, tree_targets, survey_mode")
       .eq("id", task)
       .maybeSingle();
 
-    if (taskRow && (TREE_TASK_TYPES as readonly string[]).includes(taskRow.type)) {
-      if (taskRow.is_complete) {
-        return NextResponse.json({ message: "This task is already complete." }, { status: 409 });
-      }
-      if (treeNum == null) {
-        return NextResponse.json({ message: "Select the tree you serviced to complete this task." }, { status: 400 });
-      }
+    if (taskError) {
+      return NextResponse.json({ message: taskError.message }, { status: postgrestErrorToHttpStatus(taskError) });
+    }
+    if (!taskRow) {
+      return NextResponse.json({ message: "Task not found." }, { status: 404 });
+    }
+    if (taskRow.survey_mode === "none") {
+      return NextResponse.json({ message: "This task is not accepting surveys." }, { status: 400 });
+    }
 
-      // The chosen tree must be one of the task's snapshotted target trees.
-      const targets = taskRow.tree_targets ?? [];
+    const targets = taskRow.tree_targets ?? [];
+    if (targets.length > 0) {
+      if (treeNum == null) {
+        return NextResponse.json({ message: "Select a linked tree for this survey." }, { status: 400 });
+      }
       if (!targets.includes(treeNum)) {
         return NextResponse.json({ message: "That tree is not part of this task." }, { status: 400 });
       }
+    } else if (treeNum != null) {
+      const { data: treeRow, error: treeError } = await supabase
+        .from("trees")
+        .select("ecoslo_num, tree_keeper_id")
+        .eq("ecoslo_num", treeNum)
+        .maybeSingle();
 
-      // One survey per tree: reject a repeat submission for the same tree.
-      const { data: existing } = await supabase
-        .from("surveys")
-        .select("id")
-        .eq("task", task)
-        .eq("tree", treeNum)
-        .limit(1);
-
-      if (existing && existing.length > 0) {
-        return NextResponse.json(
-          { message: "You have already submitted a survey for this tree on this task." },
-          { status: 409 },
-        );
+      if (treeError) {
+        return NextResponse.json({ message: treeError.message }, { status: postgrestErrorToHttpStatus(treeError) });
+      }
+      if (!treeRow || !taskRow.assignees?.includes(treeRow.tree_keeper_id ?? -1)) {
+        return NextResponse.json({ message: "That tree is not assigned to this task's assignees." }, { status: 400 });
       }
     }
 
@@ -100,8 +98,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: error.message }, { status: postgrestErrorToHttpStatus(error) });
     }
 
-    // Advance task completion + tree status. The RPC re-validates ownership
-    // and authorization, so it is the final gate regardless of the checks above.
+    // Advance required-survey progress and tree status where applicable. The
+    // RPC re-validates ownership and authorization.
     const { error: rpcError } = await supabase.rpc("complete_task_survey", {
       p_task_id: task,
       p_tree: treeNum ?? undefined,

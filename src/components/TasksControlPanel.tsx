@@ -21,7 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const STATUS_OPTIONS = ["All", "Open", "Completed"];
-export const SURVEY_OPTIONS = ["All", "Needs Survey", "No Survey Required"];
+export const SURVEY_OPTIONS = ["All", "No Survey", "Survey Available", "Survey Required"];
 
 interface TasksControlPanelProps {
   setStatusFunction: (status: string) => void;

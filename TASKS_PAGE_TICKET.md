@@ -42,15 +42,19 @@ Relevant task fields:
 - `assignees`
 - `is_complete`
 - `completion_date`
+- `survey_mode`
+- `survey_required_count`
 - `surveys_needed`
+- `tree_targets`
 - `created_by`
 
-Use `surveys_needed > 0` as the current source of truth for whether a task needs a survey.
+Use `survey_mode` as the source of truth for survey availability and gating.
 
 Display this to users as:
 
-- `Needs Survey: Yes` when `surveys_needed > 0`
-- `Needs Survey: No` when `surveys_needed = 0`
+- `No Survey` when `survey_mode = none`
+- `Survey Available` when `survey_mode = optional`
+- `Survey Required` when `survey_mode = required`
 
 ## Access Rules
 
@@ -107,7 +111,9 @@ Clicking the button opens a modal with:
 
 - Message field.
 - Assignees multi-select member picker.
-- Needs Survey checkbox or toggle.
+- Linked trees multi-select sourced from the selected assignees' assigned trees.
+- Survey mode selector: No Survey / Optional Survey / Required Survey.
+- Required survey count input when Survey Required is selected.
 
 Save behavior:
 
@@ -118,8 +124,10 @@ Save behavior:
   - `assignees`
   - `is_complete = false`
   - `completion_date = null`
-  - `surveys_needed = 1` if Needs Survey is checked
-  - `surveys_needed = 0` if Needs Survey is unchecked
+  - `survey_mode`
+  - `survey_required_count`
+  - `surveys_needed = survey_required_count` only for required survey tasks
+  - `tree_targets` set to linked tree `ecoslo_num` values, or null
   - `created_by` set to the current admin member ID when available
 
 Cancel behavior:
@@ -165,10 +173,11 @@ Tree Keepers should not need this filter because their task set is already scope
 Provide survey controls for:
 
 - All
-- Needs Survey
-- No Survey Required
+- No Survey
+- Survey Available
+- Survey Required
 
-This filter must use `surveys_needed`, not `is_complete`.
+This filter must use `survey_mode`, not `surveys_needed` or `is_complete`.
 
 ## Task Cards
 
@@ -176,7 +185,7 @@ Each task card should show:
 
 - Message
 - Assignee names
-- Needs Survey status
+- Survey mode status
 - Created date
 - Completion state
 - Completion date when completed
@@ -193,7 +202,7 @@ The modal should show:
 - Task ID
 - Message
 - Assignees
-- Needs Survey status
+- Survey mode status
 - Created date
 - Completion status
 - Completion date, if complete
@@ -210,17 +219,18 @@ Show a Complete action to Admins and Tree Keepers when:
 - The task is visible to the user.
 - The task is not already complete.
 
-### Tasks Without Survey Requirements
+### Tasks Without Required Surveys
 
-If `surveys_needed = 0`:
+If `survey_mode = none` or `survey_mode = optional`:
 
 - Clicking Complete immediately marks the task complete.
 - Set `is_complete = true`.
 - Set `completion_date` to the current timestamp.
+- Optional-survey tasks also show a separate `Submit Survey` action.
 
 ### Tasks With Survey Requirements
 
-If `surveys_needed > 0`:
+If `survey_mode = required` and `surveys_needed > 0`:
 
 - Do not complete the task immediately.
 - Show the task-scoped survey form in the task detail modal.
@@ -231,7 +241,7 @@ If `surveys_needed > 0`:
 When the survey is submitted successfully:
 
 - Create a `surveys` row tied to the current task.
-- Decrement or resolve the task's `surveys_needed` value.
+- Resolve the task's required survey progress.
 - When the requirement is satisfied, set:
   - `is_complete = true`
   - `completion_date = now()`

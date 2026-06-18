@@ -19,7 +19,7 @@ flowchart TB
     Pg["Postgres tables\nmembers, trees, tasks, surveys,\nreminders, templates"]
     Views["Public views\npublic_trees, public_members"]
     RLS["RLS policies + helper RPCs\nis_admin(), current_member_id()"]
-    OpsRpc["Operational RPCs\nfire_reminder(), fire_reminders_batch(),\ncomplete_task_survey(), email job RPCs"]
+    OpsRpc["Operational RPCs\nfire_reminder(), fire_reminders_batch(),\ncomplete_task(), complete_task_survey(),\nemail job RPCs"]
     Cron["pg_cron / external scheduler"]
     Edge["Edge Functions"]
     Tick["tick-reminders"]
@@ -79,7 +79,8 @@ flowchart TB
 - Admin route handlers use the cookie-backed server client against `members`, `trees`, `tasks`, `surveys`, `reminders`, and `templates`.
 - Public map data reads from `public_trees`, a controlled view over `trees`.
 - Public member display data is exposed through `public_members`.
-- Public survey submission inserts into `surveys`, then calls `complete_task_survey(p_task_id)` to decrement `tasks.surveys_needed` and complete the task when enough surveys have been submitted.
+- Task-modal survey submission inserts into `surveys`, then calls `complete_task_survey(p_task_id, p_tree)` to update required-survey progress. Optional surveys are logged without blocking completion.
+- Direct task completion goes through `complete_task(p_task_id)`, which rejects incomplete required-survey tasks and updates Watering/Mulching tree status using the task's immutable linked trees.
 
 ### Reminder and Email Automation
 
@@ -95,7 +96,8 @@ flowchart TB
 - `20260517050310_update_public_trees_view_with_id.sql`: adds `id` to `public_trees`.
 - `20260517051007_public_members_view.sql`: creates `public_members` and denormalizes keeper names into `public_trees`.
 - `20260519185859_fire_reminders_batch.sql`: adds batched reminder firing RPC.
-- `20260521000000_complete_task_survey.sql`: adds survey-completion RPC.
+- `20260521000000_complete_task_survey.sql`: adds the original survey-completion RPC.
+- `20260618000000_task_survey_modes_tree_linking.sql`: adds task survey modes, linked-tree survey logging, `complete_task()`, and survey-mode-aware reminder firing.
 - `20260521000001_cleanup_completed_tasks_cron.sql`: schedules cleanup function with placeholder project URL and anon key.
 
 ## Notes

@@ -26,9 +26,9 @@ type MemberEnum = Enums<"MemberType">;
 type Member = Tables<"members">;
 type Reminder = Tables<"reminders">;
 type Template = Tables<"templates">;
-type ReminderWithNeedsSurvey = Reminder & { needs_survey?: boolean | null };
-type ReminderInsertPayload = TablesInsert<"reminders"> & { needs_survey?: boolean };
-type ReminderUpdatePayload = TablesUpdate<"reminders"> & { needs_survey?: boolean };
+type SurveyMode = Enums<"TaskSurveyMode">;
+type ReminderInsertPayload = TablesInsert<"reminders">;
+type ReminderUpdatePayload = TablesUpdate<"reminders">;
 const MEMBER_TYPES = ["Admin", "Tree Keeper"] as const satisfies readonly MemberEnum[];
 
 const WEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
@@ -39,7 +39,9 @@ const DEFAULT_REMINDER_TIME = "";
 const DEFAULT_REMINDER_MESSAGE = "";
 
 const REPEAT_OPTIONS = ["Weekly", "Monthly", "Yearly"] as const;
+const SURVEY_MODE_OPTIONS = ["No Survey", "Optional Survey", "Required Survey"] as const;
 type RepeatOption = (typeof REPEAT_OPTIONS)[number];
+type SurveyModeOption = (typeof SURVEY_MODE_OPTIONS)[number];
 type ReminderRepeatPreset = "weekly" | "monthly" | "yearly";
 
 const REPEAT_LABEL_TO_PRESET: Record<RepeatOption, ReminderRepeatPreset> = {
@@ -51,6 +53,16 @@ const REPEAT_PRESET_TO_LABEL: Record<ReminderRepeatPreset, RepeatOption> = {
   weekly: "Weekly",
   monthly: "Monthly",
   yearly: "Yearly",
+};
+const SURVEY_MODE_TO_LABEL: Record<SurveyMode, SurveyModeOption> = {
+  none: "No Survey",
+  optional: "Optional Survey",
+  required: "Required Survey",
+};
+const SURVEY_LABEL_TO_MODE: Record<SurveyModeOption, SurveyMode> = {
+  "No Survey": "none",
+  "Optional Survey": "optional",
+  "Required Survey": "required",
 };
 
 interface ReminderViewProps {
@@ -74,7 +86,8 @@ type ReminderFormState = {
   dayOfMonth: number | null;
   yearlyDate: YearlyDate | null;
   isActive: boolean;
-  needsSurvey: boolean;
+  surveyMode: SurveyMode;
+  surveyRequiredCount: number;
   isGroupTask: boolean;
   message: string;
   name: string;
@@ -108,9 +121,6 @@ export default function ReminderView({
   const isExistingReminderMode = isEditMode || isViewMode;
   const isReadOnly = isViewMode;
   const viewInputBackgroundClass = isViewMode ? "disabled:!bg-off-white-2" : undefined;
-  // Watering/Mulching are always survey-backed (see surveyRequiredByTaskType);
-  // the Survey toggle is forced on and locked for those types.
-  const surveyRequiredByType = surveyRequiredByTaskType(form.taskType);
   const headerTitle = isExistingReminderMode ? reminder?.name || form.name : "Create New Reminder";
   const headerSubtitle = isExistingReminderMode
     ? assigneeLabel || "No assignees"
@@ -127,6 +137,18 @@ export default function ReminderView({
   const handleRepeatChange = (label: string) => {
     if (!isRepeatOption(label)) return;
     updateForm("repeat", REPEAT_LABEL_TO_PRESET[label]);
+  };
+
+  const handleSurveyModeChange = (label: string) => {
+    if (!isSurveyModeOption(label)) return;
+    const surveyMode = SURVEY_LABEL_TO_MODE[label];
+    setForm((current) => ({
+      ...current,
+      surveyMode,
+      surveyRequiredCount: surveyMode === "required" ? Math.max(current.surveyRequiredCount, 1) : 0,
+    }));
+    setSubmitError("");
+    setDeleteError("");
   };
 
   const handleTemplateSelect = (templateName: string) => {
@@ -399,20 +421,30 @@ export default function ReminderView({
           />
         </div>
         <div className="basis-1/2">
-          <ReminderToggleArea
-            disabled={isReadOnly || surveyRequiredByType}
-            label="Survey Status"
-            checkedDescription={
-              surveyRequiredByType
-                ? "Watering and mulching tasks always require a survey"
-                : "This reminder requires a survey"
-            }
-            uncheckedDescription="This reminder does not require a survey"
-            checked={surveyRequiredByType || form.needsSurvey}
-            onChange={(value) => updateForm("needsSurvey", value)}
+          <ReminderDropdown
+            triggerClassName={viewInputBackgroundClass}
+            disabled={isReadOnly}
+            label="Survey Mode"
+            options={[...SURVEY_MODE_OPTIONS]}
+            value={SURVEY_MODE_TO_LABEL[form.surveyMode]}
+            onOptionClick={handleSurveyModeChange}
           />
         </div>
       </div>
+      {form.surveyMode === "required" && form.taskType === "Other" ? (
+        <div className="max-w-xs text-text-dark">
+          <ReminderTextInput
+            disabled={isReadOnly}
+            label="Required Surveys"
+            placeholder="1"
+            value={String(form.surveyRequiredCount)}
+            onChange={(event) => {
+              const next = Math.max(1, Math.min(10, Number(event.target.value) || 1));
+              updateForm("surveyRequiredCount", next);
+            }}
+          />
+        </div>
+      ) : null}
       <div className="basis-1/3">
         <ReminderToggleArea
           disabled={isReadOnly}
@@ -475,12 +507,8 @@ function isRepeatOption(value: string): value is RepeatOption {
   return (REPEAT_OPTIONS as readonly string[]).includes(value);
 }
 
-// Watering/Mulching tasks are always survey-backed in fire_reminder (one
-// survey per tree), so the reminder form locks the Survey toggle on for them
-// and the payload forces needs_survey true. The flag only affects Other
-// reminders.
-function surveyRequiredByTaskType(taskType: Enums<"TaskType">): boolean {
-  return taskType === "Watering" || taskType === "Mulching";
+function isSurveyModeOption(value: string): value is SurveyModeOption {
+  return (SURVEY_MODE_OPTIONS as readonly string[]).includes(value);
 }
 
 /**
@@ -556,14 +584,14 @@ function getTemplateFormValues(template: Template, members: Member[]): Partial<R
     dayOfMonth: schedule.dayOfMonth,
     yearlyDate: schedule.yearlyDate,
     message: template.task_message,
-    needsSurvey: template.needs_survey ?? false,
+    surveyMode: template.survey_mode ?? (template.needs_survey ? "required" : "none"),
+    surveyRequiredCount: template.survey_required_count ?? 1,
     time: schedule.time,
   };
 }
 
 function getReminderFormState(reminder: Reminder | undefined, members: Member[]): ReminderFormState {
   const schedule = getReminderSchedule(reminder);
-  const reminderWithNeedsSurvey = reminder as ReminderWithNeedsSurvey | undefined;
 
   return {
     assignees: getSelectedAssignees(reminder, members),
@@ -572,7 +600,8 @@ function getReminderFormState(reminder: Reminder | undefined, members: Member[])
     dayOfMonth: schedule.dayOfMonth,
     yearlyDate: schedule.yearlyDate,
     isActive: reminder?.is_active ?? true,
-    needsSurvey: reminderWithNeedsSurvey?.needs_survey ?? false,
+    surveyMode: reminder?.survey_mode ?? (reminder?.needs_survey ? "required" : "none"),
+    surveyRequiredCount: reminder?.survey_required_count ?? 1,
     isGroupTask: reminder?.is_group_task ?? false,
     message: reminder?.task_message ?? DEFAULT_REMINDER_MESSAGE,
     name: reminder?.name ?? DEFAULT_REMINDER_NAME,
@@ -659,10 +688,10 @@ function getReminderPayload(form: ReminderFormState): ReminderInsertPayload {
     // Watering/Mulching are inherently per-keeper; otherwise,
     // use the isGroupTask field to determine the value
     is_group_task: form.taskType === "Other" && form.isGroupTask,
-    // Tree tasks are always survey-backed; persist that rather than the
-    // locked toggle value so the stored reminder matches the UI.
-    needs_survey: surveyRequiredByTaskType(form.taskType) || form.needsSurvey,
+    needs_survey: form.surveyMode !== "none",
     name: form.name.trim(),
+    survey_mode: form.surveyMode,
+    survey_required_count: form.surveyMode === "required" ? Math.max(1, form.surveyRequiredCount) : 0,
     task_message: form.message,
     next_run_at: getNextCronOccurrence(crons_expression).toISOString(),
     type: form.taskType,

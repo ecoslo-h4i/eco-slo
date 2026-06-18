@@ -9,7 +9,7 @@ import Badge from "@/components/badge";
 import { ArrowRight, Calendar, ClipboardList, ListChecks, TreeDeciduous, UsersRound } from "lucide-react";
 
 interface DashboardStats {
-  tasks: { open: number; needsSurvey: number; completedRecently: number };
+  tasks: { open: number; surveyRequired: number; surveyAvailable: number; completedRecently: number };
   trees: { total: number; recentlyAdded: number };
   members: { total: number; admins: number; treeKeepers: number };
 }
@@ -18,7 +18,7 @@ async function fetchDashboardStats(isAdmin: boolean): Promise<DashboardStats> {
   const supabase = createUserLevelClient();
 
   const [tasksResult, treesResult, membersResult] = await Promise.all([
-    supabase.from("tasks").select("is_complete, surveys_needed, created_at, completion_date"),
+    supabase.from("tasks").select("is_complete, survey_mode, surveys_needed, created_at, completion_date"),
     supabase.from("trees").select("created_at"),
     isAdmin ? supabase.from("members").select("role") : Promise.resolve({ data: null, error: null }),
   ]);
@@ -32,7 +32,9 @@ async function fetchDashboardStats(isAdmin: boolean): Promise<DashboardStats> {
   return {
     tasks: {
       open: tasks.filter((t) => !t.is_complete).length,
-      needsSurvey: tasks.filter((t) => !t.is_complete && (t.surveys_needed ?? 0) > 0).length,
+      surveyRequired: tasks.filter((t) => !t.is_complete && t.survey_mode === "required" && (t.surveys_needed ?? 0) > 0)
+        .length,
+      surveyAvailable: tasks.filter((t) => t.survey_mode === "optional").length,
       completedRecently: tasks.filter((t) => t.is_complete && t.completion_date && t.completion_date >= thirtyDaysAgo)
         .length,
     },
@@ -91,21 +93,21 @@ export default function Dashboard() {
               <>
                 <StatTile label="Team Members" value={stats.members.total} icon={UsersRound} href="/members" />
                 <StatTile
-                  label="Awaiting Survey"
-                  value={stats.tasks.needsSurvey}
+                  label="Survey Required"
+                  value={stats.tasks.surveyRequired}
                   icon={ClipboardList}
                   href="/tasks"
-                  accent={stats.tasks.needsSurvey > 0}
+                  accent={stats.tasks.surveyRequired > 0}
                 />
               </>
             ) : (
               <>
                 <StatTile
-                  label="Needs Survey"
-                  value={stats.tasks.needsSurvey}
+                  label="Survey Required"
+                  value={stats.tasks.surveyRequired}
                   icon={ClipboardList}
                   href="/tasks"
-                  accent={stats.tasks.needsSurvey > 0}
+                  accent={stats.tasks.surveyRequired > 0}
                 />
                 <StatTile label="Completed (30d)" value={stats.tasks.completedRecently} icon={Calendar} href="/tasks" />
               </>
@@ -121,9 +123,14 @@ export default function Dashboard() {
               rows={[
                 { label: "Open", value: stats.tasks.open },
                 {
-                  label: "Awaiting Survey",
-                  value: stats.tasks.needsSurvey,
-                  badge: stats.tasks.needsSurvey > 0 ? "default" : undefined,
+                  label: "Survey Required",
+                  value: stats.tasks.surveyRequired,
+                  badge: stats.tasks.surveyRequired > 0 ? "default" : undefined,
+                },
+                {
+                  label: "Survey Available",
+                  value: stats.tasks.surveyAvailable,
+                  badge: stats.tasks.surveyAvailable > 0 ? "info" : undefined,
                 },
                 {
                   label: "Completed (30d)",

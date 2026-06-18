@@ -21,7 +21,11 @@ function rowToOption(row: Record<string, unknown>): SurveyTaskOption {
 export async function GET() {
   const supabase = await createServerLevelClient();
   try {
-    const { data, error } = await supabase.from("tasks").select("*").order("id", { ascending: true });
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("id, title, survey_mode")
+      .neq("survey_mode", "none")
+      .order("id", { ascending: true });
 
     if (error) {
       console.error("Supabase error fetching tasks:", error.message);

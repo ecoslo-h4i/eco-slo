@@ -186,17 +186,14 @@ export const useTable = <T extends Record<string, unknown>>(
     });
   }, [filteredRows, sorting, columnDefs]);
 
+  const pageCount = Math.ceil(sortedRows.length / pageSize);
+  const maxPageIndex = Math.max(0, pageCount - 1);
+  const safePageIndex = Math.min(pageIndex, maxPageIndex);
+
   const paginatedRows = React.useMemo(() => {
-    const startIndex = pageIndex * pageSize;
+    const startIndex = safePageIndex * pageSize;
     return sortedRows.slice(startIndex, startIndex + pageSize);
-  }, [sortedRows, pageIndex, pageSize]);
-
-  React.useEffect(() => {
-    const nextPageCount = Math.ceil(sortedRows.length / pageSize);
-    const maxPageIndex = Math.max(0, nextPageCount - 1);
-
-    setPageIndex((prev) => Math.min(prev, maxPageIndex));
-  }, [sortedRows.length, pageSize]);
+  }, [sortedRows, safePageIndex, pageSize]);
 
   const rowModels: RowModel<T>[] = React.useMemo(() => {
     return paginatedRows.map((row) => ({
@@ -268,8 +265,8 @@ export const useTable = <T extends Record<string, unknown>>(
   }, [sortedRows]);
 
   const getPageCount = React.useCallback(() => {
-    return Math.ceil(sortedRows.length / pageSize);
-  }, [sortedRows, pageSize]);
+    return pageCount;
+  }, [pageCount]);
 
   const getPageSize = React.useCallback(() => {
     return pageSize;
@@ -289,8 +286,8 @@ export const useTable = <T extends Record<string, unknown>>(
   );
 
   const getPageIndex = React.useCallback(() => {
-    return pageIndex;
-  }, [pageIndex]);
+    return safePageIndex;
+  }, [safePageIndex]);
 
   const setPageIndexSafe = React.useCallback(
     (index: number) => {
@@ -300,28 +297,28 @@ export const useTable = <T extends Record<string, unknown>>(
   );
 
   const hasNextPage = React.useCallback(() => {
-    return pageIndex < getPageCount() - 1;
-  }, [pageIndex, getPageCount]);
+    return safePageIndex < getPageCount() - 1;
+  }, [safePageIndex, getPageCount]);
 
   const hasPreviousPage = React.useCallback(() => {
-    return pageIndex > 0;
-  }, [pageIndex]);
+    return safePageIndex > 0;
+  }, [safePageIndex]);
 
   const nextPage = React.useCallback(() => {
-    setPageIndex((prev) => (hasNextPage() ? prev + 1 : prev));
-  }, [hasNextPage]);
+    if (hasNextPage()) setPageIndex(safePageIndex + 1);
+  }, [hasNextPage, safePageIndex]);
 
   const previousPage = React.useCallback(() => {
-    setPageIndex((prev) => (hasPreviousPage() ? prev - 1 : prev));
-  }, [hasPreviousPage]);
+    if (hasPreviousPage()) setPageIndex(safePageIndex - 1);
+  }, [hasPreviousPage, safePageIndex]);
 
   const firstPage = React.useCallback(() => {
     setPageIndex(0);
   }, [setPageIndex]);
 
   const lastPage = React.useCallback(() => {
-    setPageIndex(getPageCount() - 1);
-  }, [getPageCount, setPageIndex]);
+    setPageIndex(maxPageIndex);
+  }, [maxPageIndex, setPageIndex]);
 
   const table: Table<T> = React.useMemo(() => {
     const nextTable = {} as Table<T>;

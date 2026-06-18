@@ -285,7 +285,10 @@ Represents one-off tasks assigned to one or more members.
 - `title`: text, defaults to empty string
 - `assignees`: bigint[], nullable
 - `is_complete`: boolean, defaults to `false`
+- `survey_mode`: `TaskSurveyMode`, defaults to `none`
+- `survey_required_count`: integer, defaults to `0`
 - `surveys_needed`: bigint, defaults to `0`
+- `tree_targets`: bigint[], nullable
 - `created_by`: bigint, nullable, foreign key to `members.id`
 
 ### Relationships
@@ -298,7 +301,10 @@ Represents one-off tasks assigned to one or more members.
 - Tasks are **one-off** items, not recurring schedules
 - A single task may be assigned to one member or many members
 - Group tasks remain a **single shared task object**, not duplicated tasks per assignee
-- `surveys_needed` is the current source of truth for survey gating logic
+- `survey_mode` is the source of truth for whether surveys are unavailable, optional, or required
+- `survey_required_count` stores the original required count when `survey_mode = required`
+- `surveys_needed` stores the remaining required count only for required survey tasks
+- `tree_targets` stores immutable linked tree `ecoslo_num` values for task-scoped survey and message workflows
 
 ---
 
@@ -401,22 +407,21 @@ Tasks are one-off work items. Recurring behavior belongs to the reminders system
 
 ---
 
-## 2. Survey-gated task completion uses `surveys_needed`
+## 2. Task survey behavior uses `survey_mode`
 
-The original planning materials used both boolean-style and integer-style descriptions for whether a task needs a survey. The clarified product rule is:
+Task surveys have three modes:
 
-- `tasks.surveys_needed = 0` means the task does **not** currently require any remaining survey submissions before completion
-- `tasks.surveys_needed > 0` means the task still requires survey submissions before completion
-- The integer field is the source of truth
-- A separate boolean field is **not required** in the current model
+- `none`: no survey should be shown or expected
+- `optional`: surveys are available but do not block completion
+- `required`: surveys block completion until `surveys_needed` reaches `0`
 
 ### Completion behavior
 
-- If `surveys_needed = 0`, the task can be completed directly
-- If `surveys_needed > 0`, the user should be redirected into or required to complete the survey workflow
-- Each valid survey submission tied to that task should decrement `surveys_needed` by 1
-- When `surveys_needed` reaches `0`, the task should **auto-complete**
-- When the task auto-completes, it should set:
+- If `survey_mode = none`, the task can be completed directly
+- If `survey_mode = optional`, the task can be completed directly and can still accept surveys for logging until cleanup
+- If `survey_mode = required` and `surveys_needed > 0`, the user should complete the required survey workflow
+- Required linked-tree tasks count at most one survey per linked tree toward completion; duplicates are retained for logging
+- When required surveys are satisfied, the task should set:
   - `is_complete = true`
   - `completion_date = current timestamp`
 

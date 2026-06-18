@@ -352,15 +352,16 @@ function filterTasks(
 
   const filteredByControls = tasks.filter((task) => {
     const isComplete = Boolean(task.is_complete);
-    const surveysNeeded = task.surveys_needed ?? 0;
+    const surveyMode = task.survey_mode ?? "none";
 
     const matchesStatus =
       status === "All" || (status === "Open" && !isComplete) || (status === "Completed" && isComplete);
 
     const matchesSurvey =
       surveys === "All" ||
-      (surveys === "Needs Survey" && surveysNeeded > 0) ||
-      (surveys === "No Survey Required" && surveysNeeded === 0);
+      (surveys === "No Survey" && surveyMode === "none") ||
+      (surveys === "Survey Available" && surveyMode === "optional") ||
+      (surveys === "Survey Required" && surveyMode === "required");
 
     const matchesAssignees = selectedAssignees.size === 0 || task.names.some((name) => selectedAssignees.has(name));
 
