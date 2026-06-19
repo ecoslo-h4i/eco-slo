@@ -1,5 +1,7 @@
 import { createServerLevelClient } from "@/lib/supabase/server";
+import { TablesUpdate } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
+import { applyTaskTypeSurveyDefaults } from "@/lib/admin/task-survey-defaults";
 import { NextRequest, NextResponse } from "next/server";
 
 type IParams = {
@@ -34,7 +36,7 @@ export async function PUT(request: NextRequest, { params }: IParams) {
   try {
     const supabase = await createServerLevelClient();
     const { id } = await params;
-    const body = await request.json();
+    const body = applyTaskTypeSurveyDefaults((await request.json()) as TablesUpdate<"reminders">);
 
     const { data, error } = await supabase.from("reminders").update(body).eq("id", id).select().single();
 
