@@ -600,10 +600,11 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
             <ModalFooter>
               <div className="flex flex-col w-full gap-y-4">
                 <div className="bg-border h-px w-full" />
-                <div className="flex justify-end gap-x-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end sm:gap-x-4">
                   <AppButton
                     type="button"
                     variant="secondary"
+                    className="w-full sm:w-auto"
                     onClick={(event) => {
                       event.stopPropagation();
                       handleClose(false);
@@ -612,7 +613,7 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
                     Cancel
                   </AppButton>
                   {isEditing ? (
-                    <AppButton disabled={isSubmitting || !hasFormChanges} type="submit">
+                    <AppButton className="w-full sm:w-auto" disabled={isSubmitting || !hasFormChanges} type="submit">
                       {isSubmitting
                         ? isAddingTask
                           ? "Creating…"
@@ -627,13 +628,20 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
                         <AppButton
                           type="button"
                           variant={isComplete ? "primary" : "secondary"}
+                          className="w-full sm:w-auto"
                           onClick={handleShowSurvey}
                         >
                           {isComplete ? "Submit Additional Survey" : "Submit Survey"}
                         </AppButton>
                       ) : null}
                       {!isComplete ? (
-                        <AppButton type="button" variant="primary" onClick={handleComplete} disabled={completing}>
+                        <AppButton
+                          type="button"
+                          variant="primary"
+                          className="w-full sm:w-auto"
+                          onClick={handleComplete}
+                          disabled={completing}
+                        >
                           {completing
                             ? "Completing…"
                             : requiredSurveyOutstanding
