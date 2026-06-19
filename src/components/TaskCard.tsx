@@ -29,9 +29,18 @@ function formatDate(dateStr: string | null | undefined): string {
 
 export function TaskCard({ task, onClick }: TaskCardProps) {
   const isComplete = Boolean(task.is_complete);
-  const needsSurvey = (task.surveys_needed ?? 0) > 0;
+  const surveyMode = task.survey_mode ?? "none";
+  const surveysRemaining = task.surveys_needed ?? 0;
   const isGroup = (task.assignees?.length ?? 0) > 1;
   const segments = task.displaySegments ?? (task.message ? [{ kind: "text" as const, text: task.message }] : []);
+  const surveyBadge =
+    surveyMode === "optional"
+      ? "Survey Available"
+      : surveyMode === "required"
+        ? surveysRemaining > 0
+          ? `Survey Required (${surveysRemaining} remaining)`
+          : "Survey Required"
+        : null;
 
   return (
     <button
@@ -57,9 +66,13 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
             Complete
           </Badge>
         ) : null}
-        {needsSurvey && !isComplete ? (
-          <Badge variant="default" size="sm" icon={<ClipboardList className="h-3 w-3" />}>
-            Needs Survey
+        {surveyBadge ? (
+          <Badge
+            variant={surveyMode === "optional" ? "info" : "default"}
+            size="sm"
+            icon={<ClipboardList className="h-3 w-3" />}
+          >
+            {surveyBadge}
           </Badge>
         ) : null}
         {isGroup ? (

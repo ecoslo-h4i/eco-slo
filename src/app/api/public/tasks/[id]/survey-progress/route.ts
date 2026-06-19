@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 type IParams = { params: Promise<{ id: string }> };
 
-type ProgressTree = { ecoslo_num: number; label: string; surveyed: boolean };
+type ProgressTree = { ecoslo_num: number; label: string; surveyed: boolean; survey_count: number };
 
 function treeLabel(ecoslo_num: number, common_name: string | null, species_name: string | null): string {
   const primary = common_name?.trim() || species_name?.trim() || "Tree";
@@ -34,7 +34,7 @@ export async function GET(_req: NextRequest, { params }: IParams) {
 
     const { data: task, error: taskError } = await supabase
       .from("tasks")
-      .select("id, type, tree_targets")
+      .select("id, type, tree_targets, survey_mode, surveys_needed, survey_required_count")
       .eq("id", taskId)
       .maybeSingle();
 
@@ -50,9 +50,12 @@ export async function GET(_req: NextRequest, { params }: IParams) {
     // Trees already surveyed for this task.
     const { data: surveyed } = await supabase.from("surveys").select("tree").eq("task", taskId).not("tree", "is", null);
 
-    const surveyedSet = new Set<number>(
-      (surveyed ?? []).map((s) => s.tree).filter((t): t is number => typeof t === "number"),
-    );
+    const surveyCounts = new Map<number, number>();
+    for (const row of surveyed ?? []) {
+      if (typeof row.tree === "number") {
+        surveyCounts.set(row.tree, (surveyCounts.get(row.tree) ?? 0) + 1);
+      }
+    }
 
     // Tree display metadata. RLS may hide a target reassigned away from a
     // keeper; those fall back to the bare "#<num>" label.
@@ -74,13 +77,28 @@ export async function GET(_req: NextRequest, { params }: IParams) {
         return {
           ecoslo_num,
           label: m ? treeLabel(ecoslo_num, m.common_name, m.species_name) : `#${ecoslo_num}`,
-          surveyed: surveyedSet.has(ecoslo_num),
+          surveyed: (surveyCounts.get(ecoslo_num) ?? 0) > 0,
+          survey_count: surveyCounts.get(ecoslo_num) ?? 0,
         };
       });
 
     const completed = trees.filter((t) => t.surveyed).length;
+    const totalSurveyCount = Array.from(surveyCounts.values()).reduce((sum, count) => sum + count, 0);
 
-    return NextResponse.json({ message: { total: trees.length, completed, trees } }, { status: 200 });
+    return NextResponse.json(
+      {
+        message: {
+          survey_mode: task.survey_mode,
+          surveys_needed: task.surveys_needed,
+          survey_required_count: task.survey_required_count,
+          total: trees.length,
+          completed,
+          total_survey_count: totalSurveyCount,
+          trees,
+        },
+      },
+      { status: 200 },
+    );
   } catch (e) {
     console.error("Unexpected error in /api/public/tasks/[id]/survey-progress GET", e);
     return NextResponse.json({ message: "Unexpected server error" }, { status: 500 });

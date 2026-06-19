@@ -1,12 +1,7 @@
 "use client";
 
-import { fetchPublicTrees, submitSurvey } from "@/lib/surveyPublicApi";
-import {
-  buildSurveyBodyPayload,
-  SURVEY_ISSUE_OPTIONS,
-  type SurveyIssueValue,
-  type SurveyTreeOption,
-} from "@/types/survey";
+import { submitSurvey } from "@/lib/surveyPublicApi";
+import { buildSurveyBodyPayload, SURVEY_ISSUE_OPTIONS, type SurveyIssueValue } from "@/types/survey";
 import type { Enums } from "@/database/database.types";
 import { useCallback, useEffect, useState } from "react";
 import { AppButton, SelectField, TextField, TextAreaField } from "@/components/ui/form-controls";
@@ -16,8 +11,16 @@ import { cn } from "@/lib/utils";
 const DEFAULT_ISSUE: SurveyIssueValue = "watering";
 
 /** One target tree on a Watering/Mulching task, with its survey state. */
-type ProgressTree = { ecoslo_num: number; label: string; surveyed: boolean };
-type TaskProgress = { total: number; completed: number; trees: ProgressTree[] };
+type ProgressTree = { ecoslo_num: number; label: string; surveyed: boolean; survey_count: number };
+type TaskProgress = {
+  survey_mode: Enums<"TaskSurveyMode">;
+  surveys_needed: number;
+  survey_required_count: number;
+  total: number;
+  completed: number;
+  total_survey_count: number;
+  trees: ProgressTree[];
+};
 
 function isValidOptionalHttpUrl(s: string): boolean {
   const t = s.trim();
@@ -30,29 +33,17 @@ function isValidOptionalHttpUrl(s: string): boolean {
   }
 }
 
-function formatTreeLabel(t: SurveyTreeOption): string {
-  const primary = t.common_name?.trim() || t.species_name?.trim() || "Tree";
-  return `#${t.ecoslo_num} — ${primary}`;
-}
-
 const choiceClass =
   "flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 transition hover:bg-off-white has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/40";
 
 interface TaskSurveyFormProps {
   taskId: number;
-  /** Drives per-tree completion: Watering/Mulching tasks require a tree. */
-  taskType?: Enums<"TaskType">;
   /** Fired after each non-final survey so the parent list can refresh its count. */
   onSurveySubmitted?: () => void;
   onCompleted: () => void;
 }
 
-export default function TaskSurveyForm({ taskId, taskType, onSurveySubmitted, onCompleted }: TaskSurveyFormProps) {
-  const requireTree = taskType === "Watering" || taskType === "Mulching";
-
-  // Other tasks: optional tree picked from the full (RLS-scoped) tree list.
-  const [trees, setTrees] = useState<SurveyTreeOption[]>([]);
-  // Watering/Mulching tasks: per-tree checklist from the snapshotted targets.
+export default function TaskSurveyForm({ taskId, onSurveySubmitted, onCompleted }: TaskSurveyFormProps) {
   const [progress, setProgress] = useState<TaskProgress | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -79,19 +70,12 @@ export default function TaskSurveyForm({ taskId, taskType, onSurveySubmitted, on
   const loadData = useCallback(async () => {
     setLoadError(null);
     try {
-      if (requireTree) {
-        setProgress(await fetchProgress());
-      } else {
-        const result = await fetchPublicTrees();
-        setTrees(result.trees);
-        setLoadError(result.error);
-      }
+      setProgress(await fetchProgress());
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : "Could not load survey data. Please try again.");
       setProgress(null);
-      setTrees([]);
     }
-  }, [requireTree, fetchProgress]);
+  }, [fetchProgress]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -99,12 +83,21 @@ export default function TaskSurveyForm({ taskId, taskType, onSurveySubmitted, on
   }, [loadData]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const remainingTrees = progress ? progress.trees.filter((t) => !t.surveyed) : [];
-  const allDone = requireTree && progress != null && progress.total > 0 && progress.completed >= progress.total;
+  const requireTree = progress != null && progress.total > 0;
+  const isRequired = progress?.survey_mode === "required";
+  const headerLabel =
+    isRequired && (progress?.surveys_needed ?? 0) > 0
+      ? "Required Survey"
+      : isRequired
+        ? "Additional Survey"
+        : "Submit Survey";
 
   const treeOptions = requireTree
-    ? remainingTrees.map((t) => ({ label: t.label, value: String(t.ecoslo_num) }))
-    : trees.map((tree) => ({ label: formatTreeLabel(tree), value: String(tree.ecoslo_num) }));
+    ? progress.trees.map((t) => ({
+        label: t.survey_count > 0 ? `${t.label} (${t.survey_count} submitted)` : t.label,
+        value: String(t.ecoslo_num),
+      }))
+    : [];
 
   const clearFieldError = (key: string) => {
     setFieldErrors((prev) => {
@@ -161,28 +154,27 @@ export default function TaskSurveyForm({ taskId, taskType, onSurveySubmitted, on
         return;
       }
 
-      if (!requireTree) {
-        setSubmitMessage({ type: "ok", text: "Survey submitted." });
-        setTimeout(onCompleted, 800);
-        return;
-      }
-
-      // Watering/Mulching: refresh the checklist and either advance to the
-      // next tree or finish once every target has been surveyed.
       const next = await fetchProgress().catch(() => null);
       if (next) setProgress(next);
 
-      if (next && next.total > 0 && next.completed >= next.total) {
-        setSubmitMessage({ type: "ok", text: "All trees surveyed. Task complete." });
+      if (!next || next.survey_mode !== "required" || next.surveys_needed <= 0) {
+        setSubmitMessage({
+          type: "ok",
+          text:
+            next?.survey_mode === "required" && next.surveys_needed <= 0
+              ? "Required surveys complete. Task complete."
+              : "Survey submitted.",
+        });
         setTimeout(onCompleted, 800);
       } else {
-        // Not finished: refresh the list behind the modal so its survey count
-        // stays current even if the member closes before completing every tree.
         onSurveySubmitted?.();
         resetForNextTree();
         setSubmitMessage({
           type: "ok",
-          text: next ? `Survey submitted — ${next.completed} of ${next.total} trees done.` : "Survey submitted.",
+          text:
+            next.total > 0
+              ? `Survey submitted — ${next.completed} of ${next.survey_required_count} required trees done.`
+              : `Survey submitted — ${next.surveys_needed} required surveys remaining.`,
         });
       }
     } catch {
@@ -194,7 +186,7 @@ export default function TaskSurveyForm({ taskId, taskType, onSurveySubmitted, on
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
-      <p className="text-lg font-serif font-bold text-text-dark pb-2">Complete Survey</p>
+      <p className="text-lg font-serif font-bold text-text-dark pb-2">{headerLabel}</p>
 
       {loadError ? (
         <div role="alert" className="rounded-xl border border-danger-border bg-danger-bg px-4 py-3 text-sm text-danger">
@@ -209,11 +201,11 @@ export default function TaskSurveyForm({ taskId, taskType, onSurveySubmitted, on
         </div>
       ) : null}
 
-      {/* Per-tree checklist (Watering/Mulching only) */}
+      {/* Per-tree checklist for linked-tree tasks. */}
       {requireTree && progress ? (
         <div className="flex flex-col gap-2 rounded-xl border border-border bg-off-white px-4 py-3">
           <p className="text-text-muted font-semibold">
-            {progress.completed} of {progress.total} trees surveyed
+            {progress.completed} of {isRequired ? progress.survey_required_count : progress.total} trees surveyed
           </p>
           <ul className="flex flex-col gap-1.5">
             {progress.trees.map((tree) => (
@@ -226,23 +218,22 @@ export default function TaskSurveyForm({ taskId, taskType, onSurveySubmitted, on
                 <span className={cn("text-text-dark", tree.surveyed && "text-text-muted line-through")}>
                   {tree.label}
                 </span>
+                {tree.survey_count > 1 ? (
+                  <span className="text-xs font-semibold text-text-muted">({tree.survey_count})</span>
+                ) : null}
               </li>
             ))}
           </ul>
         </div>
       ) : null}
 
-      {allDone ? (
-        <p className={cn("text-sm font-medium", submitMessage?.type === "err" ? "text-danger" : "text-success")}>
-          {submitMessage?.text ?? "All trees have been surveyed for this task."}
-        </p>
-      ) : (
-        <>
-          {/* Tree */}
+      <>
+        {/* Tree */}
+        {requireTree ? (
           <div className="flex flex-col items-start gap-y-1">
             <p className="text-text-muted font-semibold">
-              <span>{requireTree ? "Tree" : "Tree (optional)"}</span>
-              {requireTree ? <span className="text-destructive font-semibold"> *</span> : null}
+              <span>Tree</span>
+              <span className="text-destructive font-semibold"> *</span>
             </p>
             <SelectField
               value={treeEcoslo}
@@ -251,120 +242,120 @@ export default function TaskSurveyForm({ taskId, taskType, onSurveySubmitted, on
                 clearFieldError("tree");
               }}
               disabled={submitting}
-              required={requireTree}
+              required
               placeholder="Select a tree..."
               className={cn("bg-button-muted", fieldErrors.tree && "border-danger")}
               options={treeOptions}
             />
             {fieldErrors.tree ? <p className="text-sm text-danger">{fieldErrors.tree}</p> : null}
           </div>
+        ) : null}
 
-          {/* Issue */}
+        {/* Issue */}
+        <div className="flex flex-col items-start gap-y-1">
+          <p className="text-text-muted font-semibold">
+            <span>Issue Type</span>
+            <span className="text-destructive font-semibold"> *</span>
+          </p>
+          <SelectField
+            value={issue}
+            onChange={(value) => setIssue(value as SurveyIssueValue)}
+            disabled={submitting}
+            required
+            className="bg-button-muted"
+            options={SURVEY_ISSUE_OPTIONS.map((option) => ({ label: option.label, value: option.value }))}
+          />
+        </div>
+
+        {issue === "other" ? (
           <div className="flex flex-col items-start gap-y-1">
             <p className="text-text-muted font-semibold">
-              <span>Issue Type</span>
+              <span>Describe (other)</span>
               <span className="text-destructive font-semibold"> *</span>
             </p>
-            <SelectField
-              value={issue}
-              onChange={(value) => setIssue(value as SurveyIssueValue)}
-              disabled={submitting}
-              required
-              className="bg-button-muted"
-              options={SURVEY_ISSUE_OPTIONS.map((option) => ({ label: option.label, value: option.value }))}
-            />
-          </div>
-
-          {issue === "other" ? (
-            <div className="flex flex-col items-start gap-y-1">
-              <p className="text-text-muted font-semibold">
-                <span>Describe (other)</span>
-                <span className="text-destructive font-semibold"> *</span>
-              </p>
-              <TextAreaField
-                value={issueOther}
-                onChange={(e) => setIssueOther(e.target.value)}
-                disabled={submitting}
-                placeholder="Describe the issue…"
-                required
-                rows={3}
-                className={cn("bg-button-muted", fieldErrors.issueOther && "border-danger")}
-              />
-              {fieldErrors.issueOther ? <p className="text-sm text-danger">{fieldErrors.issueOther}</p> : null}
-            </div>
-          ) : null}
-
-          {/* Image Link */}
-          <div className="flex flex-col items-start gap-y-1">
-            <p className="text-text-muted font-semibold">Image Link (optional)</p>
-            <TextField
-              type="url"
-              inputMode="url"
-              autoComplete="off"
-              value={imageLink}
-              onChange={(e) => setImageLink(e.target.value)}
-              disabled={submitting}
-              placeholder="https://…"
-              className={cn("bg-button-muted", fieldErrors.imageLink && "border-danger")}
-            />
-            {fieldErrors.imageLink ? <p className="text-sm text-danger">{fieldErrors.imageLink}</p> : null}
-          </div>
-
-          {/* Notes */}
-          <div className="flex flex-col items-start gap-y-1">
-            <p className="text-text-muted font-semibold">Notes (optional)</p>
             <TextAreaField
-              rows={3}
-              className="bg-button-muted"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              value={issueOther}
+              onChange={(e) => setIssueOther(e.target.value)}
               disabled={submitting}
-              placeholder="Anything else we should know…"
+              placeholder="Describe the issue…"
+              required
+              rows={3}
+              className={cn("bg-button-muted", fieldErrors.issueOther && "border-danger")}
             />
+            {fieldErrors.issueOther ? <p className="text-sm text-danger">{fieldErrors.issueOther}</p> : null}
           </div>
+        ) : null}
 
-          {/* Admin Contact */}
-          <div className="flex flex-col items-start gap-y-1">
-            <p className="text-text-muted font-semibold">May an administrator contact you?</p>
-            <div className="flex gap-3">
-              <label className={choiceClass}>
-                <input
-                  type="radio"
-                  name="survey-admin-contact"
-                  className="h-4 w-4 accent-primary"
-                  checked={adminContact === true}
-                  onChange={() => setAdminContact(true)}
-                  disabled={submitting}
-                />
-                <span className="text-base text-text font-mulish">Yes</span>
-              </label>
-              <label className={choiceClass}>
-                <input
-                  type="radio"
-                  name="survey-admin-contact"
-                  className="h-4 w-4 accent-primary"
-                  checked={adminContact === false}
-                  onChange={() => setAdminContact(false)}
-                  disabled={submitting}
-                />
-                <span className="text-base text-text font-mulish">No</span>
-              </label>
-            </div>
-          </div>
+        {/* Image Link */}
+        <div className="flex flex-col items-start gap-y-1">
+          <p className="text-text-muted font-semibold">Image Link (optional)</p>
+          <TextField
+            type="url"
+            inputMode="url"
+            autoComplete="off"
+            value={imageLink}
+            onChange={(e) => setImageLink(e.target.value)}
+            disabled={submitting}
+            placeholder="https://…"
+            className={cn("bg-button-muted", fieldErrors.imageLink && "border-danger")}
+          />
+          {fieldErrors.imageLink ? <p className="text-sm text-danger">{fieldErrors.imageLink}</p> : null}
+        </div>
 
-          {/* Submit */}
-          <div className="flex items-center gap-4 pt-2">
-            <AppButton type="submit" disabled={submitting}>
-              {submitting ? "Submitting…" : "Submit Survey"}
-            </AppButton>
-            {submitMessage ? (
-              <p className={submitMessage.type === "ok" ? "text-sm text-success" : "text-sm text-danger"}>
-                {submitMessage.text}
-              </p>
-            ) : null}
+        {/* Notes */}
+        <div className="flex flex-col items-start gap-y-1">
+          <p className="text-text-muted font-semibold">Notes (optional)</p>
+          <TextAreaField
+            rows={3}
+            className="bg-button-muted"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            disabled={submitting}
+            placeholder="Anything else we should know…"
+          />
+        </div>
+
+        {/* Admin Contact */}
+        <div className="flex flex-col items-start gap-y-1">
+          <p className="text-text-muted font-semibold">May an administrator contact you?</p>
+          <div className="flex gap-3">
+            <label className={choiceClass}>
+              <input
+                type="radio"
+                name="survey-admin-contact"
+                className="h-4 w-4 accent-primary"
+                checked={adminContact === true}
+                onChange={() => setAdminContact(true)}
+                disabled={submitting}
+              />
+              <span className="text-base text-text font-mulish">Yes</span>
+            </label>
+            <label className={choiceClass}>
+              <input
+                type="radio"
+                name="survey-admin-contact"
+                className="h-4 w-4 accent-primary"
+                checked={adminContact === false}
+                onChange={() => setAdminContact(false)}
+                disabled={submitting}
+              />
+              <span className="text-base text-text font-mulish">No</span>
+            </label>
           </div>
-        </>
-      )}
+        </div>
+
+        {/* Submit */}
+        <div className="flex items-center gap-4 pt-2">
+          <AppButton type="submit" disabled={submitting}>
+            {submitting ? "Submitting…" : "Submit Survey"}
+          </AppButton>
+          {submitMessage ? (
+            <p className={submitMessage.type === "ok" ? "text-sm text-success" : "text-sm text-danger"}>
+              {submitMessage.text}
+            </p>
+          ) : null}
+        </div>
+      </>
     </form>
   );
 }

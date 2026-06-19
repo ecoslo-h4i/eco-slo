@@ -62,6 +62,8 @@ export type Database = {
           name: string;
           needs_survey: boolean;
           next_run_at: string;
+          survey_mode: Database["public"]["Enums"]["TaskSurveyMode"];
+          survey_required_count: number;
           task_message: string;
           type: Database["public"]["Enums"]["TaskType"];
         };
@@ -76,6 +78,8 @@ export type Database = {
           name?: string;
           needs_survey?: boolean;
           next_run_at: string;
+          survey_mode?: Database["public"]["Enums"]["TaskSurveyMode"];
+          survey_required_count?: number;
           task_message?: string;
           type?: Database["public"]["Enums"]["TaskType"];
         };
@@ -90,6 +94,8 @@ export type Database = {
           name?: string;
           needs_survey?: boolean;
           next_run_at?: string;
+          survey_mode?: Database["public"]["Enums"]["TaskSurveyMode"];
+          survey_required_count?: number;
           task_message?: string;
           type?: Database["public"]["Enums"]["TaskType"];
         };
@@ -171,6 +177,8 @@ export type Database = {
           is_complete: boolean;
           message: string;
           reminder_id: number | null;
+          survey_mode: Database["public"]["Enums"]["TaskSurveyMode"];
+          survey_required_count: number;
           surveys_needed: number;
           title: string;
           tree_targets: number[] | null;
@@ -188,6 +196,8 @@ export type Database = {
           is_complete?: boolean;
           message: string;
           reminder_id?: number | null;
+          survey_mode?: Database["public"]["Enums"]["TaskSurveyMode"];
+          survey_required_count?: number;
           surveys_needed?: number;
           title?: string;
           tree_targets?: number[] | null;
@@ -205,6 +215,8 @@ export type Database = {
           is_complete?: boolean;
           message?: string;
           reminder_id?: number | null;
+          survey_mode?: Database["public"]["Enums"]["TaskSurveyMode"];
+          survey_required_count?: number;
           surveys_needed?: number;
           title?: string;
           tree_targets?: number[] | null;
@@ -243,6 +255,8 @@ export type Database = {
           is_group_task: boolean;
           name: string;
           needs_survey: boolean;
+          survey_mode: Database["public"]["Enums"]["TaskSurveyMode"];
+          survey_required_count: number;
           task_message: string;
           type: Database["public"]["Enums"]["TaskType"];
         };
@@ -254,6 +268,8 @@ export type Database = {
           is_group_task?: boolean;
           name?: string;
           needs_survey?: boolean;
+          survey_mode?: Database["public"]["Enums"]["TaskSurveyMode"];
+          survey_required_count?: number;
           task_message?: string;
           type?: Database["public"]["Enums"]["TaskType"];
         };
@@ -265,6 +281,8 @@ export type Database = {
           is_group_task?: boolean;
           name?: string;
           needs_survey?: boolean;
+          survey_mode?: Database["public"]["Enums"]["TaskSurveyMode"];
+          survey_required_count?: number;
           task_message?: string;
           type?: Database["public"]["Enums"]["TaskType"];
         };
@@ -432,6 +450,10 @@ export type Database = {
       };
     };
     Functions: {
+      complete_task: {
+        Args: { p_task_id: number };
+        Returns: undefined;
+      };
       complete_task_survey: {
         Args: { p_task_id: number; p_tree?: number };
         Returns: undefined;
@@ -472,6 +494,7 @@ export type Database = {
       Condition: "good" | "fair" | "poor";
       MemberType: "Admin" | "Tree Keeper";
       MulchingStatus: "Completed" | "Pending";
+      TaskSurveyMode: "none" | "optional" | "required";
       TaskType: "Watering" | "Mulching" | "Other";
       TreeStatus: "Active" | "Graduated";
       WateringStatus: "Completed" | "Pending";
@@ -597,6 +620,7 @@ export const Constants = {
       Condition: ["good", "fair", "poor"],
       MemberType: ["Admin", "Tree Keeper"],
       MulchingStatus: ["Completed", "Pending"],
+      TaskSurveyMode: ["none", "optional", "required"],
       TaskType: ["Watering", "Mulching", "Other"],
       TreeStatus: ["Active", "Graduated"],
       WateringStatus: ["Completed", "Pending"],

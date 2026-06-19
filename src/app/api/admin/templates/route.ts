@@ -2,6 +2,7 @@ import { createServerLevelClient } from "@/lib/supabase/server";
 import { TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
 import { NextRequest, NextResponse } from "next/server";
+import { applyTaskTypeSurveyDefaults } from "@/lib/admin/task-survey-defaults";
 
 export async function GET() {
   try {
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerLevelClient();
     const json = await request.json();
-    const body = json as TablesInsert<"templates">;
+    const body = applyTaskTypeSurveyDefaults(json as TablesInsert<"templates">);
 
     const { data, error } = await supabase.from("templates").insert(body).select();
 
