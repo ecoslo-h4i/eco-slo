@@ -1,0 +1,142 @@
+source_sheet,excel_row,reason,raw_tree_num,species,common_name,funder,date_planted,address,raw_lat,raw_long,status_intended
+Planted Log,56,missing/invalid lat/long,273.0,Quercus wislizeni,Interior Live Oak,CAL Fire,2023-04-19 00:00:00,"State Highway 1 @, Dairy Creek Rd",,,Active
+Planted Log,57,missing/invalid lat/long,274.0,Quercus wislizeni,Interior Live Oak,CAL Fire,2023-04-19 00:00:00,"State Highway 1 @, Dairy Creek Rd",,,Active
+Planted Log,189,missing species; missing common name,416.0,,,TBID,2024-11-16 00:00:00,"536 Marsh St, SLO",35.277192,-120.665907,Active
+Planted Log,190,missing species; missing common name,417.0,,,TBID,2024-11-16 00:00:00,"536 Marsh St, SLO",35.277407,-120.66603,Active
+Planted Log,208,missing species; missing common name,433.0,,,TBID,2025-02-08 00:00:00,"900 Southwood Dr, SLO",35.268318,-120.649124,Active
+Planted Log,215,missing/invalid lat/long,440.0,Casuarina glauca,Swamp she-oak,TBID,2025-02-22 00:00:00,"11175 Los Osos Valley Rd, SLO",,,Active
+Planted Log,216,missing/invalid lat/long,441.0,Eucalyptus spathulata,Swamp mallee,TBID,2025-02-22 00:00:00,"11176 Los Osos Valley Rd, SLO",,,Active
+Planted Log,217,missing/invalid lat/long,442.0,Casuarina glauca,Swamp she-oak,TBID,2025-02-22 00:00:00,"11177 Los Osos Valley Rd, SLO",,,Active
+Planted Log,218,missing/invalid lat/long,443.0,Eucalyptus spathulata,Swamp mallee,TBID,2025-02-22 00:00:00,"11178 Los Osos Valley Rd, SLO",,,Active
+Planted Log,219,missing/invalid lat/long,444.0,Tristaniopsis laurina,Water gum,TBID,2025-02-22 00:00:00,"11179 Los Osos Valley Rd, SLO",,,Active
+Planted Log,220,missing/invalid lat/long,445.0,Casuarina glauca,Swamp she-oak,TBID,2025-02-22 00:00:00,"11180 Los Osos Valley Rd, SLO",,,Active
+Planted Log,221,missing/invalid lat/long,446.0,Eucalyptus spathulata,Swamp mallee,TBID,2025-02-22 00:00:00,"11181 Los Osos Valley Rd, SLO",,,Active
+Planted Log,222,missing/invalid lat/long,447.0,Ficus microcarpa 'green gem',Green Gem Indica Fig Laurel,TBID,2025-02-22 00:00:00,"11182 Los Osos Valley Rd, SLO",,,Active
+Planted Log,223,missing/invalid lat/long,448.0,Eucalyptus robusta,Swamp mahogany,TBID,2025-02-22 00:00:00,"11183 Los Osos Valley Rd, SLO",,,Active
+Planted Log,224,missing/invalid lat/long,449.0,Eucalyptus viminalis,Manna gum,TBID,2025-02-22 00:00:00,"11184 Los Osos Valley Rd, SLO",,,Active
+Planted Log,225,missing/invalid lat/long,450.0,Tristaniopsis laurina,Water gum,TBID,2025-02-22 00:00:00,"11185 Los Osos Valley Rd, SLO",,,Active
+Planted Log,226,missing/invalid lat/long,451.0,Quercus virginiana,Southern live oak,TBID,2025-02-22 00:00:00,"11186 Los Osos Valley Rd, SLO",,,Active
+Planted Log,227,missing/invalid lat/long,452.0,Eucalyptus robusta,Swamp mahogany,TBID,2025-02-22 00:00:00,"11187 Los Osos Valley Rd, SLO",,,Active
+Planted Log,228,missing/invalid lat/long,453.0,Podocarpus gracilior,African fern pine,TBID,2025-02-22 00:00:00,"11188 Los Osos Valley Rd, SLO",,,Active
+Planted Log,229,missing/invalid lat/long,454.0,Eucalyptus cneorifolia,Kangaroo Island narrow-leaf mallee,TBID,2025-04-12 00:00:00,"11189 Los Osos Valley Rd, SLO",,,Active
+Planted Log,230,missing/invalid lat/long,455.0,Eucalyptus cneorifolia,Kangaroo Island narrow-leaf mallee,TBID,2025-04-12 00:00:00,"11190 Los Osos Valley Rd, SLO",,,Active
+Planted Log,231,missing/invalid lat/long,456.0,Eucalyptus ficifolia,Red-Flowering Gum,TBID,2025-04-12 00:00:00,"11191 Los Osos Valley Rd, SLO",,,Active
+Planted Log,232,missing/invalid lat/long,457.0,Chorisia speciosa,Silk floss tree,TBID,2025-04-12 00:00:00,"11192 Los Osos Valley Rd, SLO",,,Active
+Planted Log,233,missing/invalid lat/long,458.0,Erythrina afra,African coral tree,TBID,2025-04-12 00:00:00,"11193 Los Osos Valley Rd, SLO",,,Active
+Planted Log,234,missing/invalid lat/long,459.0,Eucalyptus cneorifolia,Kangaroo Island narrow-leaf mallee,TBID,2025-04-12 00:00:00,"11194 Los Osos Valley Rd, SLO",,,Active
+Planted Log,235,missing/invalid lat/long,460.0,Lagunaria patersonia,Queensland white oak,TBID,2025-04-12 00:00:00,"11195 Los Osos Valley Rd, SLO",,,Active
+Planted Log,236,missing/invalid lat/long,461.0,Eucalyptus tetraptera,Square-fruited mallee,TBID,2025-04-12 00:00:00,"11196 Los Osos Valley Rd, SLO",,,Active
+Planted Log,237,missing/invalid lat/long,462.0,Eucalyptus nutans,Red-flowered moort,TBID,2025-04-12 00:00:00,"11197 Los Osos Valley Rd, SLO",,,Active
+Planted Log,238,missing/invalid lat/long,463.0,Brachychiton populneus,Kurrajong,TBID,2025-04-12 00:00:00,"11198 Los Osos Valley Rd, SLO",,,Active
+Planted Log,239,missing/invalid lat/long,464.0,Eucalyptus cneorifolia,Kangaroo Island narrow-leaf mallee,TBID,2025-04-12 00:00:00,"11199 Los Osos Valley Rd, SLO",,,Active
+Planted Log,240,missing/invalid lat/long,465.0,Erythrina coralloides,Naked coral tree,TBID,2025-04-12 00:00:00,"11200 Los Osos Valley Rd, SLO",,,Active
+Planted Log,241,missing/invalid lat/long,466.0,Brachychiton acerifolius,Flame bottletree,TBID,2025-04-12 00:00:00,"11201 Los Osos Valley Rd, SLO",,,Active
+Planted Log,242,missing/invalid lat/long,467.0,Melaleuca nesophila,Showy honey-myrtle,TBID,2025-04-12 00:00:00,"11202 Los Osos Valley Rd, SLO",,,Active
+Planted Log,243,missing/invalid lat/long,468.0,Eucalyptus cneorifolia,Kangaroo Island narrow-leaf mallee,TBID,2025-04-18 00:00:00,"11203 Los Osos Valley Rd, SLO",,,Active
+Planted Log,244,missing/invalid lat/long,469.0,Eucalyptus cneorifolia,Kangaroo Island narrow-leaf mallee,TBID,2025-04-18 00:00:00,"11204 Los Osos Valley Rd, SLO",,,Active
+Off-Boarded Trees,33,missing funder,32.0,Agonis flexuosa,Australian Willow,,2020-01-25 00:00:00,140 Fel-Mar Dr.,35.299167,-120.685556,Graduated
+Off-Boarded Trees,34,missing funder,39.0,Quercus tomentella,Island Oak,,2020-01-25 00:00:00,2391 Lawton Ave.,35.267472,-120.657028,Graduated
+Off-Boarded Trees,35,missing funder,40.0,Quercus tomentella,Island Oak,,2020-01-25 00:00:00,2391 Lawton Ave.,35.267444,-120.657028,Graduated
+Off-Boarded Trees,36,missing funder,41.0,Quercus suber,Cork Oak,,2020-02-22 00:00:00,2391 Lawton Ave.,35.2674,-120.65744,Graduated
+Off-Boarded Trees,37,missing funder,42.0,Quercus tomentella,Island Oak,,2020-01-25 00:00:00,850-890 Nipomo St.,35.279889,-120.667167,Graduated
+Off-Boarded Trees,38,missing funder,44.0,Quercus tomentella,Island Oak,,2020-01-25 00:00:00,850-890 Nipomo St.,35.280111,-120.667361,Graduated
+Off-Boarded Trees,39,missing funder,45.0,Quercus tomentella,Island Oak,,2020-01-25 00:00:00,850-890 Nipomo St.,35.280167,-120.667417,Graduated
+Off-Boarded Trees,40,missing funder,46.0,Agonis flexuosa,Australian Willow,,2020-01-25 00:00:00,600 block Mutsuhito Ave,35.263556,-120.651167,Graduated
+Off-Boarded Trees,41,missing funder,47.0,Agonis flexuosa,Australian Willow,,2020-01-25 00:00:00,600 block Mutsuhito Ave,35.263611,-120.651083,Graduated
+Off-Boarded Trees,44,missing funder,50.0,Pistacia chinensis,Chinese Pistache,,2020-06-22 00:00:00,1375 Balboa St,35.26183,-120.69044,Graduated
+Off-Boarded Trees,45,missing funder,51.0,Pistacia chinensis,Chinese Pistache,,2020-06-22 00:00:00,1375 Balboa St,35.26182,-120.690439,Graduated
+Off-Boarded Trees,48,missing funder,54.0,Quercus agrifolia,Coast Live Oak,,2020-02-29 00:00:00,"UU Church, 2201 Lawton Ave",35.269389,-120.657639,Graduated
+Off-Boarded Trees,49,missing funder,55.0,Quercus agrifolia,Coast Live Oak,,2020-02-29 00:00:00,"UU Church, 2201 Lawton Ave",35.269389,-120.657583,Graduated
+Off-Boarded Trees,50,missing funder,56.0,Pistacia chinensis,Chinese Pistache,,2020-02-29 00:00:00,610 Funston Ave,35.268611,-120.656861,Graduated
+Off-Boarded Trees,51,missing funder,57.0,Pistacia chinensis,Chinese Pistache,,2020-02-29 00:00:00,610 Funston Ave,35.268556,-120.656861,Graduated
+Off-Boarded Trees,52,missing funder,58.0,Pistacia chinensis,Chinese Pistache,,2020-02-29 00:00:00,610 Funston Ave,35.268528,-120.656833,Graduated
+Off-Boarded Trees,53,missing funder,59.0,Quercus engelmannii,Engelmann Oak,,2020-02-29 00:00:00,2509 Lawton Ave,35.266333,-120.657306,Graduated
+Off-Boarded Trees,54,missing funder,60.0,Agonis flexuosa,Australian Willow,,2020-02-29 00:00:00,2509 Lawton Ave,35.266333,-120.657139,Graduated
+Off-Boarded Trees,55,missing funder,61.0,Agonis flexuosa,Australian Willow,,2020-02-29 00:00:00,2509 Lawton Ave,35.266333,-120.657056,Graduated
+Off-Boarded Trees,56,missing funder,62.0,Agonis flexuosa,Australian Willow,,2020-02-29 00:00:00,2509 Lawton Ave,35.26625,-120.657,Graduated
+Off-Boarded Trees,57,missing funder,63.0,Agonis flexuosa,Australian Willow,,2020-02-29 00:00:00,2509 Lawton Ave,35.266222,-120.657,Graduated
+Off-Boarded Trees,58,missing funder,64.0,Quercus engelmannii,Engelmann Oak,,2020-02-29 00:00:00,2511 Lawton Ave,35.266111,-120.657,Graduated
+Off-Boarded Trees,59,missing funder,65.0,Pistacia chinensis,Chinese Pistache,,2020-02-29 00:00:00,503 Mitchell Dr,35.264972,-120.656194,Graduated
+Off-Boarded Trees,60,missing funder,66.0,Pistacia chinensis,Chinese Pistache,,2020-02-29 00:00:00,503 Mitchell Dr,35.264972,-120.656139,Graduated
+Off-Boarded Trees,61,missing funder,67.0,Pistacia chinensis,Chinese Pistache,,2020-02-29 00:00:00,503 Mitchell Dr,35.264972,-120.656083,Graduated
+Off-Boarded Trees,62,missing funder,68.0,Koelreuteria bipinnata,Chinese Flame Tree,,2020-02-29 00:00:00,625 Mitchell Dr,35.264972,-120.654278,Graduated
+Off-Boarded Trees,63,missing funder,70.0,Quercus agrifolia,Coast Live Oak,,2020-03-07 00:00:00,2530 Lawton Dr.,35.266031,-120.656863,Graduated
+Off-Boarded Trees,64,missing funder,71.0,Quercus agrifolia,Coast Live Oak,,2020-03-07 00:00:00,2530 Lawton Dr.,35.265991,-120.656861,Graduated
+Off-Boarded Trees,65,missing funder,72.0,Quercus agrifolia,Coast Live Oak,,2020-03-07 00:00:00,2563 Lawton Dr.,35.265877,-120.657015,Graduated
+Off-Boarded Trees,66,missing funder,73.0,Quercus agrifolia,Coast Live Oak,,2020-03-07 00:00:00,2563 Lawton Dr.,35.26582,-120.657014,Graduated
+Off-Boarded Trees,67,missing funder,74.0,Ulmus parvifolia ‘Drake’,Chinese elm,,2020-03-14 00:00:00,1502 Oceanaire Dr.,35.261778,-120.685694,Graduated
+Off-Boarded Trees,68,missing funder,75.0,Pistacia chinensis,Chinese Pistache,,2020-03-14 00:00:00,1502 Oceanaire Dr.,35.261773,-120.685759,Graduated
+Off-Boarded Trees,69,missing funder,76.0,Pistacia chinensis,Chinese Pistache,,2020-03-14 00:00:00,1502 Oceanaire Dr.,35.261776,-120.685746,Graduated
+Off-Boarded Trees,70,missing funder,77.0,Pistacia chinensis,Chinese Pistache,,2020-03-14 00:00:00,1510 Oceanaire Dr.,35.261694,-120.685694,Graduated
+Off-Boarded Trees,71,missing funder,78.0,Pistacia chinensis,Chinese Pistache,,2020-03-14 00:00:00,1510 Oceanaire Dr.,35.261667,-120.685667,Graduated
+Off-Boarded Trees,72,missing funder,79.0,Quercus suber,Cork Oak,,2020-03-14 00:00:00,1480 Oceanaire Dr.,35.26202,-120.685992,Graduated
+Off-Boarded Trees,73,missing funder,80.0,Quercus suber,Cork Oak,,2020-03-14 00:00:00,1480 Oceanaire Dr.,35.261996,-120.685991,Graduated
+Off-Boarded Trees,74,missing funder,81.0,Koelreuteria bipinnata,Chinese Flame Tree,,2020-03-14 00:00:00,1540 Oceanaire Dr.,35.261,-120.685028,Graduated
+Off-Boarded Trees,75,missing funder,82.0,Koelreuteria bipinnata,Chinese Flame Tree,,2020-03-14 00:00:00,1540 Oceanaire Dr.,35.260958,-120.684975,Graduated
+Off-Boarded Trees,76,missing funder,83.0,Pistacia chinensis,Chinese Pistache,,2020-03-14 00:00:00,1336 Avalon St.,35.26373,-120.688998,Graduated
+Off-Boarded Trees,77,missing funder,84.0,Pistacia chinensis,Chinese Pistache,,2020-03-14 00:00:00,1336 Avalon St.,35.263722,-120.689056,Graduated
+Off-Boarded Trees,78,missing funder,85.0,Pistacia chinensis,Chinese Pistache,,2020-03-14 00:00:00,1336 Avalon St.,35.263718,-120.689026,Graduated
+Off-Boarded Trees,79,missing funder,86.0,Pistacia chinensis,Chinese Pistache,,2020-03-14 00:00:00,1336 Avalon St.,35.263637,-120.68901,Graduated
+Off-Boarded Trees,80,missing funder,87.0,Pistacia chinensis,Chinese Pistache,,2020-03-14 00:00:00,1336 Avalon St.,35.263605,-120.688967,Graduated
+Off-Boarded Trees,81,missing funder,88.0,Pistacia chinensis,Chinese Pistache,,2020-03-14 00:00:00,1336 Avalon St.,35.263559,-120.688949,Graduated
+Off-Boarded Trees,82,missing funder,89.0,Ulmus parvifolia ‘Drake’,Chinese Elm,,2020-03-14 00:00:00,1734 Osos St.,35.276139,-120.656028,Graduated
+Off-Boarded Trees,83,missing funder,94.0,Quercus tomentella,Island Oak,,2020-09-26 00:00:00,649 Mitchell Dr.,35.264985,-120.653786,Graduated
+Off-Boarded Trees,84,missing funder,95.0,Quercus tomentella,Island Oak,,2020-09-26 00:00:00,649 Mitchell Dr.,35.264985,-120.653785,Graduated
+Off-Boarded Trees,85,missing funder,96.0,Quercus suber,Cork Oak,,2020-09-26 00:00:00,561 Lawrence Dr.,35.263996,-120.655097,Graduated
+Off-Boarded Trees,86,missing funder,97.0,Quercus engelmannii,Engelmann Oak,,2020-10-14 00:00:00,1102 Lakeview St.,35.26249,-120.68683,Graduated
+Off-Boarded Trees,87,missing funder,98.0,Quercus engelmannii,Engelmann Oak,,2020-10-14 00:00:00,1102 Lakeview St.,35.26252,-120.68678,Graduated
+Off-Boarded Trees,88,missing funder,99.0,Koelreuteria bipinnata,Flame Tree,,2020-10-15 00:00:00,134 Fel-Mar Dr.,35.29934,-120.68595,Graduated
+Off-Boarded Trees,89,missing funder,100.0,Koelreuteria bipinnata,Flame Tree,,2020-10-24 00:00:00,11832 LOVR,35.25468,-120.6889,Graduated
+Off-Boarded Trees,90,missing funder,101.0,Koelreuteria bipinnata,Flame Tree,,2020-10-24 00:00:00,11832 LOVR,35.25461,-120.68885,Graduated
+Off-Boarded Trees,91,missing funder,102.0,Ulmus parvifolia ‘Drake’,Chinese Elm,,2020-10-24 00:00:00,1659 Huasna Dr.,35.25712,-120.68765,Graduated
+Off-Boarded Trees,92,missing funder,103.0,Pistacia chinensis,Chinese Pistache,,2020-10-27 00:00:00,652 Stanford Dr.,35.30057,-120.67955,Graduated
+Off-Boarded Trees,93,missing funder,104.0,Pistacia chinensis,Chinese Pistache,,2020-10-27 00:00:00,1019 Peach St.,35.28445,-120.66313,Graduated
+Off-Boarded Trees,94,missing funder,105.0,Koelreuteria bipinnata,Flame Tree,,2020-10-30 00:00:00,11832 LOVR,35.25464,-120.68887,Graduated
+Off-Boarded Trees,95,missing funder,106.0,Pistacia chinensis,Chinese Pistache,,2020-10-30 00:00:00,1151 Seaward St.,35.25812,-120.68491,Graduated
+Off-Boarded Trees,96,missing funder,107.0,Pistacia chinensis,Chinese Pistache,,2020-10-30 00:00:00,1151 Seaward St.,35.25808,-120.68501,Graduated
+Off-Boarded Trees,97,missing funder,108.0,Quercus tomentella,Island Oak,,2020-11-07 00:00:00,13 Perla Lane,35.24095,-120.6783,Graduated
+Off-Boarded Trees,98,missing funder,109.0,Pistacia chinensis,Chinese Pistache,,2020-11-07 00:00:00,25 Vista Lane,35.24035,-120.67895,Graduated
+Off-Boarded Trees,99,missing funder,110.0,Pistacia chinensis,Chinese Pistache,,2020-11-07 00:00:00,22 Vista Lane,35.24041,-120.67921,Graduated
+Off-Boarded Trees,100,missing funder,111.0,Quercus agrifolia,Coast Live Oak,,2020-11-07 00:00:00,47 Los Palos Drive,35.23997,-120.68072,Graduated
+Off-Boarded Trees,101,missing funder,112.0,Quercus agrifolia,Coast Live Oak,,2020-11-07 00:00:00,48 Los Palos Drive,35.24001,-120.68087,Graduated
+Off-Boarded Trees,102,missing funder,113.0,Quercus tomentella,Island Oak,,2020-11-07 00:00:00,51 Los Palos Drive,35.24019,-120.68139,Graduated
+Off-Boarded Trees,103,missing funder,114.0,Quercus tomentella,Island Oak,,2020-11-07 00:00:00,51 Los Palos Drive,35.24044,-120.68138,Graduated
+Off-Boarded Trees,104,missing funder,115.0,Pistacia chinensis,Chinese Pistache,,2020-11-07 00:00:00,58 Los Palos Drive,35.24121,-120.68084,Graduated
+Off-Boarded Trees,105,missing funder,116.0,Quercus tomentella,Island Oak,,2020-11-07 00:00:00,59 Los Palos Drive,35.2415,-120.68063,Graduated
+Off-Boarded Trees,106,missing funder,117.0,Quercus tomentella,Island Oak,,2020-11-07 00:00:00,60 Los Palos Drive,35.24165,-120.68052,Graduated
+Off-Boarded Trees,107,missing funder,118.0,Pistacia chinensis,Chinese Pistache,,2020-11-07 00:00:00,77 Los Palos Drive,35.24198,-120.6796,Graduated
+Off-Boarded Trees,108,missing funder,119.0,Pistacia chinensis,Chinese Pistache,,2020-11-07 00:00:00,71 Contenta Court,35.24124,-120.67952,Graduated
+Off-Boarded Trees,109,missing funder,120.0,Pistacia chinensis,Chinese Pistache,,2020-11-07 00:00:00,19 Vista Lane,35.24111,-120.67938,Graduated
+Off-Boarded Trees,110,missing funder,121.0,Pistacia chinensis,Chinese Pistache,,2020-11-07 00:00:00,62 Contenta Court,35.24155,-120.68034,Graduated
+Off-Boarded Trees,111,missing funder,122.0,Pistacia chinensis,Chinese Pistache,,2020-11-07 00:00:00,16 Vista Lane,35.24097,-120.6788,Graduated
+Off-Boarded Trees,112,missing funder,123.0,Ulmus parvifolia ‘Drake’,Chinese Elm,,2021-01-30 00:00:00,1654 Oceanaire Dr.,35.25892,-120.68405,Graduated
+Off-Boarded Trees,113,missing funder,124.0,Ulmus parvifolia ‘Drake’,Chinese Elm,,2021-01-30 00:00:00,1654 Oceanaire Dr.,35.25896,-120.68406,Graduated
+Off-Boarded Trees,114,missing funder,125.0,Pistacia chinensis,Chinese Pistache,,2021-01-30 00:00:00,1842 Huasna Dr.,35.25589,-120.68632,Graduated
+Off-Boarded Trees,115,missing funder,126.0,Pistacia chinensis,Chinese Pistache,,2021-01-30 00:00:00,1842 Huasna Dr.,35.25593,-120.68635,Graduated
+Off-Boarded Trees,116,missing funder,127.0,Pistacia chinensis,Chinese Pistache,,2020-02-16 00:00:00,1161 Atascadero St.,35.25919,-120.68663,Graduated
+Off-Boarded Trees,129,missing funder,90.0,Quercus suber,Cork Oak,,2020-05-26 00:00:00,500 block California,35.291768,-120.661136,Graduated
+Off-Boarded Trees,130,missing funder,91.0,Quercus suber,Cork Oak,,2020-05-26 00:00:00,500 block California,35.291873,-120.661224,Graduated
+Off-Boarded Trees,131,missing funder,92.0,Quercus suber,Cork Oak,,2020-09-27 00:00:00,500 block California,35.292041,-120.661367,Graduated
+Off-Boarded Trees,132,missing funder,93.0,Quercus suber,Cork Oak,,2020-09-27 00:00:00,500 block California,35.292118,-120.66142,Graduated
+Off-Boarded Trees,133,missing/invalid tree number; missing funder; missing/invalid lat/long,n/a,Angophora melanoxylon,Coolabah Apple,,2020-09-26 00:00:00,500 block California,-,-,Graduated
+Off-Boarded Trees,134,missing/invalid tree number; missing funder,n/a,Cassia leptophylla,Gold Medallion Tree,,2021-12-12 00:00:00,1604 Morro St.,35.27668,-120.658092,Graduated
+Off-Boarded Trees,135,missing/invalid tree number; missing funder,n/a,Cassia leptophylla,Gold Medallion Tree,,2021-12-12 00:00:00,1034 Church St.,35.276231,-120.655298,Graduated
+Off-Boarded Trees,145,missing common name,152.0,Quercus tomentella,,CAL Fire,2022-01-29 00:00:00,2220 Snowy Egret Ln,35.30295,-120.80125,Graduated
+Off-Boarded Trees,202,missing funder; missing/invalid date planted; missing address; missing/invalid lat/long,205.0,Pistacia chinensis,Chinese Pistache,,1810 Nipomo St,,,,Graduated
+Planted Log,90,duplicate ecoslo_num 311: kept row from '2526 Planting Season',311.0,Pistacia chinensis,Chinese Pistache,TBID,2023-12-02 00:00:00,1020 Southwood Dr,35.2675805,-120.643026,Active
+Planted Log,98,duplicate ecoslo_num 319: kept row from '2526 Planting Season',319.0,Pistacia chinensis,Chinese Pistache,TBID,2023-12-02 00:00:00,1020 Southwood Dr,35.2676084,-120.6425636,Active
+Planted Log,101,duplicate ecoslo_num 322: kept row from '2526 Planting Season',322.0,Robinia pseudoacacia,Purple Robe,TBID,2023-12-02 00:00:00,1020 Southwood Dr,35.2675422,-120.6422803,Active
+Planted Log,102,duplicate ecoslo_num 323: kept row from '2526 Planting Season',323.0,Robinia pseudoacacia,Black Locust,CAL Fire,2024-03-16 00:00:00,1329 Van Beurden Dr LO,35.3094684,-120.8258718,Active
+Planted Log,103,duplicate ecoslo_num 324: kept row from '2526 Planting Season',324.0,Robinia pseudoacacia,Black Locust,CAL Fire,2024-03-16 00:00:00,1330 Van Beurden Dr,35.3095347,-120.8257836,Active
+Planted Log,107,duplicate ecoslo_num 328: kept row from '2526 Planting Season',328.0,Cinnamomum camphora,Camphor,CAL Fire,2024-03-16 00:00:00,1330 Van Beurden Dr,35.3095962,-120.8257116,Active
+Planted Log,108,duplicate ecoslo_num 329: kept row from '2526 Planting Season',329.0,Robinia pseudoacacia,Black Locust,CAL Fire,2024-03-16 00:00:00,1330 Van Beurden Dr,35.309746,-120.825576,Active
+Planted Log,109,duplicate ecoslo_num 330: kept row from '2526 Planting Season',330.0,Robinia pseudoacacia,Black Locust,CAL Fire,2024-03-16 00:00:00,1330 Van Beurden Dr,35.309828,-120.8254849,Active
+Planted Log,110,duplicate ecoslo_num 331: kept row from '2526 Planting Season',331.0,Quercus suber,Cork Oak,CAL Fire,2024-03-16 00:00:00,1330 Van Beurden Dr,35.310159,-120.8260626,Active
+Planted Log,170,duplicate ecoslo_num 350: kept row from '2526 Planting Season',350.0,Jacaranda mimosifolia,Blue jacaranda,CAL Fire,2026-02-24 00:00:00,2251 Meadow St,35.26797,-120.65951,Active
+Planted Log,174,duplicate ecoslo_num 354: kept row from '2526 Planting Season',354.0,Quercus wislizeni,Interior Live Oak,CAL Fire,2024-06-01 00:00:00,2251 Meadow St,35.26764,-120.66323,Active
+Planted Log,175,duplicate ecoslo_num 355: kept row from '2526 Planting Season',355.0,Quercus wislizeni,Interior Live Oak,CAL Fire,2024-06-01 00:00:00,2251 Meadow St,35.26755,-120.66336,Active
+Planted Log,177,duplicate ecoslo_num 357: kept row from '2526 Planting Season',357.0,Quercus lobata,Valley Oak,CAL Fire,2024-06-01 00:00:00,2251 Meadow St,35.26793,-120.66342,Active
+Planted Log,179,duplicate ecoslo_num 359: kept row from '2526 Planting Season',359.0,Robinia pseudoacacia,Purple Robe,CAL Fire,2024-06-01 00:00:00,2251 Meadow St,35.26798,-120.65963,Active
+Planted Log,187,duplicate ecoslo_num 298: kept row from 'Planted Log',298.0,Quercus lobata,Valley Oak,CAL Fire,2024-06-01 00:00:00,2201 Lawton Ave,35.26768,-120.66313,Active
+Planted Log,196,duplicate ecoslo_num 421: kept row from '2526 Planting Season',421.0,Eucalyptus spathulata,Swamp mallee,TBID,2025-02-08 00:00:00,"900 Southwood Dr, SLO",35.267338,-120.646179,Active
+Planted Log,200,duplicate ecoslo_num 425: kept row from '2526 Planting Season',425.0,Eucalyptus spathulata,Swamp mallee,TBID,2025-02-08 00:00:00,"900 Southwood Dr, SLO",35.268044,-120.648094,Active

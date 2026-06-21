@@ -288,24 +288,6 @@ export type Database = {
         };
         Relationships: [];
       };
-      test: {
-        Row: {
-          created_at: string;
-          id: number;
-          name: string | null;
-        };
-        Insert: {
-          created_at?: string;
-          id?: number;
-          name?: string | null;
-        };
-        Update: {
-          created_at?: string;
-          id?: number;
-          name?: string | null;
-        };
-        Relationships: [];
-      };
       trees: {
         Row: {
           address: string;
@@ -450,10 +432,7 @@ export type Database = {
       };
     };
     Functions: {
-      complete_task: {
-        Args: { p_task_id: number };
-        Returns: undefined;
-      };
+      complete_task: { Args: { p_task_id: number }; Returns: undefined };
       complete_task_survey: {
         Args: { p_task_id: number; p_tree?: number };
         Returns: undefined;
@@ -489,9 +468,16 @@ export type Database = {
         Returns: undefined;
       };
       is_admin: { Args: never; Returns: boolean };
+      mark_task_tree_completed: {
+        Args: {
+          p_task: Database["public"]["Tables"]["tasks"]["Row"];
+          p_tree: number;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
-      Condition: "good" | "fair" | "poor";
+      Condition: "good" | "fair" | "poor" | "okay" | "decent" | "dead";
       MemberType: "Admin" | "Tree Keeper";
       MulchingStatus: "Completed" | "Pending";
       TaskSurveyMode: "none" | "optional" | "required";
@@ -617,7 +603,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      Condition: ["good", "fair", "poor"],
+      Condition: ["good", "fair", "poor", "okay", "decent", "dead"],
       MemberType: ["Admin", "Tree Keeper"],
       MulchingStatus: ["Completed", "Pending"],
       TaskSurveyMode: ["none", "optional", "required"],
