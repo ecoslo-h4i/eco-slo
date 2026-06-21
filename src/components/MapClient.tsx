@@ -255,8 +255,8 @@ export default function MapClient() {
   };
 
   return (
-    <main className="flex-1 w-full min-h-screen bg-off-white">
-      <div className="isolate relative h-screen w-full overflow-hidden bg-off-white">
+    <main className="h-full w-full bg-off-white">
+      <div className="isolate relative h-full w-full overflow-hidden bg-off-white">
         <div ref={mapContainerRef} className="absolute inset-0 z-0 h-full w-full" />
 
         <div className="pointer-events-none absolute inset-0 z-10 p-6 max-md:p-4">
@@ -289,7 +289,7 @@ export default function MapClient() {
               </button>
             </div>
 
-            <div className="pointer-events-auto w-fit rounded-2xl border border-border bg-off-white px-5 py-4 shadow-map-control">
+            <div className="pointer-events-auto min-w-0 flex-1 rounded-2xl border border-border bg-off-white px-4 py-3 shadow-map-control md:flex-none md:w-fit md:px-5 md:py-4">
               <MapControlPanel trees={locations} onFilter={setFilteredLocations} onCenter={handleCenter} />
             </div>
           </div>

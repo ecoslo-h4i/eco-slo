@@ -383,14 +383,14 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
         </ModalHeader>
 
         {showSurvey && !isAddingTask ? (
-          <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[70vh]">
+          <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[60dvh] md:max-h-[70vh]">
             <div className="bg-foreground p-6 border border-border rounded-xl">
               <TaskSurveyForm taskId={task.id} onSurveySubmitted={onSaved} onCompleted={handleSurveyCompleted} />
             </div>
           </ModalDescription>
         ) : (
           <form onSubmit={handleSubmit}>
-            <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[70vh]">
+            <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[60dvh] md:max-h-[70vh]">
               <div className="bg-foreground p-4 border border-border rounded-xl">
                 <p className="text-lg font-serif font-bold text-text-dark pb-2">
                   {isAddingTask ? "Task Information" : "Details"}
@@ -573,7 +573,7 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
                         </div>
                       ) : null}
 
-                      <div className="flex gap-x-4">
+                      <div className="flex flex-col gap-4 sm:flex-row">
                         <div className="flex-1 flex flex-col items-start gap-y-1">
                           <p className="text-text-muted font-semibold">Created</p>
                           <p className="text-text-dark font-medium">{formatDate(task?.created_at)}</p>
@@ -600,10 +600,11 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
             <ModalFooter>
               <div className="flex flex-col w-full gap-y-4">
                 <div className="bg-border h-px w-full" />
-                <div className="flex justify-end gap-x-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end sm:gap-x-4">
                   <AppButton
                     type="button"
                     variant="secondary"
+                    className="w-full sm:w-auto"
                     onClick={(event) => {
                       event.stopPropagation();
                       handleClose(false);
@@ -612,7 +613,7 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
                     Cancel
                   </AppButton>
                   {isEditing ? (
-                    <AppButton disabled={isSubmitting || !hasFormChanges} type="submit">
+                    <AppButton className="w-full sm:w-auto" disabled={isSubmitting || !hasFormChanges} type="submit">
                       {isSubmitting
                         ? isAddingTask
                           ? "Creating…"
@@ -627,13 +628,20 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
                         <AppButton
                           type="button"
                           variant={isComplete ? "primary" : "secondary"}
+                          className="w-full sm:w-auto"
                           onClick={handleShowSurvey}
                         >
                           {isComplete ? "Submit Additional Survey" : "Submit Survey"}
                         </AppButton>
                       ) : null}
                       {!isComplete ? (
-                        <AppButton type="button" variant="primary" onClick={handleComplete} disabled={completing}>
+                        <AppButton
+                          type="button"
+                          variant="primary"
+                          className="w-full sm:w-auto"
+                          onClick={handleComplete}
+                          disabled={completing}
+                        >
                           {completing
                             ? "Completing…"
                             : requiredSurveyOutstanding
@@ -652,7 +660,12 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
 
       {!isAddingTask ? (
         <Modal open={deleteConfirmationOpen} onOpenChange={setDeleteConfirmationOpen}>
-          <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false} widthClassName="px-8">
+          <ModalContent
+            className="bg-card"
+            closeOnOverlayClick={false}
+            showCloseButton={false}
+            widthClassName="px-6 md:px-8"
+          >
             <ModalHeader>
               <div className="flex items-center justify-between gap-x-4">
                 <h2 className="w-full text-center text-2xl text-text-dark font-serif font-extrabold">Delete Task</h2>

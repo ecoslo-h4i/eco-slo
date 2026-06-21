@@ -122,8 +122,8 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
   if (!tree) return null;
 
   return (
-    <aside className="absolute right-0 top-0 z-20 flex h-full w-full max-w-md flex-col bg-off-white px-7 py-9 shadow-panel max-md:bottom-0 max-md:top-auto max-md:h-3/4 max-md:max-w-none max-md:rounded-t-3xl max-md:px-5">
-      <div className="mb-7 flex items-start justify-between gap-4">
+    <aside className="absolute right-0 top-0 z-20 flex h-full w-full max-w-md flex-col bg-off-white px-7 py-9 shadow-panel max-md:bottom-0 max-md:top-auto max-md:h-3/4 max-md:max-w-none max-md:rounded-t-3xl max-md:px-5 max-md:py-5">
+      <div className="mb-7 flex items-start justify-between gap-4 max-md:mb-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="font-serif text-3xl font-medium leading-none text-text">#{tree.id}</h2>
@@ -159,7 +159,7 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
         </InfoBlock>
       </div>
 
-      <div className="mt-7 border-t border-border pt-6">
+      <div className="mt-7 border-t border-border pt-6 max-md:mt-4 max-md:pt-4">
         <AppButton
           type="button"
           className="mb-3 w-full"
@@ -174,8 +174,8 @@ export default function MapPopout({ tree, onClose }: MapPopoutProps) {
         </AppButton>
       </div>
       {isReporting ? (
-        <div className="fixed inset-0 z-30 flex items-center justify-center bg-text/45 px-4">
-          <div className="w-full max-w-xl overflow-hidden rounded-3xl bg-off-white p-8 shadow-2xl">
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-text/45 p-4">
+          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-xl overflow-y-auto rounded-3xl bg-off-white p-5 shadow-2xl md:p-8">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h2 className="font-serif text-3xl font-normal leading-none text-text">Report an Issue</h2>

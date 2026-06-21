@@ -6,7 +6,7 @@ import ReminderTextInput from "./ReminderTextInput";
 import ReminderTimePicker from "./ReminderTimePicker";
 import ReminderMonthlyDayPicker from "./ReminderMonthlyDayPicker";
 import ReminderYearlyDatePicker, { type YearlyDate } from "./ReminderYearlyDatePicker";
-import { Calendar, SquarePen, Trash2 } from "lucide-react";
+import { Calendar, ChevronLeft, SquarePen, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import ReminderLongTextInput from "./ReminderLongTextInput";
 import ReminderToggleArea from "./ReminderToggleArea";
@@ -69,6 +69,8 @@ interface ReminderViewProps {
   assigneeLabel?: string;
   members: Member[];
   mode: ReminderViewMode;
+  /** Mobile-only: returns to the reminders list pane. */
+  onBack?: () => void;
   onCancel?: () => void;
   onDeleted?: (reminderId: number) => void;
   onEdit?: () => void;
@@ -102,6 +104,7 @@ export default function ReminderView({
   assigneeLabel,
   members,
   mode,
+  onBack,
   onCancel,
   onDeleted,
   onEdit,
@@ -225,13 +228,23 @@ export default function ReminderView({
   const nextSendLabel = useMemo(() => getNextSendLabel(form), [form]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-6 overflow-auto no-scrollbar rounded-xl border-1 border-border bg-table-row-dark p-6">
-      <div className="flex flex-row items-center justify-between">
-        <div className="flex flex-col gap-2">
-          <h1 className="font-serif text-[26px] font-normal leading-tight">{headerTitle}</h1>
+    <div className="flex h-full min-h-0 flex-col gap-6 overflow-auto no-scrollbar rounded-xl border-1 border-border bg-table-row-dark p-4 md:p-6">
+      {onBack ? (
+        <button
+          type="button"
+          className="flex min-h-11 w-fit cursor-pointer items-center gap-1 rounded-lg pr-3 font-mulish text-sm font-semibold text-text-muted transition-colors hover:text-text md:hidden"
+          onClick={onBack}
+        >
+          <ChevronLeft aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+          <span>Back to overview</span>
+        </button>
+      ) : null}
+      <div className="flex flex-row items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-2">
+          <h1 className="break-words font-serif text-[26px] font-normal leading-tight">{headerTitle}</h1>
           <span className="font-mulish text-m font-normal text-text-muted">{headerSubtitle}</span>
         </div>
-        <div className="flex flex-row items-center gap-4">
+        <div className="flex shrink-0 flex-row items-center gap-4">
           {(isViewMode || isEditMode) && (
             <AppButton
               icon={<Trash2 size={20} className="text-danger" />}
@@ -272,8 +285,8 @@ export default function ReminderView({
           />
         </div>
       )}
-      <div className="flex flex-row gap-4">
-        <div className="flex min-w-0 basis-1/2 text-text-dark">
+      <div className="flex flex-col gap-4 lg:flex-row">
+        <div className="flex w-full min-w-0 text-text-dark lg:basis-1/2">
           {isCreateMode ? (
             <ReminderDropdown
               disabled={isReadOnly}
@@ -297,7 +310,7 @@ export default function ReminderView({
             />
           )}
         </div>
-        <div className="flex min-w-0 basis-1/2 text-text-dark">
+        <div className="flex w-full min-w-0 text-text-dark lg:basis-1/2">
           <ReminderNestedMultiSelectDropdown
             disabled={isReadOnly}
             triggerClassName={viewInputBackgroundClass}
@@ -310,8 +323,8 @@ export default function ReminderView({
         </div>
       </div>
       <div className="flex flex-col gap-4">
-        <div className="flex flex-row gap-4">
-          <div className="flex basis-1/2 text-text-dark">
+        <div className="flex flex-col gap-4 lg:flex-row">
+          <div className="flex w-full text-text-dark lg:basis-1/2">
             <ReminderDropdown
               triggerClassName={viewInputBackgroundClass}
               disabled={isReadOnly}
@@ -322,7 +335,7 @@ export default function ReminderView({
               onOptionClick={handleRepeatChange}
             />
           </div>
-          <div className="flex basis-1/2 text-text-dark">
+          <div className="flex w-full text-text-dark lg:basis-1/2">
             <ReminderTimePicker
               inputClassName={viewInputBackgroundClass}
               disabled={isReadOnly}
@@ -335,8 +348,8 @@ export default function ReminderView({
         </div>
 
         {form.repeat === "weekly" && (
-          <div className="flex flex-row items-start gap-4">
-            <div className="flex basis-1/2 text-text-dark">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+            <div className="flex w-full text-text-dark lg:basis-1/2">
               <ReminderDropdown
                 disabled={isReadOnly}
                 label="Day of Week"
@@ -346,7 +359,7 @@ export default function ReminderView({
                 onOptionClick={(value) => updateForm("dayOfWeek", value)}
               />
             </div>
-            <div className="flex basis-1/2 items-center gap-4 self-end rounded-lg border border-border bg-table-header px-4 py-3">
+            <div className="flex w-full items-center gap-4 rounded-lg border border-border bg-table-header px-4 py-3 lg:basis-1/2 lg:self-end">
               <div className="flex items-center rounded-lg bg-primary p-2">
                 <Calendar className="text-on-primary" size={24} />
               </div>
@@ -409,8 +422,8 @@ export default function ReminderView({
           onChange={(event) => updateForm("message", event.target.value)}
         />
       </div>
-      <div className="flex flex-row gap-4">
-        <div className="basis-1/2">
+      <div className="flex flex-col gap-4 lg:flex-row">
+        <div className="w-full lg:basis-1/2">
           <ReminderToggleArea
             disabled={isReadOnly}
             label="Active Status"
@@ -420,7 +433,7 @@ export default function ReminderView({
             onChange={(value) => updateForm("isActive", value)}
           />
         </div>
-        <div className="basis-1/2">
+        <div className="w-full lg:basis-1/2">
           <ReminderDropdown
             triggerClassName={viewInputBackgroundClass}
             disabled={isReadOnly}
@@ -445,7 +458,7 @@ export default function ReminderView({
           />
         </div>
       ) : null}
-      <div className="basis-1/3">
+      <div className="w-full">
         <ReminderToggleArea
           disabled={isReadOnly}
           label="Set Group Task"
@@ -458,11 +471,11 @@ export default function ReminderView({
       {!isViewMode && (
         <>
           <hr className="border-0 border-t border-text-muted w-full"></hr>
-          <div className="flex flex-row gap-4">
-            <AppButton className="basis-1/2" disabled={isSubmitting} onClick={handleSubmit}>
+          <div className="flex flex-col gap-3 lg:flex-row lg:gap-4">
+            <AppButton className="w-full lg:basis-1/2" disabled={isSubmitting} onClick={handleSubmit}>
               {isSubmitting ? "Saving..." : submitLabel}
             </AppButton>
-            <AppButton className="basis-1/2" variant="secondary" onClick={onCancel}>
+            <AppButton className="w-full lg:basis-1/2" variant="secondary" onClick={onCancel}>
               Cancel
             </AppButton>
           </div>
@@ -471,7 +484,12 @@ export default function ReminderView({
       )}
 
       <Modal open={deleteConfirmationOpen} onOpenChange={setDeleteConfirmationOpen}>
-        <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false} widthClassName="px-8">
+        <ModalContent
+          className="bg-card"
+          closeOnOverlayClick={false}
+          showCloseButton={false}
+          widthClassName="px-6 md:px-8"
+        >
           <ModalHeader>
             <div className="flex items-center justify-between gap-x-4">
               <h2 className="w-full text-center text-2xl text-text-dark font-serif font-extrabold">

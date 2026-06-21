@@ -39,7 +39,7 @@ export default function PaginationControls<T extends Record<string, unknown>>({
         </p>
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger
-            className={cn(selectTriggerClassName, "min-h-8 w-16 rounded-lg px-2 py-1 lg:w-20 lg:px-3")}
+            className={cn(selectTriggerClassName, "min-h-8 max-lg:w-16 rounded-lg px-2 py-1 lg:w-20 lg:px-3")}
           >
             <span>{table.getPageSize()}</span>
             <ChevronDown
@@ -74,7 +74,7 @@ export default function PaginationControls<T extends Record<string, unknown>>({
       </div>
       <div className="flex gap-1 items-center">
         <button
-          className={appButtonClassName({ className: "hidden lg:inline-flex", iconOnly: true, variant: "secondary" })}
+          className={appButtonClassName({ className: "max-lg:hidden", iconOnly: true, variant: "secondary" })}
           disabled={previousDisabled}
           onClick={table.firstPage}
         >
@@ -99,7 +99,7 @@ export default function PaginationControls<T extends Record<string, unknown>>({
           <ChevronRight className="w-4 h-4" />
         </button>
         <button
-          className={appButtonClassName({ className: "hidden lg:inline-flex", iconOnly: true, variant: "secondary" })}
+          className={appButtonClassName({ className: "max-lg:hidden", iconOnly: true, variant: "secondary" })}
           disabled={nextDisabled}
           onClick={table.lastPage}
         >

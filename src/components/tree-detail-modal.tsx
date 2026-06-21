@@ -509,12 +509,12 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
             <div className="bg-border h-px w-full" />
           </ModalHeader>
 
-          <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[70vh]">
+          <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[60dvh] md:max-h-[70vh]">
             {/* Tree Information */}
             <div className="bg-foreground p-4 border border-border rounded-xl">
               <p className="text-lg font-serif font-bold text-text-dark pb-2">Tree Information</p>
               <div className="flex flex-col gap-y-4">
-                <div className="flex gap-x-4">
+                <div className="flex flex-col gap-4 sm:flex-row">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>ECOSLO #</span>
@@ -550,7 +550,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                     )}
                   </div>
                 </div>
-                <div className="flex gap-x-4">
+                <div className="flex flex-col gap-4 sm:flex-row">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>Species</span>
@@ -586,7 +586,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                     )}
                   </div>
                 </div>
-                <div className="flex gap-x-4">
+                <div className="flex flex-col gap-4 sm:flex-row">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>Funder</span>
@@ -622,7 +622,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                     )}
                   </div>
                 </div>
-                <div className="flex gap-x-4">
+                <div className="flex flex-col gap-4 sm:flex-row">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">Condition</p>
                     {isEditing ? (
@@ -678,7 +678,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                     <p className="text-text-dark font-medium">{display(treeForm.address)}</p>
                   )}
                 </div>
-                <div className="flex gap-x-4">
+                <div className="flex flex-col gap-4 sm:flex-row">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>Latitude</span>
@@ -751,7 +751,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                       <p className="text-text-muted font-semibold">Name</p>
                       <p className="text-text-dark font-medium">{treeKeeper!.name}</p>
                     </div>
-                    <div className="flex gap-x-4">
+                    <div className="flex flex-col gap-4 sm:flex-row">
                       <div className="flex-1 flex flex-col items-start gap-y-1">
                         <p className="text-text-muted font-semibold">Phone</p>
                         <p className="text-text-dark font-medium">
@@ -784,7 +784,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
             <div className="bg-foreground p-4 border border-border rounded-xl">
               <p className="text-lg font-serif font-bold text-text-dark pb-2">Maintenance</p>
               <div className="flex flex-col gap-y-4">
-                <div className="flex gap-x-4">
+                <div className="flex flex-col gap-4 sm:flex-row">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">Next Watering Date</p>
                     {isEditing && canEditAll ? (
@@ -812,7 +812,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                     )}
                   </div>
                 </div>
-                <div className="flex gap-x-4">
+                <div className="flex flex-col gap-4 sm:flex-row">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">Next Mulching Date</p>
                     {isEditing && canEditAll ? (
@@ -952,7 +952,12 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
       </ModalContent>
 
       <Modal open={duplicateEcosloNum !== null} onOpenChange={() => setDuplicateEcosloNum(null)}>
-        <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false} widthClassName="px-8">
+        <ModalContent
+          className="bg-card"
+          closeOnOverlayClick={false}
+          showCloseButton={false}
+          widthClassName="px-6 md:px-8"
+        >
           <ModalHeader>
             <div className="flex items-center justify-between gap-x-4">
               <h2 className="w-full text-center text-2xl text-text-dark font-serif font-extrabold">
@@ -976,7 +981,12 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
       </Modal>
 
       <Modal open={deleteConfirmationOpen} onOpenChange={setDeleteConfirmationOpen}>
-        <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false} widthClassName="px-8">
+        <ModalContent
+          className="bg-card"
+          closeOnOverlayClick={false}
+          showCloseButton={false}
+          widthClassName="px-6 md:px-8"
+        >
           <ModalHeader>
             <div className="flex items-center justify-between gap-x-4">
               <h2 className="w-full text-center text-2xl text-text-dark font-serif font-extrabold">

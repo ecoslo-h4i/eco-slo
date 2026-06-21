@@ -411,11 +411,11 @@ function VolunteerPageFormContent({ member, onOpenChange, onSaved }: Omit<Volunt
             </div>
             <div className="bg-border h-px w-full" />
           </ModalHeader>
-          <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[70vh]">
+          <ModalDescription className="flex flex-col gap-y-4 py-4 overflow-y-auto max-h-[60dvh] md:max-h-[70vh]">
             <div className="bg-foreground p-4 border border-border rounded-xl">
               <p className="text-lg font-serif font-bold text-text-dark pb-2">Contact Information</p>
               <div className="flex flex-col gap-y-4">
-                <div className="flex gap-x-4">
+                <div className="flex flex-col gap-4 sm:flex-row">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">
                       <span>First Name</span>
@@ -451,7 +451,7 @@ function VolunteerPageFormContent({ member, onOpenChange, onSaved }: Omit<Volunt
                     )}
                   </div>
                 </div>
-                <div className="flex gap-x-4">
+                <div className="flex flex-col gap-4 sm:flex-row">
                   <div className="flex-1 flex flex-col items-start gap-y-1">
                     <p className="text-text-muted font-semibold">Phone</p>
                     {isEditing ? (
@@ -619,7 +619,12 @@ function VolunteerPageFormContent({ member, onOpenChange, onSaved }: Omit<Volunt
       </ModalContent>
 
       <Modal open={deleteConfirmationOpen} onOpenChange={setDeleteConfirmationOpen}>
-        <ModalContent className="bg-card" closeOnOverlayClick={false} showCloseButton={false} widthClassName="px-8">
+        <ModalContent
+          className="bg-card"
+          closeOnOverlayClick={false}
+          showCloseButton={false}
+          widthClassName="px-6 md:px-8"
+        >
           <ModalHeader>
             <div className="flex items-center justify-between gap-x-4">
               <h2 className="w-full text-center text-2xl text-text-dark font-serif font-extrabold">{`Delete ${displayedName}`}</h2>

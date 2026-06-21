@@ -239,7 +239,10 @@ export default function Tasks() {
                     </p>
                     <DropdownMenu open={pageSizeOpen} onOpenChange={setPageSizeOpen}>
                       <DropdownMenuTrigger
-                        className={cn(selectTriggerClassName, "min-h-8 w-16 rounded-lg px-2 py-1 lg:w-20 lg:px-3")}
+                        className={cn(
+                          selectTriggerClassName,
+                          "min-h-8 max-lg:w-16 rounded-lg px-2 py-1 lg:w-20 lg:px-3",
+                        )}
                       >
                         <span>{pageSize}</span>
                         <ChevronDown
@@ -270,7 +273,7 @@ export default function Tasks() {
                     <button
                       type="button"
                       className={appButtonClassName({
-                        className: "hidden lg:inline-flex",
+                        className: "max-lg:hidden",
                         iconOnly: true,
                         variant: "secondary",
                       })}
@@ -305,7 +308,7 @@ export default function Tasks() {
                     <button
                       type="button"
                       className={appButtonClassName({
-                        className: "hidden lg:inline-flex",
+                        className: "max-lg:hidden",
                         iconOnly: true,
                         variant: "secondary",
                       })}

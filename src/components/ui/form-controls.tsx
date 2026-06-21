@@ -37,9 +37,11 @@ const buttonRadiusClasses: Record<ButtonRadius, string> = {
   small: "rounded-lg",
 };
 
+// Base sizes meet the 44px mobile touch-target guidance; md: restores the
+// tighter desktop heights.
 const buttonSizeClasses: Record<ButtonSize, string> = {
-  sm: "min-h-8 px-3 py-2 text-sm",
-  md: "min-h-10 px-4 py-2.5 text-base",
+  sm: "min-h-11 px-3 py-2 text-sm md:min-h-8",
+  md: "min-h-11 px-4 py-2.5 text-base md:min-h-10",
   lg: "min-h-12 px-6 py-3 text-base",
 };
 
@@ -62,7 +64,7 @@ export function appButtonClassName({
     "disabled:cursor-not-allowed disabled:opacity-50",
     buttonVariantClasses[variant],
     buttonRadiusClasses[iconOnly ? "small" : radius],
-    iconOnly ? "h-9 w-9 p-0" : buttonSizeClasses[size],
+    iconOnly ? "h-11 w-11 p-0 md:h-9 md:w-9" : buttonSizeClasses[size],
     className,
   );
 }
@@ -270,7 +272,7 @@ export function PillGroup({ activeValue, className, optionClassName, options, on
             key={`${option.value}-${index}`}
             type="button"
             className={cn(
-              "inline-flex min-h-8 cursor-pointer select-none items-center justify-center rounded-full border px-3.5 py-1.5 font-mulish text-sm font-semibold leading-none transition-colors duration-150",
+              "inline-flex min-h-11 cursor-pointer select-none items-center justify-center rounded-full border px-3.5 py-1.5 font-mulish text-sm font-semibold leading-none transition-colors duration-150 md:min-h-8",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25",
               isActive
                 ? "border-primary bg-primary text-on-primary hover:bg-primary-hover"

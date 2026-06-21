@@ -7,11 +7,16 @@ import { AppButton } from "@/components/ui/form-controls";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AdminPageShell } from "@/components/admin-page-shell";
+import { cn } from "@/lib/utils";
 
 type Member = Tables<"members">;
 type Reminder = Tables<"reminders">;
 type Template = Tables<"templates">;
 type ReminderViewMode = "create" | "edit" | "view";
+// Below md only one pane fits, so the page swaps between the overview list
+// and the editor; both stay mounted (just hidden) so desktop and form state
+// are unaffected.
+type MobilePane = "list" | "editor";
 
 export default function Reminders() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -19,6 +24,7 @@ export default function Reminders() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedReminderId, setSelectedReminderId] = useState<number | null>(null);
   const [reminderViewMode, setReminderViewMode] = useState<ReminderViewMode>("create");
+  const [mobilePane, setMobilePane] = useState<MobilePane>("list");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,11 +53,21 @@ export default function Reminders() {
   const handleCreateReminder = () => {
     setSelectedReminderId(null);
     setReminderViewMode("create");
+    setMobilePane("editor");
+  };
+
+  // Cancel resets the editor like handleCreateReminder, but on mobile it
+  // returns to the list instead of leaving a blank editor on screen.
+  const handleCancelEdit = () => {
+    setSelectedReminderId(null);
+    setReminderViewMode("create");
+    setMobilePane("list");
   };
 
   const handleSelectReminder = (reminderId: number) => {
     setSelectedReminderId(reminderId);
     setReminderViewMode("view");
+    setMobilePane("editor");
   };
 
   const handleEditReminder = () => {
@@ -77,12 +93,13 @@ export default function Reminders() {
     setReminders((currentReminders) => currentReminders.filter((reminder) => reminder.id !== deletedReminderId));
     setSelectedReminderId(null);
     setReminderViewMode("create");
+    setMobilePane("list");
   };
 
   return (
     <AdminPageShell
       title="Reminders"
-      className="h-screen overflow-hidden"
+      className="h-full overflow-hidden"
       contentClassName="h-full min-h-0"
       actions={
         <AppButton icon={Plus} radius="small" onClick={handleCreateReminder}>
@@ -90,8 +107,8 @@ export default function Reminders() {
         </AppButton>
       }
     >
-      <div className="flex min-h-0 flex-1 flex-row gap-8">
-        <div className="min-h-0 basis-1/3">
+      <div className="flex min-h-0 flex-1 flex-col gap-6 md:flex-row md:gap-8">
+        <div className={cn("min-h-0 flex-1 md:grow-0 md:basis-1/3", mobilePane === "editor" && "max-md:hidden")}>
           <RemindersList
             reminders={reminders}
             assigneeLabels={assigneeLabels}
@@ -99,13 +116,14 @@ export default function Reminders() {
             onSelectReminder={handleSelectReminder}
           />
         </div>
-        <div className="min-h-0 basis-2/3">
+        <div className={cn("min-h-0 flex-1 md:grow-0 md:basis-2/3", mobilePane === "list" && "max-md:hidden")}>
           <ReminderView
             key={`${selectedReminder?.id ?? "new"}-${members.length}`}
             assigneeLabel={selectedAssigneeLabel}
             members={members}
             mode={reminderViewMode}
-            onCancel={handleCreateReminder}
+            onBack={() => setMobilePane("list")}
+            onCancel={handleCancelEdit}
             onDeleted={handleReminderDeleted}
             onEdit={handleEditReminder}
             onSaved={handleReminderSaved}
