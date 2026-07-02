@@ -146,6 +146,31 @@ export async function DELETE(req: NextRequest, { params }: IParams) {
           }
         }
       }
+
+      const { data: affectedTasks, error: taskLookupError } = await adminClient
+        .from("tasks")
+        .select("id, tree_targets")
+        .contains("tree_targets", [ecosloNum]);
+
+      if (taskLookupError) {
+        console.error("[trees DELETE] failed to find tasks with deleted tree:", taskLookupError);
+      } else if (affectedTasks) {
+        for (const task of affectedTasks) {
+          const currentTargets: number[] = Array.isArray(task.tree_targets)
+            ? task.tree_targets.filter((n: unknown): n is number => typeof n === "number")
+            : [];
+          const cleaned = currentTargets.filter((n) => n !== ecosloNum);
+
+          const { error: cleanupError } = await adminClient
+            .from("tasks")
+            .update({ tree_targets: cleaned })
+            .eq("id", task.id);
+
+          if (cleanupError) {
+            console.error("[trees DELETE] failed to clean up task", task.id, cleanupError);
+          }
+        }
+      }
     }
 
     return NextResponse.json({ message: data }, { status: 200 });
