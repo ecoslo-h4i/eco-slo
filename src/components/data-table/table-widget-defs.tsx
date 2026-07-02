@@ -381,15 +381,17 @@ export const memberColumns: ColumnDef<MemberSchema>[] = [
     accessorKey: "trees_assigned",
     name: "Trees Assigned",
     cell: (value) => {
-      const treeIds =
-        Array.isArray(value) && value.every((treeId): treeId is number => typeof treeId === "number") ? value : [];
+      const ecoslo_nums =
+        Array.isArray(value) && value.every((ecoslo_num): ecoslo_num is number => typeof ecoslo_num === "number")
+          ? value
+          : [];
 
       return (
         <Badge shape="rounded" variant="muted">
-          {treeIds.length > 0 ? (
+          {ecoslo_nums.length > 0 ? (
             <span className="flex justify-between gap-x-2 max-w-48">
-              <span className="truncate">{treeIds.map((id) => `#${id}`).join(", ")}</span>
-              {treeIds.length >= 5 && <span className="font-extrabold">{treeIds.length}</span>}
+              <span className="truncate">{ecoslo_nums.map((id) => `#${id}`).join(", ")}</span>
+              {ecoslo_nums.length >= 5 && <span className="font-extrabold">{ecoslo_nums.length}</span>}
             </span>
           ) : (
             "No Trees"
