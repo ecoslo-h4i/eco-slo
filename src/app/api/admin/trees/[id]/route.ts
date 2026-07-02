@@ -70,12 +70,80 @@ export async function PUT(req: NextRequest, { params }: IParams) {
     const { id } = await params;
     const body = await req.json();
 
+    // If ecoslo_num is being changed, capture the current value first so we can
+    // propagate the rename to the columns that reference it. surveys.tree follows
+    // automatically via its FK (ON UPDATE CASCADE); members.trees_assigned and
+    // tasks.tree_targets are plain bigint[] with no FK, so we remap them below.
+    let oldEcosloNum: number | null = null;
+    if (body && typeof body === "object" && "ecoslo_num" in body) {
+      const { data: existing } = await supabase.from("trees").select("ecoslo_num").eq("id", id).maybeSingle();
+      oldEcosloNum = typeof existing?.ecoslo_num === "number" ? existing.ecoslo_num : null;
+    }
+
     const { data, error } = await supabase.from("trees").update(body).eq("id", id).select().single();
 
     if (error) {
       const status = postgrestErrorToHttpStatus(error);
       return NextResponse.json({ error: error }, { status: status });
     }
+
+    const newEcosloNum = typeof data?.ecoslo_num === "number" ? data.ecoslo_num : null;
+    if (oldEcosloNum !== null && newEcosloNum !== null && oldEcosloNum !== newEcosloNum) {
+      const oldNum = oldEcosloNum;
+      const newNum = newEcosloNum;
+      const adminClient = await createServiceRoleClient();
+
+      const { data: affectedMembers, error: memberLookupError } = await adminClient
+        .from("members")
+        .select("id, trees_assigned")
+        .contains("trees_assigned", [oldNum]);
+
+      if (memberLookupError) {
+        console.error("[trees PUT] failed to find members with renamed tree:", memberLookupError);
+      } else if (affectedMembers) {
+        for (const member of affectedMembers) {
+          const current: number[] = Array.isArray(member.trees_assigned)
+            ? member.trees_assigned.filter((n: unknown): n is number => typeof n === "number")
+            : [];
+          const remapped = current.map((n) => (n === oldNum ? newNum : n));
+
+          const { error: remapError } = await adminClient
+            .from("members")
+            .update({ trees_assigned: remapped })
+            .eq("id", member.id);
+
+          if (remapError) {
+            console.error("[trees PUT] failed to remap member", member.id, remapError);
+          }
+        }
+      }
+
+      const { data: affectedTasks, error: taskLookupError } = await adminClient
+        .from("tasks")
+        .select("id, tree_targets")
+        .contains("tree_targets", [oldNum]);
+
+      if (taskLookupError) {
+        console.error("[trees PUT] failed to find tasks with renamed tree:", taskLookupError);
+      } else if (affectedTasks) {
+        for (const task of affectedTasks) {
+          const current: number[] = Array.isArray(task.tree_targets)
+            ? task.tree_targets.filter((n: unknown): n is number => typeof n === "number")
+            : [];
+          const remapped = current.map((n) => (n === oldNum ? newNum : n));
+
+          const { error: remapError } = await adminClient
+            .from("tasks")
+            .update({ tree_targets: remapped })
+            .eq("id", task.id);
+
+          if (remapError) {
+            console.error("[trees PUT] failed to remap task", task.id, remapError);
+          }
+        }
+      }
+    }
+
     return NextResponse.json({ message: data }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
