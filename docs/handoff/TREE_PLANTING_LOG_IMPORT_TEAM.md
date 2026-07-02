@@ -6,7 +6,11 @@ default we applied, how to use the leftover "skipped" file, and the prioritized
 next steps.
 
 Audience: ECOSLO team / developers. A plain-language version for the client is in
-**`TREE_PLANTING_LOG_IMPORT_CLIENT.md`**. Last updated: 2026-06-21.
+**`TREE_PLANTING_LOG_IMPORT_CLIENT.md`**. Last updated: 2026-06-25.
+
+> **✅ Status: COMPLETE.** Initial import, seed cleanup, keeper backfill, and the
+> client-corrected final pass are all done and verified against the live database.
+> **Final live state: 580 trees, 150 members, 71 keeperless trees** (see §2 step 5).
 
 ---
 
@@ -20,6 +24,10 @@ Audience: ECOSLO team / developers. A plain-language version for the client is i
 
 Every one of the **602** source data rows is accounted for: `461 imported + 124
 skipped (bad/missing data) + 17 dropped duplicates = 602`.
+
+> _This is the **initial** import snapshot. The client later corrected the skipped
+> file, and the final pass (§2 step 5) added 120 of those trees. **Current live
+> total: 580 trees / 150 members.**_
 
 Source sheets used (others — _Dead Trees, Pivot Table, ReLeaf Final List_ — were ignored):
 
@@ -48,8 +56,16 @@ Source sheets used (others — _Dead Trees, Pivot Table, ReLeaf Final List_ — 
 3. **Imported** `trees.csv` → `public.trees`, then `members.csv` → `public.members`
    (the `needs_review` helper column was excluded — see §6).
 4. **Tree-keeper links backfilled** (`scripts/link_tree_keepers.sql`) — set
-   `trees.tree_keeper_id` from each member's `trees_assigned`. 386 trees now have
-   a keeper.
+   `trees.tree_keeper_id` from each member's `trees_assigned`. 386 trees got a keeper.
+5. **Client-corrected final pass** (`scripts/integrate_client_corrections.sql` — one
+   atomic, self-verifying transaction) — after the client returned their corrected
+   files: **recovered 120 previously-skipped trees** (460 → 580); applied the
+   client's member name/email/phone cleanup; merged 3 duplicate members (Emily
+   Francis, Aline Cullen, Rhys Cannella); set ECOSLO's 3 trees keeperless and
+   reassigned #262/#263 to SLO County Parks; created **SLO Firestation** and a
+   generic **City of SLO** member; assigned 23 keepers from the returned keeper
+   worklist; and recomputed every member's `trees_assigned`/`trees_count` from
+   `tree_keeper_id`.
 
 ---
 
@@ -167,6 +183,11 @@ import). It marks **30** members the script wasn't fully confident about:
 
 To work the list: filter `members.csv` to `needs_review = true`.
 
+> **Resolved (final pass):** the client returned `members_updated.csv` with real
+> names/emails; those were applied and the 3 duplicate records merged. Some keepers
+> still carry an `@ecoslo.invalid` placeholder where no email was found — the client
+> will replace those in-app over time.
+
 ---
 
 ## 7. `skipped_rows.csv` — what it is and how to use it
@@ -191,6 +212,11 @@ re-run the converter (§9) and import **only the newly-fixed rows**. ⚠️ Do _
 re-import the whole file — already-imported `ecoslo_num`s will collide with the
 UNIQUE constraint. The 17 "duplicate" rows need no action.
 
+> **Resolved (final pass):** the client completed `skipped_rows_updated.csv`;
+> **120 trees were recovered and imported.** Two rows that only lacked a common name
+> were filled in (#416 "Water Gum", #152 "Island Oak") and imported; #205 was left
+> out because it already existed. The 17 duplicates needed no action, as expected.
+
 ---
 
 ## 8. Known data-quality notes
@@ -198,41 +224,43 @@ UNIQUE constraint. The 17 "duplicate" rows need no action.
 - **Funder name variants** (preserved verbatim): `City of SLO` (77) vs
   `City Of SLO` (23) are the same funder; `ReLeaf` (35) vs `Releaf Grant` (10).
   Worth normalizing if you report by funder.
-- **74 trees have no tree keeper** — these had no adopter listed in the workbook.
-  Expected, but confirm.
+- **71 trees have no tree keeper (final)** — the client couldn't find keepers for
+  most of the original keeperless set (incl. the #391–400 they dropped from the
+  worklist), ECOSLO's 3 trees were set keeperless by choice, and ~17 recovered trees
+  had no adopter. All assignable in-app anytime.
 
 ---
 
-## 9. Next steps for the client (in priority order)
+## 9. Status & remaining items
 
-1. **Work `skipped_rows.csv` (141 trees not in the system).** Highest-volume gap.
-   Prioritize the **88 missing-funder** and **34 missing-coordinate** Off-Boarded
-   trees: add the data in the workbook and re-import (§7). These are real trees not
-   currently tracked.
-2. **Clean up the 30 `needs_review` members.** Replace the **19** placeholder
-   emails with real ones where known, and fix the **11** mangled name rows. Until
-   then those keepers can't be emailed or matched by login.
-3. **Confirm tree-keeper assignments.** 386 trees have a keeper, 74 do not — verify
-   the 74 are genuinely unadopted and assign keepers where known.
-4. **Spot-check the import** against the workbook: total counts, a sample of
-   addresses/coordinates, and the status split (349 Active / 112 Graduated as imported).
-5. **Normalize funder names** (§8) if funder-level reporting matters.
-6. **(Dev team) Surface the new condition values in the app.** Add
-   `okay`/`decent`/`dead` to `src/database/database.types.ts` and the UI
-   (`ControlPanel` filter, `tree-detail-modal`, `table-widget-defs` color/icon
-   maps) so they display and filter correctly. Only 1 tree uses `okay` today, but
-   the value now exists in the database.
+All of the original next steps are **done** — the recovered trees are imported, the
+member contacts are cleaned and merged, and keepers are assigned wherever the client
+had data. What remains is optional and/or client-side:
+
+- **71 keeperless trees** — the client has no keeper data for these; assignable
+  in-app anytime.
+- **Placeholder emails** (`%@ecoslo.invalid`) — the client will replace these in-app
+  as they confirm real addresses.
+- **2 filled-in common names** — #416 "Water Gum", #152 "Island Oak" — worth a
+  client confirm, not urgent.
+- **(Dev team) Surface the new condition values in the app.** Add
+  `okay`/`decent`/`dead` to `src/database/database.types.ts` and the UI
+  (`ControlPanel` filter, `tree-detail-modal`, `table-widget-defs` color/icon maps)
+  so they display and filter correctly. Only 1 tree uses `okay` today, but the value
+  now exists in the database.
+- **(Optional) Normalize funder name variants** (§8) if you report by funder.
 
 ---
 
 ## 10. Artifacts & how to re-run
 
-| File                                                               | Purpose                                                                |
-| ------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `scripts/import_trees.py`                                          | Converts a workbook → `trees.csv` / `members.csv` / `skipped_rows.csv` |
-| `supabase/migrations/20260620000000_add_condition_enum_values.sql` | Adds `okay`/`decent`/`dead` to the `Condition` enum                    |
-| `scripts/cleanup_seed_trees.sql`                                   | One-off removal of the 40 seed/demo trees (already run)                |
-| `scripts/link_tree_keepers.sql`                                    | Backfills `tree_keeper_id` from `members.trees_assigned` (already run) |
+| File                                                               | Purpose                                                                          |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| `scripts/import_trees.py`                                          | Converts a workbook → `trees.csv` / `members.csv` / `skipped_rows.csv`           |
+| `supabase/migrations/20260620000000_add_condition_enum_values.sql` | Adds `okay`/`decent`/`dead` to the `Condition` enum                              |
+| `scripts/cleanup_seed_trees.sql`                                   | One-off removal of the 40 seed/demo trees (already run)                          |
+| `scripts/link_tree_keepers.sql`                                    | Backfills `tree_keeper_id` from `members.trees_assigned` (already run)           |
+| `scripts/integrate_client_corrections.sql`                         | Final client-corrected pass: recovered trees + member/keeper fixes (already run) |
 
 Re-run the converter:
 

@@ -1,14 +1,18 @@
 # Tree Planting Log — Import Summary
 
-## What we brought in
+> **✅ This import is complete.** After your corrections came back, everything that
+> could be loaded has been loaded.
 
-- **461 trees** and **102 tree keepers** were loaded successfully.
+## What's in the system now
+
+- **580 trees** and **150 tree keepers**.
 - Trees came from three tabs of your workbook:
   - **"25/26 Planting Season"** and **"Planted Log"** → marked **Active**
   - **"Off-Boarded Trees"** → marked **Graduated**
-- **141 rows could not be brought in** because they were missing essential
-  information. This is your main follow-up — details below.
 - The other tabs (Dead Trees, Pivot Table, ReLeaf Final List) were left out, as agreed.
+- The **141 rows that couldn't load at first** were almost all recovered once you
+  filled in the missing funders and locations — **120 of those trees are now in**
+  (the rest were duplicates already loaded, or trees that already existed).
 
 ---
 
@@ -25,8 +29,8 @@ it — and the assumption behind each choice:
    "couldn't load" list) instead of guessing.
 
 3. **Trees with no funder.** Many "Off-Boarded" trees had the Funder column left
-   blank. We **set these aside** rather than assume who funded them — you can add the
-   funder later and we'll bring them in.
+   blank. We **set these aside** rather than assume who funded them — you've since
+   provided those funders, so they're now in the system.
 
 4. **Trees listed on more than one tab.** A handful of trees appeared on two tabs. We
    kept **one record per tree**, giving preference to the "Off-Boarded" tab first,
@@ -53,36 +57,29 @@ it — and the assumption behind each choice:
 
 ---
 
-## Your next steps (most important first)
+## What's left
 
-1. **Add the 141 trees that couldn't be loaded.** This is the biggest item — these
-   are real trees not yet in the system. Most are missing a **funder** (~88) or a
-   **map location** (~34). Fill the gaps in the spreadsheet provided (`skipped_rows.csv`)
-   and we'll load them. _(A few entries on that list are simply duplicates already
-   loaded from another tab — those need nothing.)_
+Thanks to your corrections there's very little — and nothing urgent:
 
-2. **Update the ~30 flagged tree-keeper contacts.** These are the ones we weren't
-   fully confident about — mostly the **19 people with no email on file** (currently
-   a stand-in address), plus about **11** where the name needs tidying. Adding real
-   emails and clean names means you can actually reach these keepers and they can
-   log in. Adit the `members.csv` file we provide with the correct information, and we
-   will update the database.
+1. **A few trees still have no keeper.** For some trees, no keeper could be found, so
+   they're in the system without one. You can add a keeper to any of them in the app
+   whenever you like.
 
-3. **Check tree-keeper assignments.** Most trees are linked to a keeper, but **about
-   74 trees have no keeper** because none was listed in the spreadsheet. Please
-   confirm those are genuinely unassigned, and add keepers where you know them.
+2. **Some keepers have a "stand-in" email** (ending in `@ecoslo.invalid`) where we
+   didn't have a real one. Update these in the app as you confirm them — no rush, and
+   no mail is ever sent to those addresses.
 
-4. **Spot-check a few trees.** Open the system and compare a handful of trees against
-   your spreadsheet — the address, the location on the map, and whether they're
-   Active vs. Graduated — just to be sure everything looks right.
+3. **Two common names we filled in for you** — tree #416 as "Water Gum" and #152 as
+   "Island Oak," based on their species. Worth a quick look to confirm.
 
-5. **(Optional) Tidy up funder names.** Your spreadsheet spells a few funders more
-   than one way (for example, "City of SLO" and "City Of SLO"). They'll show up as
-   separate funders unless we standardize them — let us know if you'd like that done.
+4. **Spot-check a few trees.** Open the system and compare a handful against your
+   spreadsheet — the address, the map location, and whether they're Active vs.
+   Graduated — just to be confident everything looks right.
 
 ---
 
 ## Questions?
 
-We are happy to walk through any of this with you! Whenever you're ready, send the
-corrected or added rows over and we'll add them back in :)
+We're happy to walk through any of this with you! The import is complete — but if
+anything looks off, or you'd like more keepers or emails added down the line, just
+send them over and we'll take care of it. 🌳
