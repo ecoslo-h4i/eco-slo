@@ -4,30 +4,10 @@ import { Flag, X } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { AppButton, TextField, TextAreaField, controlLabelClassName } from "@/components/ui/form-controls";
 import Badge from "@/components/badge";
-
-type Member = {
-  id: number;
-  firstname: string;
-  lastname: string;
-};
-
-type Tree = {
-  id: number;
-  ecoslo_num: number;
-  latitude: number;
-  longitude: number;
-  member: Member | null;
-  species_name?: string | null;
-  common_name: string;
-  address: string;
-  status: string;
-  date_planted: string;
-  notes: string;
-  is_public: boolean;
-};
+import type { MapTree } from "@/types/map";
 
 type MapPopoutProps = {
-  tree: Tree | null;
+  tree: MapTree | null;
   onClose: () => void;
 };
 

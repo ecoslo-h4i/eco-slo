@@ -8,29 +8,9 @@ import MapPopout from "./MapPopout";
 import MapControlPanel from "./MapControlPanel";
 import { QueryData } from "@supabase/supabase-js";
 import { LocateFixed, TreeDeciduous, ZoomIn, ZoomOut } from "lucide-react";
+import type { MapTree } from "@/types/map";
 
 const supabase = createUserLevelClient();
-
-type Member = {
-  id: number;
-  firstname: string;
-  lastname: string;
-};
-
-type Tree = {
-  id: number;
-  ecoslo_num: number;
-  latitude: number;
-  longitude: number;
-  member: Member | null;
-  species_name?: string | null;
-  common_name: string;
-  address: string;
-  status: string;
-  date_planted: string;
-  notes: string;
-  is_public: boolean;
-};
 
 const center: [number, number] = [35.2828, -120.6596];
 const zoom = 13;
@@ -119,9 +99,9 @@ const customIcon = createTreeMarkerIcon(false);
 const selectedIcon = createTreeMarkerIcon(true);
 
 export default function MapClient() {
-  const [locations, setLocations] = useState<Tree[]>([]);
-  const [filteredLocations, setFilteredLocations] = useState<Tree[]>([]);
-  const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
+  const [locations, setLocations] = useState<MapTree[]>([]);
+  const [filteredLocations, setFilteredLocations] = useState<MapTree[]>([]);
+  const [selectedTree, setSelectedTree] = useState<MapTree | null>(null);
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -140,7 +120,7 @@ export default function MapClient() {
         return;
       }
 
-      const normalized: Tree[] = (data ?? []).map((row: TreeRow) => ({
+      const normalized: MapTree[] = (data ?? []).map((row: TreeRow) => ({
         id: row.id,
         ecoslo_num: row.ecoslo_num,
         latitude: row.latitude,

@@ -1,26 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { PillGroup, SearchField } from "@/components/ui/form-controls";
-
-type Member = {
-  id: number;
-  firstname: string;
-  lastname: string;
-};
-
-type Tree = {
-  id: number;
-  latitude: number;
-  longitude: number;
-  member: Member | null;
-  species_name?: string | null;
-  common_name: string;
-  address: string;
-  status: string;
-  date_planted: string;
-  notes: string;
-  is_public: boolean;
-};
+import type { MapTree } from "@/types/map";
 
 export enum Visibility {
   Public = "Public",
@@ -61,8 +42,8 @@ function ControlSearch({ searchDelay, searchFunction }: ControlSearchProps) {
 }
 
 interface ControlPanelProps {
-  trees: Tree[];
-  onFilter: (filtered: Tree[]) => void;
+  trees: MapTree[];
+  onFilter: (filtered: MapTree[]) => void;
   onCenter: () => void;
 }
 
@@ -133,7 +114,7 @@ export default function ControlPanel(props: ControlPanelProps) {
   };
 
   const applyFilters = (visibility: Visibility | null, status: Status | null, query: string) => {
-    let filtered: Tree[] = props.trees;
+    let filtered: MapTree[] = props.trees;
 
     if (visibility !== null) {
       switch (visibility) {
