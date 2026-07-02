@@ -19,6 +19,7 @@ type Member = {
 
 type Tree = {
   id: number;
+  ecoslo_num: number;
   latitude: number;
   longitude: number;
   member: Member | null;
@@ -141,6 +142,7 @@ export default function MapClient() {
 
       const normalized: Tree[] = (data ?? []).map((row: TreeRow) => ({
         id: row.id,
+        ecoslo_num: row.ecoslo_num,
         latitude: row.latitude,
         longitude: row.longitude,
         member:
