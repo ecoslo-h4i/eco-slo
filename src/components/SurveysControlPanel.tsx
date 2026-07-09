@@ -14,7 +14,9 @@ interface SurveysControlPanelProps {
 
 export default function SurveysControlPanel({ tableRef }: SurveysControlPanelProps) {
   const ISSUE_FILTER_OPTIONS = ["All", ...SURVEY_ISSUE_OPTIONS.map((option) => option.label)];
-  const CONTACT_FILTER_OPTIONS = ["All", "Yes", "No"];
+  // Self-describing labels — the pills render without a header so they stay
+  // height-aligned with the search bar, matching the other dashboards.
+  const CONTACT_FILTER_OPTIONS = ["All", "Contact OK", "No Contact"];
   const LINKED_FILTER_OPTIONS = ["All", "Linked", "Unlinked"];
   const QUERY_DELAY = 0;
 
@@ -33,7 +35,9 @@ export default function SurveysControlPanel({ tableRef }: SurveysControlPanelPro
 
   const filterByContact = useCallback(
     (contact: string) => {
-      tableRef.current?.setColumnFilter("admin_contact", () => (contact === "All" ? [] : [contact.toLowerCase()]));
+      tableRef.current?.setColumnFilter("admin_contact", () =>
+        contact === "All" ? [] : [contact === "Contact OK" ? "yes" : "no"],
+      );
     },
     [tableRef],
   );
@@ -79,7 +83,6 @@ export default function SurveysControlPanel({ tableRef }: SurveysControlPanelPro
           className="flex-1"
           containerClassName="w-full h-full"
           buttonClassName="min-w-0 sm:flex-1"
-          text="Contact OK"
           options={CONTACT_FILTER_OPTIONS}
           activeIndex={contactActiveIndex}
           onActiveIndexChange={setContactActiveIndex}

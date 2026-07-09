@@ -23,11 +23,7 @@
 --     are coalesced in case any historical rows used them.
 --   * Rows with no parsable issue keep issue = NULL (rendered "N/A" in UI).
 --
--- !! This migration DROPS surveys.body after the backfill. Snapshot the table
--- !! (or comment out the final `drop column`) if you want to retain the raw
--- !! jsonb until the backfill is verified. Deploy the matching app code with
--- !! this migration: older app builds insert into body and will fail once it
--- !! is dropped.
+-- This migration DROPS surveys.body after the backfill. 
 -- =============================================================================
 
 do $$
