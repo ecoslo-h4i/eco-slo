@@ -1,7 +1,7 @@
 import { createServerLevelClient } from "@/lib/supabase/server";
 import { TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
-import { isSurveyIssueValue } from "@/types/survey";
+import { parseSurveyFields } from "@/lib/surveyFields";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -13,22 +13,6 @@ type SurveyInsert = Pick<
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-/** Trimmed string or null; rejects non-string inputs by returning undefined. */
-function parseOptionalText(value: unknown): string | null | undefined {
-  if (value == null) return null;
-  if (typeof value !== "string") return undefined;
-  return value.trim() || null;
-}
-
-function isValidHttpUrl(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
 }
 
 /**
@@ -58,28 +42,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "tree must be a number (trees.ecoslo_num) or null" }, { status: 400 });
     }
 
-    if (!isSurveyIssueValue(body.issue)) {
-      return NextResponse.json({ message: "issue must be a valid survey issue type." }, { status: 400 });
-    }
-    const issue = body.issue;
-
-    const issueOther = parseOptionalText(body.issue_other);
-    const imageLink = parseOptionalText(body.image_link);
-    const notes = parseOptionalText(body.notes);
-    if (issueOther === undefined || imageLink === undefined || notes === undefined) {
-      return NextResponse.json(
-        { message: "issue_other, image_link, and notes must be strings or null." },
-        { status: 400 },
-      );
-    }
-    if (issue === "other" && !issueOther) {
-      return NextResponse.json({ message: 'Describe the issue when "Other" is selected.' }, { status: 400 });
-    }
-    if (imageLink && !isValidHttpUrl(imageLink)) {
-      return NextResponse.json({ message: "image_link must be a valid http(s) URL." }, { status: 400 });
-    }
-    if (typeof body.admin_contact !== "boolean") {
-      return NextResponse.json({ message: "admin_contact must be a boolean." }, { status: 400 });
+    const parsed = parseSurveyFields(body);
+    if (parsed.error) {
+      return NextResponse.json({ message: parsed.error }, { status: 400 });
     }
 
     const treeNum: number | null = typeof tree === "number" ? tree : null;
@@ -128,11 +93,7 @@ export async function POST(request: NextRequest) {
     const insert: SurveyInsert = {
       task,
       tree: treeNum,
-      issue,
-      issue_other: issue === "other" ? issueOther : null,
-      image_link: imageLink,
-      admin_contact: body.admin_contact,
-      notes,
+      ...parsed.fields,
     };
 
     const { data, error } = await supabase.from("surveys").insert(insert).select("id, task, tree").single();
