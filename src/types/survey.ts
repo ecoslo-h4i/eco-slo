@@ -1,18 +1,5 @@
 import type { Json } from "@/database/database.types";
 
-/** Row shape from `GET /api/public/tasks` for selectors (`surveys.task` → `tasks.id`). */
-export type SurveyTaskOption = {
-  id: number;
-  label: string;
-};
-
-/** Row shape from `GET /api/public/survey/trees` for selectors (`surveys.tree` → `trees.ecoslo_num`). */
-export type SurveyTreeOption = {
-  ecoslo_num: number;
-  common_name: string;
-  species_name: string;
-};
-
 /**
  * Payload stored in `public.surveys.body` (jsonb). All detailed answers live here;
  * `surveys.task` and `surveys.tree` hold FKs only.
