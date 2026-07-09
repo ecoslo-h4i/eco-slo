@@ -23,7 +23,7 @@
 - [Product Logic Clarifications](#product-logic-clarifications)
   - [Tasks are one-off only](#1-tasks-are-one-off-only)
   - [Survey-gated task completion uses `surveys_needed`](#2-survey-gated-task-completion-uses-surveys_needed)
-  - [Survey data is stored in `surveys.body`](#3-survey-data-is-stored-in-surveysbody)
+  - [Survey data is stored in explicit columns](#3-survey-data-is-stored-in-explicit-columns)
   - [Members replaces Volunteers](#4-members-replaces-volunteers)
   - [Trees use both `status` and `condition`](#5-trees-use-both-status-and-condition)
   - [Reminders and Templates are schema-driven first](#6-reminders-and-templates-are-schema-driven-first)
@@ -318,24 +318,24 @@ Represents survey submissions associated with a task and/or tree.
 - `created_at`: timestamptz, defaults to `now()`
 - `task`: bigint, nullable, foreign key to `tasks.id`
 - `tree`: bigint, nullable, foreign key to `trees.ecoslo_num`
-- `body`: jsonb
+- `submitted_by`: bigint, nullable, foreign key to `members.id`, auto-stamped from `current_member_id()`
+- `issue`: `SurveyIssue` enum, nullable (null only on legacy rows migrated without a recognizable issue)
+- `issue_other`: text, nullable — free-text detail when `issue = other`
+- `image_link`: text, nullable — URL string; binary images are not stored
+- `notes`: text, nullable — free-form notes from the submitter
+- `admin_contact`: boolean, defaults to `false`
 
 ### Relationships
 
 - `surveys.task -> tasks.id`
 - `surveys.tree -> trees.ecoslo_num`
+- `surveys.submitted_by -> members.id`
 
 ### Product meaning
 
-The current survey table stores detailed survey form data inside `body`.
-
-This means fields such as the following should be serialized inside `body` rather than expected as top-level DB columns:
-
-- issue type
-- optional `other` issue text
-- image link
-- admin contact request / needs contact response
-- any future structured survey answers
+- Detailed survey response content lives in explicit, DB-validated columns
+- `issue` is constrained by the `SurveyIssue` enum (`watering`, `mulching`, `pest_damage`, `structural`, `signage`, `other`)
+- The former `body` jsonb column was migrated into these columns and dropped; new survey fields should be added as typed columns, not serialized JSON
 
 ---
 
@@ -433,36 +433,20 @@ Task surveys have three modes:
 
 ---
 
-## 3. Survey data is stored in `surveys.body`
+## 3. Survey data is stored in explicit columns
 
-The current schema for `public.surveys` contains only:
+`public.surveys` stores detailed survey response content in explicit columns:
 
-- `task`
-- `tree`
-- `body`
+- `issue`: `SurveyIssue` enum value
+- `issue_other`: free-text detail when `issue = other`
+- `image_link`: URL string
+- `notes`: free-form notes
+- `admin_contact`: boolean contact consent
 
-Therefore, all detailed survey response content should be stored in `body`.
-
-### Expected survey body content
-
-The exact JSON structure may evolve, but it should support fields such as:
-
-- `issue`
-- `otherIssueText`
-- `imageLink`
-- `needsContact`
-- any additional structured survey responses
-
-Example conceptual shape:
-
-```json
-{
-  "issue": "Damaged bark",
-  "otherIssueText": "",
-  "imageLink": "https://...",
-  "needsContact": true
-}
-```
+The original `body` jsonb column was migrated into these columns and dropped —
+see `supabase/migrations/20260709000000_surveys_explicit_columns.sql` for the
+decision record. New survey fields should be added as typed columns, not
+serialized JSON.
 
 ---
 
@@ -764,9 +748,9 @@ Each created survey should be able to persist:
 
 - `task`: selected `tasks.id`
 - `tree`: selected `trees.ecoslo_num`
-- `body`: structured survey content
+- `issue`, `issue_other`, `image_link`, `notes`, `admin_contact`: structured survey content columns
 
-## Expected survey body content
+## Expected survey content
 
 The form should be able to collect and store fields such as:
 
@@ -932,7 +916,7 @@ These decisions should be treated as authoritative for current development.
 1. **Use current DB schema as source of truth**
 2. **Task survey gating uses `tasks.surveys_needed`**
 3. **Tasks auto-complete when `surveys_needed` reaches 0 after valid survey submission**
-4. **Detailed survey response content lives in `surveys.body` JSON**
+4. **Detailed survey response content lives in explicit `surveys` columns (`issue`, `issue_other`, `image_link`, `notes`, `admin_contact`)**
 5. **Use `Members` and `Tree Keepers` terminology, not `Volunteers`**
 6. **UI designs are helpful references, but schema + product requirements take precedence**
 

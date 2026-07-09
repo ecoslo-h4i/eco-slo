@@ -103,25 +103,37 @@ export type Database = {
       };
       surveys: {
         Row: {
-          body: Json;
+          admin_contact: boolean;
           created_at: string;
           id: number;
+          image_link: string | null;
+          issue: Database["public"]["Enums"]["SurveyIssue"] | null;
+          issue_other: string | null;
+          notes: string | null;
           submitted_by: number | null;
           task: number | null;
           tree: number | null;
         };
         Insert: {
-          body: Json;
+          admin_contact?: boolean;
           created_at?: string;
           id?: number;
+          image_link?: string | null;
+          issue?: Database["public"]["Enums"]["SurveyIssue"] | null;
+          issue_other?: string | null;
+          notes?: string | null;
           submitted_by?: number | null;
           task?: number | null;
           tree?: number | null;
         };
         Update: {
-          body?: Json;
+          admin_contact?: boolean;
           created_at?: string;
           id?: number;
+          image_link?: string | null;
+          issue?: Database["public"]["Enums"]["SurveyIssue"] | null;
+          issue_other?: string | null;
+          notes?: string | null;
           submitted_by?: number | null;
           task?: number | null;
           tree?: number | null;
@@ -480,6 +492,7 @@ export type Database = {
       Condition: "good" | "fair" | "poor" | "okay" | "decent" | "dead";
       MemberType: "Admin" | "Tree Keeper";
       MulchingStatus: "Completed" | "Pending";
+      SurveyIssue: "watering" | "mulching" | "pest_damage" | "structural" | "signage" | "other";
       TaskSurveyMode: "none" | "optional" | "required";
       TaskType: "Watering" | "Mulching" | "Other";
       TreeStatus: "Active" | "Graduated";
@@ -606,6 +619,7 @@ export const Constants = {
       Condition: ["good", "fair", "poor", "okay", "decent", "dead"],
       MemberType: ["Admin", "Tree Keeper"],
       MulchingStatus: ["Completed", "Pending"],
+      SurveyIssue: ["watering", "mulching", "pest_damage", "structural", "signage", "other"],
       TaskSurveyMode: ["none", "optional", "required"],
       TaskType: ["Watering", "Mulching", "Other"],
       TreeStatus: ["Active", "Graduated"],
