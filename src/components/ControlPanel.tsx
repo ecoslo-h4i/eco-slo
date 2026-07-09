@@ -179,11 +179,11 @@ export function ControlFilterDropdown(props: ControlFilterDropdownInterface) {
   );
 }
 
-interface SelectProps {
+interface ControlColumnsSelectProps<T extends Record<string, unknown>> {
   className?: string;
   label: string;
   checkedIcon?: ReactNode;
-  tableRef: MutableRefObject<Table<TreeSchema> | null>;
+  tableRef: MutableRefObject<Table<T> | null>;
   onCheckedItem: (item: string) => void;
   triggerClassName?: string;
 }
@@ -194,7 +194,8 @@ type SelectItem = {
   name: string;
 };
 
-function Select(props: SelectProps) {
+/** Column-visibility dropdown shared by the dashboard control panels. */
+export function ControlColumnsSelect<T extends Record<string, unknown>>(props: ControlColumnsSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const [items, setItems] = useState<SelectItem[]>([]);
 
@@ -378,7 +379,7 @@ export default function ControlPanel({ tableRef }: ControlPanelProps) {
             delay={QUERY_DELAY}
             delayFunction={filterByVisibility}
           />
-          <Select
+          <ControlColumnsSelect
             label="Columns"
             tableRef={tableRef}
             triggerClassName="w-full"
