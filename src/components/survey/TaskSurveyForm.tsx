@@ -1,7 +1,7 @@
 "use client";
 
 import { submitSurvey } from "@/lib/surveyPublicApi";
-import { buildSurveyBodyPayload, SURVEY_ISSUE_OPTIONS, type SurveyIssueValue } from "@/types/survey";
+import { buildSurveyFields, SURVEY_ISSUE_OPTIONS, type SurveyIssueValue } from "@/types/survey";
 import type { Enums } from "@/database/database.types";
 import { useCallback, useEffect, useState } from "react";
 import { AppButton, SelectField, TextField, TextAreaField } from "@/components/ui/form-controls";
@@ -143,12 +143,12 @@ export default function TaskSurveyForm({ taskId, onSurveySubmitted, onCompleted 
     setSubmitMessage(null);
     if (!validate()) return;
 
-    const body = buildSurveyBodyPayload({ issue, issueOther, imageLink, adminContact, notes });
+    const fields = buildSurveyFields({ issue, issueOther, imageLink, adminContact, notes });
     const treeValue = treeEcoslo ? Number(treeEcoslo) : null;
 
     setSubmitting(true);
     try {
-      const result = await submitSurvey({ task: taskId, tree: treeValue, body });
+      const result = await submitSurvey({ task: taskId, tree: treeValue, ...fields });
       if (!result.ok) {
         setSubmitMessage({ type: "err", text: result.message });
         return;

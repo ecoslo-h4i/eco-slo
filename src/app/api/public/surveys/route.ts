@@ -1,18 +1,22 @@
 import { createServerLevelClient } from "@/lib/supabase/server";
-import { Json, TablesInsert } from "@/database/database.types";
+import { TablesInsert } from "@/database/database.types";
 import { postgrestErrorToHttpStatus } from "@/database/utils";
+import { parseSurveyFields } from "@/lib/surveyFields";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-type SurveyInsert = Pick<TablesInsert<"surveys">, "task" | "tree" | "body">;
+type SurveyInsert = Pick<
+  TablesInsert<"surveys">,
+  "task" | "tree" | "issue" | "issue_other" | "image_link" | "admin_contact" | "notes"
+>;
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /**
- * POST — insert `public.surveys` (`task`, `tree`, `body` jsonb).
+ * POST — insert `public.surveys` (`task`, `tree`, and the survey detail columns).
  */
 export async function POST(request: NextRequest) {
   try {
@@ -30,7 +34,6 @@ export async function POST(request: NextRequest) {
 
     const task = body.task;
     const tree = body.tree;
-    const payloadBody = body.body;
 
     if (typeof task !== "number" || !Number.isFinite(task)) {
       return NextResponse.json({ message: "task must be a number (tasks.id)" }, { status: 400 });
@@ -38,8 +41,10 @@ export async function POST(request: NextRequest) {
     if (tree != null && (typeof tree !== "number" || !Number.isFinite(tree))) {
       return NextResponse.json({ message: "tree must be a number (trees.ecoslo_num) or null" }, { status: 400 });
     }
-    if (!isPlainObject(payloadBody)) {
-      return NextResponse.json({ message: "body must be a JSON object" }, { status: 400 });
+
+    const parsed = parseSurveyFields(body);
+    if (parsed.error) {
+      return NextResponse.json({ message: parsed.error }, { status: 400 });
     }
 
     const treeNum: number | null = typeof tree === "number" ? tree : null;
@@ -88,10 +93,10 @@ export async function POST(request: NextRequest) {
     const insert: SurveyInsert = {
       task,
       tree: treeNum,
-      body: payloadBody as Json,
+      ...parsed.fields,
     };
 
-    const { data, error } = await supabase.from("surveys").insert(insert).select("id, task, tree, body").single();
+    const { data, error } = await supabase.from("surveys").insert(insert).select("id, task, tree").single();
 
     if (error) {
       console.error("Supabase error inserting survey:", error.message);

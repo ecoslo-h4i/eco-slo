@@ -294,7 +294,13 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
   };
 
   const selectedSet = new Set(editAssignees);
-  const editableTreeOptions = treeOptions.filter((tree) => selectedSet.has(tree.tree_keeper_id ?? -1));
+  // Admins may link any tree to a task. The selected assignees' own trees sort
+  // first so the common case (a keeper working their own trees) stays at hand.
+  const editableTreeOptions = [...treeOptions].sort((a, b) => {
+    const aOwn = selectedSet.has(a.tree_keeper_id ?? -1) ? 0 : 1;
+    const bOwn = selectedSet.has(b.tree_keeper_id ?? -1) ? 0 : 1;
+    return aOwn - bOwn || a.ecoslo_num - b.ecoslo_num;
+  });
   const treeLabelById = new Map(treeOptions.map((tree) => [tree.ecoslo_num, formatTreeLabel(tree)]));
   const assigneeTriggerText =
     editAssignees.length === 0
@@ -793,7 +799,7 @@ function TreeTargetSelect({
         <DropdownMenuSeparator />
         {options.length === 0 ? (
           <DropdownMenuItem className={dropdownItemClassName} disabled>
-            No trees for selected assignees
+            No trees available
           </DropdownMenuItem>
         ) : (
           options.map((tree) => (

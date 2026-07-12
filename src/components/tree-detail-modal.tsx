@@ -16,6 +16,7 @@ import { LoaderCircle, LocateFixed, Pencil, Trash2, Undo2, X } from "lucide-reac
 import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import Badge from "@/components/badge";
+import { surveyIssueLabel } from "@/types/survey";
 
 type Condition = Database["public"]["Enums"]["Condition"];
 type TreeStatus = Database["public"]["Enums"]["TreeStatus"];
@@ -52,8 +53,12 @@ type SurveySubmitter = {
 
 type SurveyRow = {
   id: number;
-  body: Record<string, unknown> | null;
   created_at: string;
+  issue: Database["public"]["Enums"]["SurveyIssue"] | null;
+  issue_other: string | null;
+  image_link: string | null;
+  notes: string | null;
+  admin_contact: boolean;
   /** Live contact for the member who completed the survey; null if not recorded or hidden by RLS. */
   submitter: SurveySubmitter | null;
 };
@@ -254,7 +259,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
       const supabase = createUserLevelClient();
       const { data } = await supabase
         .from("surveys")
-        .select("id, body, created_at, submitted_by")
+        .select("id, created_at, issue, issue_other, image_link, notes, admin_contact, submitted_by")
         .in("id", surveyIds!)
         .order("created_at", { ascending: false });
 
@@ -277,10 +282,14 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
       setSurveys(
         rows.map((r) => ({
           id: r.id,
-          body: r.body,
           created_at: r.created_at,
+          issue: r.issue,
+          issue_other: r.issue_other,
+          image_link: r.image_link,
+          notes: r.notes,
+          admin_contact: r.admin_contact,
           submitter: r.submitted_by != null ? (contactById.get(r.submitted_by) ?? null) : null,
-        })) as SurveyRow[],
+        })),
       );
     }
 
@@ -885,7 +894,6 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                 ) : (
                   <div className="flex flex-col gap-y-3">
                     {surveys.map((survey) => {
-                      const body = survey.body ?? {};
                       return (
                         <div key={survey.id} className="rounded-xl border border-border bg-off-white p-3 text-sm">
                           <p className="font-semibold">
@@ -894,10 +902,10 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                               timeStyle: "short",
                             })}
                           </p>
-                          <p className="text-text">Issue: {display(body.issue)}</p>
-                          <p className="text-text">Other: {display(body.issueOther)}</p>
-                          <p className="text-text">Image Link: {display(body.imageLink)}</p>
-                          {body.adminContact === true ? (
+                          <p className="text-text">Issue: {surveyIssueLabel(survey.issue)}</p>
+                          <p className="text-text">Other: {display(survey.issue_other)}</p>
+                          <p className="text-text">Image Link: {display(survey.image_link)}</p>
+                          {survey.admin_contact ? (
                             <div className="text-text">
                               <p>Admin contact: Yes</p>
                               {survey.submitter ? (
@@ -915,7 +923,7 @@ function TreeDetailModalContent({ tree, onOpenChange, onSaved, isAdmin }: Omit<T
                           )}
                           <div className="mt-3 max-h-40 overflow-y-auto whitespace-pre-wrap break-words">
                             <p className="font-semibold text-text-dark">Notes</p>
-                            <p className="text-text">{display(body.notes)}</p>
+                            <p className="text-text">{display(survey.notes)}</p>
                           </div>
                         </div>
                       );

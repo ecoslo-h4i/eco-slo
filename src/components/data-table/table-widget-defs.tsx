@@ -18,6 +18,34 @@ export type TaskSchema = Database["public"]["Tables"]["tasks"]["Row"];
 
 export type MemberSchema = Database["public"]["Tables"]["members"]["Row"] & { name: string };
 
+/** Row shape for the Surveys dashboard — survey columns plus resolved labels. */
+export type SurveySchema = {
+  id: number;
+  created_at: string;
+  issue: Database["public"]["Enums"]["SurveyIssue"] | null;
+  /** Human-readable issue label ("N/A" for legacy rows without one). */
+  issue_label: string;
+  issue_other: string | null;
+  image_link: string | null;
+  notes: string | null;
+  admin_contact: boolean;
+  /** Linked tree ecoslo_num, or null for unlinked surveys. */
+  tree: number | null;
+  /** "#<num> — <name>" when linked; empty string when unlinked. */
+  tree_label: string;
+  /** Linked task id, or null (tasks detach after the 30-day cleanup). */
+  task: number | null;
+  /** Task title; empty when there is no task or RLS hides it. */
+  task_title: string;
+  submitted_by: number | null;
+  /** Resolved submitter contact; empty strings when unrecorded or hidden by RLS. */
+  submitter: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+};
+
 function treeStatusBadgeVariant(value: unknown) {
   return String(value).toLowerCase() === "active" ? "success" : "muted";
 }
@@ -404,6 +432,119 @@ export const memberColumns: ColumnDef<MemberSchema>[] = [
   },
 ];
 
+export const surveyColumns: ColumnDef<SurveySchema>[] = [
+  {
+    id: "id",
+    accessorKey: "id",
+    name: "Survey #",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
+    cell: (value) => <p className="w-20 font-bold">#{Number(value)}</p>,
+    comparator: (a, b) => Number(a) - Number(b),
+    canSearch: true,
+  },
+  {
+    id: "created_at",
+    accessorKey: "created_at",
+    name: "Date Submitted",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
+    cell: (value) => <p className="whitespace-nowrap">{formatDateTime(value)}</p>,
+    comparator: (a, b) => {
+      const dateA = new Date(String(a));
+      const dateB = new Date(String(b));
+      return dateA.getTime() - dateB.getTime();
+    },
+    canSearch: false,
+  },
+  {
+    id: "issue",
+    accessorKey: "issue_label",
+    name: "Issue",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
+    cell: (value) => <Badge variant={String(value) === "N/A" ? "muted" : "default"}>{String(value)}</Badge>,
+    cellId: (value) => String(value).toLowerCase(),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
+    canSearch: true,
+  },
+  {
+    id: "tree_label",
+    accessorKey: "tree_label",
+    name: "Linked Tree",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
+    cell: (value) =>
+      String(value ?? "") ? (
+        <p className="max-w-48 truncate">{String(value)}</p>
+      ) : (
+        <Badge variant="muted">Unlinked</Badge>
+      ),
+    cellId: (value) => (String(value ?? "") ? "linked" : "unlinked"),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
+    canSearch: true,
+  },
+  {
+    id: "task_title",
+    accessorKey: "task_title",
+    name: "Task",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
+    cell: (value) =>
+      String(value ?? "") ? <p className="max-w-48 truncate">{String(value)}</p> : <p className="text-text-muted">—</p>,
+    comparator: (a, b) => String(a).localeCompare(String(b)),
+    canSearch: true,
+  },
+  {
+    id: "submitter_name",
+    accessorKey: "submitter.name",
+    name: "Submitted By",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
+    cell: (value) =>
+      String(value ?? "") ? (
+        <p className="capitalize">{String(value)}</p>
+      ) : (
+        <p className="text-text-muted">Not recorded</p>
+      ),
+    comparator: (a, b) => String(a).localeCompare(String(b)),
+    canSearch: true,
+  },
+  {
+    id: "admin_contact",
+    accessorKey: "admin_contact",
+    name: "Contact OK",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} />,
+    cell: (value) => <Badge variant={value === true ? "info" : "muted"}>{value === true ? "Yes" : "No"}</Badge>,
+    cellId: (value) => (value === true ? "yes" : "no"),
+    comparator: (a, b) => Number(a === true) - Number(b === true),
+    canSearch: false,
+  },
+  {
+    id: "image_link",
+    accessorKey: "image_link",
+    name: "Image",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canSort={false} />,
+    cell: (value) =>
+      String(value ?? "") ? (
+        <a
+          href={String(value)}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(event) => event.stopPropagation()}
+          className="text-primary underline underline-offset-2 hover:text-primary-hover"
+        >
+          View Image
+        </a>
+      ) : (
+        <p className="text-text-muted">None</p>
+      ),
+    canSearch: false,
+  },
+  {
+    id: "notes",
+    accessorKey: "notes",
+    name: "Notes",
+    head: (table, name, columnId) => <HeadControls table={table} columnId={columnId} title={name} canSort={false} />,
+    cell: (value) => <p className="max-w-64 truncate">{value == null ? "" : String(value)}</p>,
+    canSearch: true,
+  },
+];
+
 export const formatPhoneNumber = (value: unknown): string => {
   const digits = String(value ?? "").replace(/\D/g, "");
 
@@ -427,4 +568,15 @@ export const formatISODate = (value: unknown): string => {
   const [, year, month, day] = match;
 
   return `${year}-${month}-${day}`;
+};
+
+/** Local date + time for timestamptz values (e.g. "Jul 9, 2026, 3:24 PM"). */
+export const formatDateTime = (value: unknown): string => {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) return raw;
+
+  return date.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
 };

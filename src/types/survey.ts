@@ -1,32 +1,4 @@
-import type { Json } from "@/database/database.types";
-
-/** Row shape from `GET /api/public/tasks` for selectors (`surveys.task` → `tasks.id`). */
-export type SurveyTaskOption = {
-  id: number;
-  label: string;
-};
-
-/** Row shape from `GET /api/public/survey/trees` for selectors (`surveys.tree` → `trees.ecoslo_num`). */
-export type SurveyTreeOption = {
-  ecoslo_num: number;
-  common_name: string;
-  species_name: string;
-};
-
-/**
- * Payload stored in `public.surveys.body` (jsonb). All detailed answers live here;
- * `surveys.task` and `surveys.tree` hold FKs only.
- */
-export type SurveyBodyPayload = {
-  issue: SurveyIssueValue;
-  /** Present when `issue` is `"other"`. */
-  issueOther?: string;
-  /** URL string only; binary images are not stored. */
-  imageLink: string;
-  adminContact: boolean;
-  /** Free-form notes from the submitter (may be long). */
-  notes: string;
-};
+import type { Enums } from "@/database/database.types";
 
 export const SURVEY_ISSUE_OPTIONS = [
   { value: "watering", label: "Watering" },
@@ -35,36 +7,53 @@ export const SURVEY_ISSUE_OPTIONS = [
   { value: "structural", label: "Structural / stability" },
   { value: "signage", label: "Signage" },
   { value: "other", label: "Other" },
-] as const;
+] as const satisfies readonly { value: Enums<"SurveyIssue">; label: string }[];
 
 export type SurveyIssueValue = (typeof SURVEY_ISSUE_OPTIONS)[number]["value"];
 
+export function isSurveyIssueValue(value: unknown): value is SurveyIssueValue {
+  return typeof value === "string" && SURVEY_ISSUE_OPTIONS.some((option) => option.value === value);
+}
+
+/** Human-readable label for an issue value; "N/A" for null/unknown (legacy rows). */
+export function surveyIssueLabel(issue: Enums<"SurveyIssue"> | null | undefined): string {
+  return SURVEY_ISSUE_OPTIONS.find((option) => option.value === issue)?.label ?? "N/A";
+}
+
+/** Detail fields shared by every survey write — maps 1:1 to `public.surveys` columns. */
+export type SurveyFields = {
+  issue: SurveyIssueValue;
+  /** Present when `issue` is `"other"`. */
+  issue_other: string | null;
+  /** URL string only; binary images are not stored. */
+  image_link: string | null;
+  admin_contact: boolean;
+  /** Free-form notes from the submitter (may be long). */
+  notes: string | null;
+};
+
 /** Matches POST /api/public/surveys — maps to `public.surveys` columns. */
-export type SurveyInsertPayload = {
+export type SurveyInsertPayload = SurveyFields & {
   /** `tasks.id` */
   task: number;
   /** `trees.ecoslo_num` */
   tree: number | null;
-  body: SurveyBodyPayload;
 };
 
-export function buildSurveyBodyPayload(input: {
+/** Normalizes raw form state into the column shape (trimmed, empty → null). */
+export function buildSurveyFields(input: {
   issue: SurveyIssueValue;
   issueOther: string;
   imageLink: string;
   adminContact: boolean;
   notes: string;
-}): SurveyBodyPayload {
+}): SurveyFields {
   const other = input.issueOther.trim();
   return {
     issue: input.issue,
-    ...(input.issue === "other" && other ? { issueOther: other } : {}),
-    imageLink: input.imageLink.trim(),
-    adminContact: input.adminContact,
-    notes: input.notes.trim(),
+    issue_other: input.issue === "other" && other ? other : null,
+    image_link: input.imageLink.trim() || null,
+    admin_contact: input.adminContact,
+    notes: input.notes.trim() || null,
   };
-}
-
-export function surveyBodyToJson(body: SurveyBodyPayload): Json {
-  return body as unknown as Json;
 }

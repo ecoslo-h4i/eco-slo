@@ -122,28 +122,24 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: "Linked trees require at least one assignee." }, { status: 400 });
       }
 
+      // Admins may link any tree, not just the assignees' own. RLS scopes this
+      // lookup, so a non-admin caller still can only link trees they can see.
       const { data: trees, error: treesError } = await supabase
         .from("trees")
-        .select("ecoslo_num, tree_keeper_id")
+        .select("ecoslo_num")
         .in("ecoslo_num", treeTargets);
 
       if (treesError) {
         return NextResponse.json({ message: treesError.message }, { status: postgrestErrorToHttpStatus(treesError) });
       }
 
-      const assigneeSet = new Set(assignees);
       const validTargets = new Set(
-        (trees ?? [])
-          .filter((tree) => typeof tree.ecoslo_num === "number" && assigneeSet.has(tree.tree_keeper_id ?? -1))
-          .map((tree) => tree.ecoslo_num),
+        (trees ?? []).map((tree) => tree.ecoslo_num).filter((num): num is number => typeof num === "number"),
       );
 
       const invalidTargets = treeTargets.filter((tree) => !validTargets.has(tree));
       if (invalidTargets.length > 0) {
-        return NextResponse.json(
-          { message: "Linked trees must be assigned to one of the selected assignees." },
-          { status: 400 },
-        );
+        return NextResponse.json({ message: "One or more linked trees could not be found." }, { status: 400 });
       }
     }
 

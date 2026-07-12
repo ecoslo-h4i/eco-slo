@@ -1,5 +1,6 @@
 import {
   Calendar,
+  ClipboardList,
   LayoutDashboard,
   ListChecks,
   MapPin,
@@ -25,6 +26,7 @@ export const featureNavItems: FeatureNavItem[] = [
   { icon: UsersRound, label: "Members", link: "/members", adminOnly: true },
   { icon: Calendar, label: "Reminders", link: "/reminders", adminOnly: true },
   { icon: ListChecks, label: "Tasks", link: "/tasks" },
+  { icon: ClipboardList, label: "Surveys", link: "/surveys" },
   { icon: MapPin, label: "Map", link: "/map" },
 ];
 
