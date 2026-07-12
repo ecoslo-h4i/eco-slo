@@ -24,6 +24,7 @@ import type { Enums } from "@/database/database.types";
 interface MemberOption {
   id: number;
   name: string;
+  role: Enums<"MemberType">;
 }
 
 interface TreeOption {
@@ -106,13 +107,15 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
     if (!isAdmin) return;
     const supabase = createUserLevelClient();
     (async () => {
+      // Roles are needed to scope tree linking (an Admin assignee may take any
+      // tree). This effect only runs for admins, who can read members via RLS.
       const [membersResult, treesResult] = await Promise.all([
-        supabase.from("public_members").select("id, firstname, lastname").order("firstname", { ascending: true }),
+        supabase.from("members").select("id, firstname, lastname, role").order("firstname", { ascending: true }),
         supabase.from("trees").select("ecoslo_num, common_name, species_name, tree_keeper_id").order("ecoslo_num"),
       ]);
 
       if (membersResult.data) {
-        setMembers(membersResult.data.map((m) => ({ id: m.id, name: `${m.firstname} ${m.lastname}` })));
+        setMembers(membersResult.data.map((m) => ({ id: m.id, name: `${m.firstname} ${m.lastname}`, role: m.role })));
       }
       if (treesResult.data) {
         setTreeOptions(treesResult.data);
@@ -261,13 +264,22 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
   const toggleAssignee = (id: number) => {
     const next = editAssignees.includes(id) ? editAssignees.filter((a) => a !== id) : [...editAssignees, id];
     const assigneeSet = new Set(next);
+    // Drop linked trees the new assignee set can no longer cover. An Admin
+    // assignee covers every tree, so nothing is pruned while one is selected.
+    const nextHasAdminAssignee = members.some((m) => assigneeSet.has(m.id) && m.role === "Admin");
+    const prunedTargets = nextHasAdminAssignee
+      ? editTreeTargets
+      : editTreeTargets.filter((target) => {
+          const tree = treeOptions.find((option) => option.ecoslo_num === target);
+          return tree ? assigneeSet.has(tree.tree_keeper_id ?? -1) : false;
+        });
+
     setEditAssignees(next);
-    setEditTreeTargets((current) =>
-      current.filter((target) => {
-        const tree = treeOptions.find((option) => option.ecoslo_num === target);
-        return tree ? assigneeSet.has(tree.tree_keeper_id ?? -1) : false;
-      }),
-    );
+    setEditTreeTargets(prunedTargets);
+    if (editSurveyMode === "required" && prunedTargets.length !== editTreeTargets.length) {
+      const max = prunedTargets.length > 0 ? prunedTargets.length : 10;
+      setEditSurveyRequiredCount((current) => Math.min(Math.max(1, current), max));
+    }
   };
 
   const toggleTreeTarget = (ecosloNum: number) => {
@@ -294,9 +306,14 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
   };
 
   const selectedSet = new Set(editAssignees);
-  // Admins may link any tree to a task. The selected assignees' own trees sort
-  // first so the common case (a keeper working their own trees) stays at hand.
-  const editableTreeOptions = [...treeOptions].sort((a, b) => {
+  // Tree options derive from the selected assignees: Tree Keepers contribute
+  // the trees they keep, while an Admin assignee may take on any tree, so
+  // selecting one unlocks the full list (assignees' own trees still sort
+  // first so the common case stays at hand).
+  const hasAdminAssignee = members.some((m) => selectedSet.has(m.id) && m.role === "Admin");
+  const editableTreeOptions = (
+    hasAdminAssignee ? [...treeOptions] : treeOptions.filter((tree) => selectedSet.has(tree.tree_keeper_id ?? -1))
+  ).sort((a, b) => {
     const aOwn = selectedSet.has(a.tree_keeper_id ?? -1) ? 0 : 1;
     const bOwn = selectedSet.has(b.tree_keeper_id ?? -1) ? 0 : 1;
     return aOwn - bOwn || a.ecoslo_num - b.ecoslo_num;
@@ -799,7 +816,7 @@ function TreeTargetSelect({
         <DropdownMenuSeparator />
         {options.length === 0 ? (
           <DropdownMenuItem className={dropdownItemClassName} disabled>
-            No trees available
+            No trees for selected assignees
           </DropdownMenuItem>
         ) : (
           options.map((tree) => (

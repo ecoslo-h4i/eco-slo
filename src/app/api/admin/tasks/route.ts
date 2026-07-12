@@ -122,24 +122,47 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: "Linked trees require at least one assignee." }, { status: 400 });
       }
 
-      // Admins may link any tree, not just the assignees' own. RLS scopes this
-      // lookup, so a non-admin caller still can only link trees they can see.
+      // Tree links are scoped to the selected assignees: Tree Keepers cover
+      // the trees they keep, while an Admin assignee may take on any tree.
+      const { data: assigneeMembers, error: membersError } = await supabase
+        .from("members")
+        .select("id, role")
+        .in("id", assignees);
+
+      if (membersError) {
+        return NextResponse.json(
+          { message: membersError.message },
+          { status: postgrestErrorToHttpStatus(membersError) },
+        );
+      }
+
+      const hasAdminAssignee = (assigneeMembers ?? []).some((member) => member.role === "Admin");
+
       const { data: trees, error: treesError } = await supabase
         .from("trees")
-        .select("ecoslo_num")
+        .select("ecoslo_num, tree_keeper_id")
         .in("ecoslo_num", treeTargets);
 
       if (treesError) {
         return NextResponse.json({ message: treesError.message }, { status: postgrestErrorToHttpStatus(treesError) });
       }
 
+      const assigneeSet = new Set(assignees);
       const validTargets = new Set(
-        (trees ?? []).map((tree) => tree.ecoslo_num).filter((num): num is number => typeof num === "number"),
+        (trees ?? [])
+          .filter(
+            (tree) =>
+              typeof tree.ecoslo_num === "number" && (hasAdminAssignee || assigneeSet.has(tree.tree_keeper_id ?? -1)),
+          )
+          .map((tree) => tree.ecoslo_num),
       );
 
       const invalidTargets = treeTargets.filter((tree) => !validTargets.has(tree));
       if (invalidTargets.length > 0) {
-        return NextResponse.json({ message: "One or more linked trees could not be found." }, { status: 400 });
+        return NextResponse.json(
+          { message: "Linked trees must be kept by a selected assignee, or the task must include an Admin assignee." },
+          { status: 400 },
+        );
       }
     }
 
