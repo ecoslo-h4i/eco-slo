@@ -107,8 +107,7 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
     if (!isAdmin) return;
     const supabase = createUserLevelClient();
     (async () => {
-      // Roles are needed to scope tree linking (an Admin assignee may take any
-      // tree). This effect only runs for admins, who can read members via RLS.
+      // Roles are needed to scope tree linking.
       const [membersResult, treesResult] = await Promise.all([
         supabase.from("members").select("id, firstname, lastname, role").order("firstname", { ascending: true }),
         supabase.from("trees").select("ecoslo_num, common_name, species_name, tree_keeper_id").order("ecoslo_num"),
@@ -307,9 +306,7 @@ function TaskDetailModalContent({ task, onOpenChange, onSaved, isAdmin }: Omit<T
 
   const selectedSet = new Set(editAssignees);
   // Tree options derive from the selected assignees: Tree Keepers contribute
-  // the trees they keep, while an Admin assignee may take on any tree, so
-  // selecting one unlocks the full list (assignees' own trees still sort
-  // first so the common case stays at hand).
+  // the trees they keep, while an Admin assignee may take on any tree.
   const hasAdminAssignee = members.some((m) => selectedSet.has(m.id) && m.role === "Admin");
   const editableTreeOptions = (
     hasAdminAssignee ? [...treeOptions] : treeOptions.filter((tree) => selectedSet.has(tree.tree_keeper_id ?? -1))

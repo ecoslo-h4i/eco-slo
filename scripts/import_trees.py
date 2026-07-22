@@ -184,9 +184,39 @@ def to_date(v):
     return None
 
 
+# Coordinates arrive in two shapes: a decimal pair -- (35.3104039, -120.8300631)
+# -- or degrees/minutes/seconds with a cardinal direction, e.g.
+#     35°16'31.5"N 120°39'45.1"W
+# DMS must be tried FIRST.
+_DMS = r"(\d+)\s*°\s*(\d+)\s*'\s*([\d.]+)\s*\"\s*([NSEW])"
+DMS_PAIR_RE = re.compile(_DMS + r"\s*[, ]\s*" + _DMS)
+DMS_SINGLE_RE = re.compile(_DMS)
+
+
+def _dms_to_decimal(degrees, minutes, seconds, hemisphere):
+    value = int(degrees) + int(minutes) / 60 + float(seconds) / 3600
+    return round(-value if hemisphere.upper() in ("S", "W") else value, 7)
+
+
+def to_coord(v):
+    """One coordinate as a float, accepting either decimal or DMS."""
+    match = DMS_SINGLE_RE.search(clean(v))
+    return _dms_to_decimal(*match.groups()) if match else to_float(v)
+
+
 def parse_combined_latlong(v):
-    """Parse '(35.31, -120.83)' -> (35.31, -120.83)."""
-    nums = re.findall(r"-?\d+(?:\.\d+)?", clean(v))
+    """Parse a cell holding both coordinates -> (lat, long).
+
+    Accepts "(35.31, -120.83)" and the DMS form 35°16'31.5"N 120°39'45.1"W.
+    """
+    s = clean(v)
+
+    pair = DMS_PAIR_RE.search(s)
+    if pair:
+        d1, m1, s1, h1, d2, m2, s2, h2 = pair.groups()
+        return (_dms_to_decimal(d1, m1, s1, h1), _dms_to_decimal(d2, m2, s2, h2))
+
+    nums = re.findall(r"-?\d+(?:\.\d+)?", s)
     if len(nums) < 2:
         return (None, None)
     return (to_float(nums[0]), to_float(nums[1]))
@@ -292,7 +322,7 @@ def parse_workbook(path):
             else:
                 raw_lat = row[cfg["lat"]] if cfg["lat"] < len(row) else None
                 raw_long = row[cfg["long"]] if cfg["long"] < len(row) else None
-                lat, lon = to_float(raw_lat), to_float(raw_long)
+                lat, lon = to_coord(raw_lat), to_coord(raw_long)
 
             num = to_int(raw_num)
             dp = to_date(raw_date)
